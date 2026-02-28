@@ -1,0 +1,12 @@
+{
+  "http_log_entries": 28,
+  "ipdr_records": 10,
+  "url_requests": 28,
+  "total_records": 66,
+  "source_files": [
+    "C:\\D\\Mini_Project\\sample_data\\access.log",
+    "C:\\D\\Mini_Project\\sample_data\\ipdr_records.csv",
+    "C:\\D\\Mini_Project\\sample_data\\nginx_access.log"
+  ],
+  "errors": 0
+}

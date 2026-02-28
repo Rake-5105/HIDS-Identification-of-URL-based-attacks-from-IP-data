@@ -1,0 +1,29 @@
+source_ip,timestamp,method,url,protocol,status_code,response_size,referrer,user_agent,destination_ip,destination_port,duration_ms,source
+192.168.1.10,2026-02-27T08:01:12+00:00,GET,/index.html,HTTP/1.1,200,1524,-,Mozilla/5.0 (Windows NT 10.0; Win64; x64),,,,apache
+192.168.1.10,2026-02-27T08:01:15+00:00,GET,/style.css,HTTP/1.1,200,832,http://example.com/,Mozilla/5.0,,,,apache
+10.0.0.55,2026-02-27T08:02:01+00:00,GET,/admin/config.php,HTTP/1.1,403,512,-,sqlmap/1.6,,,,apache
+10.0.0.55,2026-02-27T08:02:03+00:00,GET,/admin/config.php?id=1',OR '1'='1 HTTP/1.1,500,312,-,sqlmap/1.6,,,,apache
+10.0.0.55,2026-02-27T08:02:05+00:00,GET,/admin/config.php?id=1,"UNION SELECT 1,2,3-- HTTP/1.1",500,312,-,sqlmap/1.6,,,,apache
+172.16.0.200,2026-02-27T08:03:44+00:00,POST,/login,HTTP/1.1,200,256,-,curl/7.88,,,,apache
+172.16.0.200,2026-02-27T08:03:45+00:00,POST,/login,HTTP/1.1,401,128,-,curl/7.88,,,,apache
+172.16.0.200,2026-02-27T08:03:46+00:00,POST,/login,HTTP/1.1,401,128,-,curl/7.88,,,,apache
+172.16.0.200,2026-02-27T08:03:47+00:00,POST,/login,HTTP/1.1,401,128,-,curl/7.88,,,,apache
+172.16.0.200,2026-02-27T08:03:48+00:00,POST,/login,HTTP/1.1,401,128,-,curl/7.88,,,,apache
+45.33.32.156,2026-02-27T08:05:00+00:00,GET,/../../../etc/passwd,HTTP/1.1,400,256,-,Nikto/2.1.6,,,,apache
+45.33.32.156,2026-02-27T08:05:01+00:00,GET,/wp-login.php,HTTP/1.1,404,512,-,Nikto/2.1.6,,,,apache
+45.33.32.156,2026-02-27T08:05:02+00:00,GET,/.env,HTTP/1.1,404,128,-,Nikto/2.1.6,,,,apache
+45.33.32.156,2026-02-27T08:05:03+00:00,GET,/phpmyadmin/index.php,HTTP/1.1,404,256,-,Nikto/2.1.6,,,,apache
+192.168.1.20,2026-02-27T08:10:00+00:00,GET,/products,HTTP/1.1,200,4096,-,Mozilla/5.0,,,,apache
+192.168.1.20,2026-02-27T08:10:05+00:00,GET,/products/item?id=42,HTTP/1.1,200,2048,http://example.com/products,Mozilla/5.0,,,,apache
+192.168.1.20,2026-02-27T08:10:10+00:00,POST,/cart/add,HTTP/1.1,200,512,http://example.com/products/item?id=42,Mozilla/5.0,,,,apache
+198.51.100.7,2026-02-27T08:15:00+00:00,GET,/<script>alert(1)</script>,HTTP/1.1,400,256,-,python-requests/2.28,,,,apache
+198.51.100.7,2026-02-27T08:15:01+00:00,GET,/?q=<img,src=x onerror=alert(1)> HTTP/1.1,200,1024,-,python-requests/2.28,,,,apache
+198.51.100.7,2026-02-27T08:15:02+00:00,GET,/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,HTTP/1.1,200,1024,-,python-requests/2.28,,,,apache
+10.10.10.5,2026-02-27T09:00:01+00:00,GET,/api/users,HTTP/1.1,200,4096,-,PostmanRuntime/7.29,,,,apache
+10.10.10.5,2026-02-27T09:00:02+00:00,GET,/api/users?id=1,HTTP/1.1,200,512,-,PostmanRuntime/7.29,,,,apache
+203.0.113.42,2026-02-27T09:01:00+00:00,GET,/api/users?id=1;,DROP TABLE users;-- HTTP/1.1,400,256,-,python-requests/2.28,,,,apache
+203.0.113.42,2026-02-27T09:01:01+00:00,GET,/api/data?file=../../../../etc/shadow,HTTP/1.1,403,128,-,python-requests/2.28,,,,apache
+203.0.113.42,2026-02-27T09:01:02+00:00,GET,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,HTTP/1.1,403,128,-,python-requests/2.28,,,,apache
+10.10.10.5,2026-02-27T09:05:00+00:00,POST,/api/upload,HTTP/1.1,200,128,-,PostmanRuntime/7.29,,,,apache
+185.220.101.1,2026-02-27T09:10:00+00:00,GET,/robots.txt,HTTP/1.1,200,64,-,Googlebot/2.1,,,,apache
+185.220.101.1,2026-02-27T09:10:01+00:00,GET,/sitemap.xml,HTTP/1.1,200,2048,-,Googlebot/2.1,,,,apache

@@ -1,0 +1,11 @@
+# Core dependencies
+dpkt>=1.9.8          # PCAP parsing (primary backend)
+scapy>=2.5.0         # PCAP parsing (fallback backend)
+
+# Data handling
+pandas>=2.0.0        # DataFrame support for analysis modules
+numpy>=1.24.0
+
+# Utilities
+tqdm>=4.65.0         # Progress bars for large file ingestion
+python-dateutil>=2.8.2  # Flexible timestamp parsing
