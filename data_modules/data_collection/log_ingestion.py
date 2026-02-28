@@ -12,11 +12,12 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Union
 
-from .models import CollectionResult, HTTPLogEntry, IPDRRecord, URLRequest
+from .models import CollectionResult, HTTPLogEntry, IPDRRecord, URLRequest, SnortAlert
 from .config import CollectionConfig
 from .log_parser import HTTPLogParser
 from .ipdr_collector import IPDRCollector
 from .pcap_analyzer import PCAPAnalyzer
+from .snort_collector import SnortCollector
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +31,22 @@ def _detect_file_type(filepath: str) -> str:
     Return 'pcap', 'ipdr', 'log', or 'unknown' based on extension
     and a quick content peek.
     """
-    ext = os.path.splitext(filepath)[1].lower()
+    ext  = os.path.splitext(filepath)[1].lower()
+    name = os.path.basename(filepath).lower()
     if ext in (".pcap", ".pcapng", ".cap"):
         return "pcap"
+    # Snort alert files: named 'alert', 'snort.alert', or any *.alert
+    if name == "alert" or ext == ".alert" or "snort" in name:
+        return "snort"
     if ext in (".csv", ".tsv"):
+        # Quick peek: if it looks like a Snort CSV, classify accordingly
+        try:
+            with open(filepath, "r", encoding="utf-8", errors="replace") as _f:
+                first = _f.readline().lower()
+            if "sig_id" in first or "sig_generator" in first or "srcport" in first:
+                return "snort"
+        except Exception:
+            pass
         return "ipdr"
     if ext in (".log", ".txt", ".gz", ".bz2", ".zip"):
         return "log"
@@ -87,10 +100,11 @@ class LogIngestionPipeline:
     """
 
     def __init__(self, config: Optional[CollectionConfig] = None):
-        self.config       = config or CollectionConfig()
-        self.log_parser   = HTTPLogParser(self.config)
-        self.ipdr_coll    = IPDRCollector(self.config)
+        self.config        = config or CollectionConfig()
+        self.log_parser    = HTTPLogParser(self.config)
+        self.ipdr_coll     = IPDRCollector(self.config)
         self.pcap_analyzer = PCAPAnalyzer(self.config)
+        self.snort_coll    = SnortCollector(self.config)
 
     # ── Ingest a single file ─────────────────────────────────────────────
 
@@ -105,6 +119,10 @@ class LogIngestionPipeline:
                 reqs, entries = self.pcap_analyzer.analyze_file(filepath)
                 result.url_requests.extend(reqs)
                 result.http_logs.extend(entries)
+
+            elif ftype == "snort":
+                snort_alerts = self.snort_coll.parse_file(filepath)
+                result.snort_alerts.extend(snort_alerts)
 
             elif ftype == "ipdr":
                 records = self.ipdr_coll.parse_file(filepath)
@@ -135,6 +153,7 @@ class LogIngestionPipeline:
         supported_exts = (
             set(self.config.log_extensions)
             | set(self.config.pcap_extensions)
+            | set(self.config.snort_extensions)
             | {".csv", ".tsv"}
         )
 
@@ -148,6 +167,7 @@ class LogIngestionPipeline:
                 result.http_logs.extend(sub.http_logs)
                 result.ipdr_records.extend(sub.ipdr_records)
                 result.url_requests.extend(sub.url_requests)
+                result.snort_alerts.extend(sub.snort_alerts)
                 result.errors.extend(sub.errors)
                 result.source_files.append(fpath)
 
@@ -183,11 +203,17 @@ class LogIngestionPipeline:
         self.config.ensure_directories()
         combined = CollectionResult()
 
-        for directory in [self.config.log_directory, self.config.pcap_directory]:
+        directories = [
+            self.config.log_directory,
+            self.config.pcap_directory,
+            self.config.snort_directory,
+        ]
+        for directory in directories:
             res = self.ingest_directory(directory)
             combined.http_logs.extend(res.http_logs)
             combined.ipdr_records.extend(res.ipdr_records)
             combined.url_requests.extend(res.url_requests)
+            combined.snort_alerts.extend(res.snort_alerts)
             combined.errors.extend(res.errors)
             combined.source_files.extend(res.source_files)
 
@@ -212,6 +238,7 @@ class LogIngestionPipeline:
             ("http_logs",    [e.to_dict() for e in result.http_logs]),
             ("ipdr_records", [r.to_dict() for r in result.ipdr_records]),
             ("url_requests", [u.to_dict() for u in result.url_requests]),
+            ("snort_alerts", [a.to_dict() for a in result.snort_alerts]),
         ]
 
         for name, data in datasets:

@@ -126,6 +126,7 @@ class DataCollector:
         print(f"  HTTP Log Entries  : {s['http_log_entries']}")
         print(f"  IPDR Records      : {s['ipdr_records']}")
         print(f"  URL Requests      : {s['url_requests']}")
+        print(f"  Snort Alerts      : {s['snort_alerts']}")
         print(f"  Total Records     : {s['total_records']}")
         print(f"  Source Files      : {len(s['source_files'])}")
         print(f"  Parse Errors      : {s['errors']}")
@@ -148,6 +149,30 @@ class DataCollector:
         """Return top-N IPs by URL request count."""
         from .pcap_analyzer import PCAPAnalyzer
         return PCAPAnalyzer.top_requestors(result.url_requests, n)
+
+    def snort_summary(self, result: CollectionResult) -> dict:
+        """Return aggregated statistics for Snort alerts in *result*."""
+        from .snort_collector import SnortCollector
+        return SnortCollector.summarise(result.snort_alerts)
+
+    def collect_snort(self, source: str) -> CollectionResult:
+        """
+        Convenience method: collect Snort alerts directly from *source*
+        (a single alert file or a directory containing alert files).
+
+        Returns a CollectionResult whose ``snort_alerts`` list is populated.
+        """
+        from .snort_collector import SnortCollector
+        sc = SnortCollector(self.config)
+        result = CollectionResult(source_files=[source])
+        import os
+        if os.path.isdir(source):
+            result.snort_alerts = sc.parse_directory(source)
+        else:
+            result.snort_alerts = sc.parse_file(source)
+        logger.info("Snort collection: %d alerts from %s",
+                    len(result.snort_alerts), source)
+        return result
 
     def top_paths(self, result: CollectionResult, n: int = 20):
         """Return top-N requested URL paths."""

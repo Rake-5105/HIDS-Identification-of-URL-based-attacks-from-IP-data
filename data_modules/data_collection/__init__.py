@@ -11,6 +11,10 @@ Public API
     result    = collector.collect("/path/to/logs/")      # auto-detect & parse
     collector.print_summary(result)
     collector.save(result, tag="run_01")
+
+    # Snort IDS alerts
+    result  = collector.collect_snort("/var/log/snort/alert")
+    summary = collector.snort_summary(result)
 """
 
 from .collector    import DataCollector
@@ -19,14 +23,16 @@ from .models       import (
     HTTPLogEntry,
     IPDRRecord,
     URLRequest,
+    SnortAlert,
     CollectionResult,
     LogSource,
     Protocol,
 )
-from .log_parser   import HTTPLogParser
-from .ipdr_collector import IPDRCollector
-from .pcap_analyzer  import PCAPAnalyzer
-from .log_ingestion  import LogIngestionPipeline
+from .log_parser      import HTTPLogParser
+from .ipdr_collector  import IPDRCollector
+from .pcap_analyzer   import PCAPAnalyzer
+from .snort_collector import SnortCollector
+from .log_ingestion   import LogIngestionPipeline
 
 __all__ = [
     "DataCollector",
@@ -34,13 +40,15 @@ __all__ = [
     "HTTPLogEntry",
     "IPDRRecord",
     "URLRequest",
+    "SnortAlert",
     "CollectionResult",
     "LogSource",
     "Protocol",
     "HTTPLogParser",
     "IPDRCollector",
     "PCAPAnalyzer",
+    "SnortCollector",
     "LogIngestionPipeline",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

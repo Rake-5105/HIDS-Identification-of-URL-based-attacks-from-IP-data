@@ -22,6 +22,7 @@ class LogSource(Enum):
     IIS      = "iis"
     PCAP     = "pcap"
     IPDR     = "ipdr"
+    SNORT    = "snort"
     CUSTOM   = "custom"
 
 
@@ -146,23 +147,85 @@ class URLRequest:
 
 
 @dataclass
+class SnortAlert:
+    """Represents a single Snort IDS alert."""
+    timestamp:       datetime
+    src_ip:          str
+    dst_ip:          str
+    src_port:        Optional[int]  = None
+    dst_port:        Optional[int]  = None
+    protocol:        str            = "TCP"
+    # Rule identification
+    generator_id:    int            = 1
+    signature_id:    int            = 0
+    signature_rev:   int            = 0
+    # Alert metadata
+    message:         str            = ""
+    classification:  Optional[str]  = None
+    priority:        Optional[int]  = None
+    # Packet-level info
+    ttl:             Optional[int]  = None
+    ip_len:          Optional[int]  = None
+    dgm_len:         Optional[int]  = None
+    tos:             Optional[str]  = None
+    tcp_flags:       Optional[str]  = None
+    tcp_seq:         Optional[str]  = None
+    tcp_ack:         Optional[str]  = None
+    tcp_win:         Optional[str]  = None
+    # Raw
+    raw:             Optional[str]  = None
+
+    @property
+    def rule_id(self) -> str:
+        return f"{self.generator_id}:{self.signature_id}:{self.signature_rev}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "timestamp":      self.timestamp.isoformat(),
+            "src_ip":         self.src_ip,
+            "dst_ip":         self.dst_ip,
+            "src_port":       self.src_port,
+            "dst_port":       self.dst_port,
+            "protocol":       self.protocol,
+            "rule_id":        self.rule_id,
+            "generator_id":   self.generator_id,
+            "signature_id":   self.signature_id,
+            "signature_rev":  self.signature_rev,
+            "message":        self.message,
+            "classification": self.classification,
+            "priority":       self.priority,
+            "ttl":            self.ttl,
+            "ip_len":         self.ip_len,
+            "dgm_len":        self.dgm_len,
+            "tos":            self.tos,
+            "tcp_flags":      self.tcp_flags,
+            "tcp_seq":        self.tcp_seq,
+            "tcp_ack":        self.tcp_ack,
+            "tcp_win":        self.tcp_win,
+        }
+
+
+@dataclass
 class CollectionResult:
     """Aggregated result from the data collection pipeline."""
-    http_logs:   List[HTTPLogEntry] = field(default_factory=list)
-    ipdr_records: List[IPDRRecord]  = field(default_factory=list)
-    url_requests: List[URLRequest]  = field(default_factory=list)
-    errors:       List[str]         = field(default_factory=list)
-    source_files: List[str]         = field(default_factory=list)
+    http_logs:     List[HTTPLogEntry] = field(default_factory=list)
+    ipdr_records:  List[IPDRRecord]   = field(default_factory=list)
+    url_requests:  List[URLRequest]   = field(default_factory=list)
+    snort_alerts:  List[SnortAlert]   = field(default_factory=list)
+    errors:        List[str]          = field(default_factory=list)
+    source_files:  List[str]          = field(default_factory=list)
 
     @property
     def total_records(self) -> int:
-        return len(self.http_logs) + len(self.ipdr_records) + len(self.url_requests)
+        return (len(self.http_logs) + len(self.ipdr_records)
+                + len(self.url_requests) + len(self.snort_alerts))
 
     def summary(self) -> Dict[str, Any]:
         return {
             "http_log_entries":  len(self.http_logs),
             "ipdr_records":      len(self.ipdr_records),
             "url_requests":      len(self.url_requests),
+            "snort_alerts":      len(self.snort_alerts),
             "total_records":     self.total_records,
             "source_files":      self.source_files,
             "errors":            len(self.errors),

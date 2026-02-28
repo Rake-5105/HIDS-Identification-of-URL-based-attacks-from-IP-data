@@ -41,6 +41,12 @@ class CollectionConfig:
     ipdr_delimiter:       str       = ","
     ipdr_has_header:      bool      = True
 
+    # ── Snort settings ───────────────────────────────────────────────────────
+    snort_directory:      str       = "snort_logs"
+    snort_extensions:     List[str] = field(default_factory=lambda: [
+        ".log", ".txt", ".alert", ".csv"
+    ])
+
     # ── Output settings ──────────────────────────────────────────────────────
     save_to_json:         bool      = True
     save_to_csv:          bool      = True
@@ -94,4 +100,50 @@ TIMESTAMP_FORMATS = [
     "%Y-%m-%dT%H:%M:%S%z",    # ISO 8601
     "%d/%m/%Y:%H:%M:%S %z",
     "%b %d %H:%M:%S",         # Syslog
+]
+
+# ── Snort log patterns ────────────────────────────────────────────────────────
+#
+# Fast-alert / unified text output:
+#   01/28-22:31:18.123456 [**] [1:1000001:1] Some message [**]
+#   [Classification: Web App Attack] [Priority: 1] {TCP} 1.2.3.4:1234 -> 5.6.7.8:80
+#
+SNORT_FAST_PATTERN = (
+    r'(?P<timestamp>\d{2}/\d{2}(?:-\d{2})?[\s\-]\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s+'
+    r'\[\*\*\]\s+\[(?P<gid>\d+):(?P<sid>\d+):(?P<rev>\d+)\]\s+'
+    r'(?P<msg>.+?)\s+\[\*\*\]'
+    r'(?:\s+\[Classification:\s*(?P<classification>[^\]]+)\])?'
+    r'(?:\s+\[Priority:\s*(?P<priority>\d+)\])?'
+    r'\s+\{(?P<proto>\w+)\}\s+'
+    r'(?P<src_ip>[\d\.]+)(?::(?P<src_port>\d+))?\s+->\s+'
+    r'(?P<dst_ip>[\d\.]+)(?::(?P<dst_port>\d+))?'
+)
+
+# Full-alert supplementary lines (TTL / IpLen / DgmLen etc.)
+SNORT_FULL_HDR_PATTERN = (
+    r'TTL:(?P<ttl>\d+)\s+TOS:(?P<tos>\S+)\s+ID:\d+\s+'
+    r'IpLen:(?P<ip_len>\d+)\s+DgmLen:(?P<dgm_len>\d+)'
+)
+
+SNORT_FULL_TCP_PATTERN = (
+    r'(?P<tcp_flags>[A-Z *]+)\s+Seq:\s*(?P<tcp_seq>\S+)'
+    r'\s+Ack:\s*(?P<tcp_ack>\S+)\s+Win:\s*(?P<tcp_win>\S+)'
+)
+
+# CSV header produced by Snort's csv output plugin
+SNORT_CSV_FIELDS = [
+    "timestamp", "sig_generator", "sig_id", "sig_rev", "msg",
+    "proto", "src", "srcport", "dst", "dstport",
+    "ethsrc", "ethdst", "ethlen", "tcpflags",
+    "tcpseq", "tcpack", "tcplen", "tcpwindow",
+    "ttl", "tos", "id", "dgmlen", "iplen",
+]
+
+# Snort timestamp formats
+SNORT_TIMESTAMP_FORMATS = [
+    "%m/%d-%H:%M:%S.%f",      # 01/28-22:31:18.123456
+    "%m/%d/%y-%H:%M:%S.%f",   # 01/28/25-22:31:18.123456
+    "%Y/%m/%d-%H:%M:%S.%f",
+    "%m/%d-%H:%M:%S",
+    "%Y-%m-%d %H:%M:%S",
 ]
