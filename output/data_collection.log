@@ -141,3 +141,103 @@
 2026-02-27 22:26:32 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_url_requests_20260227_222632.json (28 records)
 2026-02-27 22:26:32 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_url_requests_20260227_222632.csv (28 records)
 2026-02-27 22:26:32 [INFO] data_modules.data_collection.log_ingestion: Saved summary → output\demo_summary_20260227_222632.json
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → output)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-03-12 23:04:12
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log  [detected: log]
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser:   → 20 entries parsed from access.log
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv  [detected: ipdr]
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.ipdr_collector: Parsing IPDR file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.ipdr_collector:   → 10 IPDR records parsed from ipdr_records.csv
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log  [detected: log]
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_parser:   → 8 entries parsed from nginx_access.log
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Correlating IPDR records with URL requests…
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-03-12 23:04:12  (0.15s)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 28, 'ipdr_records': 10, 'url_requests': 28, 'snort_alerts': 0, 'total_records': 66, 'source_files': ['C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\access.log', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\ipdr_records.csv', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\nginx_access.log'], 'errors': 0}
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_http_logs_20260312_230412.json (28 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_http_logs_20260312_230412.csv (28 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_ipdr_records_20260312_230412.json (10 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_ipdr_records_20260312_230412.csv (10 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_url_requests_20260312_230412.json (28 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_url_requests_20260312_230412.csv (28 records)
+2026-03-12 23:04:12 [INFO] data_modules.data_collection.log_ingestion: Saved summary → output\demo_summary_20260312_230412.json
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → output)
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-03-13 13:00:48
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log  [detected: log]
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser: Parsing log file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser:   → 20 entries parsed from access.log
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv  [detected: ipdr]
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.ipdr_collector: Parsing IPDR file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.ipdr_collector:   → 10 IPDR records parsed from ipdr_records.csv
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log  [detected: log]
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser: Parsing log file: c:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_parser:   → 8 entries parsed from nginx_access.log
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.log_ingestion: Correlating IPDR records with URL requests…
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-03-13 13:00:48  (0.07s)
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 28, 'ipdr_records': 10, 'url_requests': 28, 'snort_alerts': 0, 'total_records': 66, 'source_files': ['c:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\access.log', 'c:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\ipdr_records.csv', 'c:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\nginx_access.log'], 'errors': 0}
+2026-03-13 13:00:48 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.pipeline: ============================================================
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.pipeline: URL Parsing Module started  @ 2026-03-13 13:00:48
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.pipeline:   Input records : 28
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.parser: URLParser: 28 parsed, 0 skipped, 0 errors
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.normalizer: URLNormalizer: normalized 28 URLs
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.pipeline: URL Parsing Module finished @ 2026-03-13 13:00:48  — 28 parsed, 0 skipped
+2026-03-13 13:00:48 [INFO] data_modules.url_parsing.pipeline: ============================================================
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → output)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-03-13 17:15:28
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log  [detected: log]
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser:   → 20 entries parsed from access.log
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv  [detected: ipdr]
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.ipdr_collector: Parsing IPDR file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.ipdr_collector:   → 10 IPDR records parsed from ipdr_records.csv
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log  [detected: log]
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_parser:   → 8 entries parsed from nginx_access.log
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Correlating IPDR records with URL requests…
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-03-13 17:15:28  (0.02s)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 28, 'ipdr_records': 10, 'url_requests': 28, 'snort_alerts': 0, 'total_records': 66, 'source_files': ['C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\access.log', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\ipdr_records.csv', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\nginx_access.log'], 'errors': 0}
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_http_logs_20260313_171528.json (28 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_http_logs_20260313_171528.csv (28 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_ipdr_records_20260313_171528.json (10 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_ipdr_records_20260313_171528.csv (10 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_url_requests_20260313_171528.json (28 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_url_requests_20260313_171528.csv (28 records)
+2026-03-13 17:15:28 [INFO] data_modules.data_collection.log_ingestion: Saved summary → output\demo_summary_20260313_171528.json
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → output)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-03-13 17:40:32
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log  [detected: log]
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\access.log
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser:   → 20 entries parsed from access.log
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv  [detected: ipdr]
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.ipdr_collector: Parsing IPDR file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\ipdr_records.csv
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.ipdr_collector:   → 10 IPDR records parsed from ipdr_records.csv
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log  [detected: log]
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser: Parsing log file: C:\Users\sai mohana ram d\HIDS-Identification-of-URL-based-attacks-from-IP-data\sample_data\nginx_access.log
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser: Detected log format: apache
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_parser:   → 8 entries parsed from nginx_access.log
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Correlating IPDR records with URL requests…
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-03-13 17:40:32  (0.15s)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 28, 'ipdr_records': 10, 'url_requests': 28, 'snort_alerts': 0, 'total_records': 66, 'source_files': ['C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\access.log', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\ipdr_records.csv', 'C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\nginx_access.log'], 'errors': 0}
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_http_logs_20260313_174032.json (28 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_http_logs_20260313_174032.csv (28 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_ipdr_records_20260313_174032.json (10 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_ipdr_records_20260313_174032.csv (10 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_url_requests_20260313_174032.json (28 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_url_requests_20260313_174032.csv (28 records)
+2026-03-13 17:40:32 [INFO] data_modules.data_collection.log_ingestion: Saved summary → output\demo_summary_20260313_174032.json

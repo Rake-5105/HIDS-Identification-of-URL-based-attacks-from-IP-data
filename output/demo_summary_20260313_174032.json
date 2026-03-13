@@ -1,0 +1,13 @@
+{
+  "http_log_entries": 28,
+  "ipdr_records": 10,
+  "url_requests": 28,
+  "snort_alerts": 0,
+  "total_records": 66,
+  "source_files": [
+    "C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\access.log",
+    "C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\ipdr_records.csv",
+    "C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\sample_data\\nginx_access.log"
+  ],
+  "errors": 0
+}

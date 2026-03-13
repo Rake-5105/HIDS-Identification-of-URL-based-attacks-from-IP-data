@@ -27,6 +27,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from data_modules.data_collection import DataCollector, CollectionConfig
+from data_modules.feature_extraction.url_features import extract_features
 
 
 def parse_args() -> argparse.Namespace:
