@@ -23,11 +23,14 @@ import argparse
 import sys
 import os
 
+import pandas as pd
+
 # Ensure the project root is on the path when running directly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from data_modules.data_collection import DataCollector, CollectionConfig
 from data_modules.feature_extraction.url_features import extract_features
+from data_modules.classification import run_hybrid_detection
 
 
 def parse_args() -> argparse.Namespace:
@@ -68,7 +71,37 @@ def parse_args() -> argparse.Namespace:
         default="INFO",
         help="Logging verbosity (default: INFO)",
     )
+    parser.add_argument(
+        "--run-all",
+        action="store_true",
+        help="Run Module 1 collection + Module 3 features + Module 4 classification",
+    )
     return parser.parse_args()
+
+
+def _resolve_url_column(df: pd.DataFrame) -> str:
+    if "url" in df.columns:
+        return "url"
+    if "full_url" in df.columns:
+        return "full_url"
+    raise KeyError("Expected 'url' or 'full_url' column in URL requests data")
+
+
+def _run_module3(paths: dict, output_dir: str) -> str:
+    url_csv = paths.get("url_requests_csv")
+    if not url_csv or not os.path.exists(url_csv):
+        raise FileNotFoundError("Module 1 did not produce url_requests_csv")
+
+    df = pd.read_csv(url_csv)
+    url_col = _resolve_url_column(df)
+
+    features = df[url_col].apply(extract_features)
+    features_df = pd.json_normalize(features)
+    result = pd.concat([df, features_df], axis=1)
+
+    module3_csv = os.path.join(output_dir, "url_feature_dataset.csv")
+    result.to_csv(module3_csv, index=False)
+    return module3_csv
 
 
 def main() -> None:
@@ -110,11 +143,30 @@ def main() -> None:
         print()
 
     # Save
+    paths = {}
     if not args.no_save and result.total_records > 0:
         paths = collector.save(result, tag=tag)
         print(f"Results saved to: {config.output_directory}/")
         for k, v in paths.items():
             print(f"  [{k}]  {v}")
+
+    if args.run_all and not args.no_save and result.total_records > 0:
+        print("\nRunning Module 3 (Feature Extraction)...")
+        module3_csv = _run_module3(paths=paths, output_dir=config.output_directory)
+        print(f"  [module3_features_csv]  {module3_csv}")
+
+        print("\nRunning Module 4 (Hybrid Detection & Classification)...")
+        module4_summary = run_hybrid_detection(
+            input_csv=module3_csv,
+            output_dir=config.output_directory,
+        )
+        print(f"  [module4_results_csv]   {module4_summary['output_csv']}")
+        print(f"  [module4_summary_json]  {os.path.join(config.output_directory, 'module4_summary.json')}")
+        print(f"  [module4_report_txt]    {module4_summary['ml_report']}")
+        print(f"  [module4_model]         {module4_summary['model_path']}")
+
+    if args.run_all and args.no_save:
+        print("\n--run-all requires saved Module 1 outputs. Remove --no-save and run again.")
 
 
 if __name__ == "__main__":
