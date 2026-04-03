@@ -330,9 +330,6 @@ This is a college mini-project. For modifications:
 4. Test all authentication flows
 5. Ensure responsive design works
 
-## 📄 License
-
-MIT License - This is an educational project.
 
 ## 🙏 Acknowledgments
 
