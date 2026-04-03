@@ -4,17 +4,19 @@ A Host-based Intrusion Detection System for detecting URL-based web attacks usin
 
 ## Features
 
-- Log Collection (HTTP logs, PCAP, CSV)
-- URL Parsing & Feature Extraction
-- Hybrid Detection (Rule-based + ML)
-- Interactive Dashboard with Visualizations
+- **Log Collection** - HTTP logs, PCAP, CSV ingestion
+- **URL Parsing** - Extract IPs, timestamps, parameters
+- **Hybrid Detection** - Rule-based + Machine Learning
+- **Interactive Dashboard** - Visualizations & filtering
 
 ## Tech Stack
 
-- **Frontend:** React, Tailwind CSS, Framer Motion
-- **Backend:** Node.js (Express), Python (Flask)
-- **Database:** MongoDB Atlas
-- **ML:** Scikit-learn
+| Layer | Technology |
+|-------|------------|
+| Frontend | React, Tailwind CSS, Framer Motion |
+| Backend | Node.js (Express), Python (Flask) |
+| Database | MongoDB Atlas |
+| ML | Scikit-learn |
 
 ## Quick Start
 
@@ -24,9 +26,11 @@ npm run install:all
 npm run dev
 ```
 
-**Access:**
-- Landing: http://localhost:5173
-- Dashboard: http://localhost:5173/app/dashboard
+## Access URLs
+
+- **Landing Page:** http://localhost:5173
+- **Login:** http://localhost:5173/login
+- **Dashboard:** http://localhost:5173/app/dashboard
 
 ## Attack Types Detected
 
@@ -35,6 +39,18 @@ npm run dev
 - Path Traversal
 - Command Injection
 
-## Author
+## Project Structure
 
-Developed for Mini Project
+```
+├── hids-dashboard/      # Full-stack dashboard
+│   ├── client/          # React frontend
+│   ├── server/          # Express backend
+│   └── flask_api/       # Python Flask API
+├── data_modules/        # ML detection modules
+├── sample_data/         # Sample log files
+└── output/              # Detection results
+```
+
+
+---
+Built with ❤️ for Cybersecurity
