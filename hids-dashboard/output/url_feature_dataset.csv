@@ -1,0 +1,29 @@
+url,url_length,num_special_chars,num_digits,has_ip,entropy,suspicious_keywords,classification
+/admin/login?user=admin' OR '1'='1,38,8,3,0,3.82,2,sqli
+/search?q=<script>alert('XSS')</script>,39,10,0,0,3.45,1,xss
+/download?file=../../etc/passwd,31,6,0,0,3.21,1,path_traversal
+/api/users,10,1,0,0,2.85,0,normal
+/home,5,0,0,0,2.32,0,normal
+/products?id=1; DROP TABLE users--,35,7,1,0,3.67,2,sqli
+/upload?file=shell.php,22,3,0,0,3.12,1,cmdi
+/api/products,13,1,0,0,2.91,0,normal
+/contact,8,0,0,0,2.75,0,normal
+/view?page=<img src=x onerror=alert(1)>,38,9,1,0,3.58,1,xss
+/admin?id=1 UNION SELECT * FROM users,39,8,1,0,3.71,2,sqli
+/about,6,0,0,0,2.58,0,normal
+/files?path=../../../windows/system32/config/sam,47,8,2,0,3.89,1,path_traversal
+/services,9,0,0,0,2.81,0,normal
+/login?username=<script>document.cookie</script>,48,9,0,0,3.76,1,xss
+/exec?cmd=rm -rf /,19,5,0,0,3.23,1,cmdi
+/api/orders,11,1,0,0,2.87,0,normal
+/dashboard,10,0,0,0,2.79,0,normal
+/search?term=' OR 1=1--,24,6,2,0,3.41,2,sqli
+/browse?dir=../../../../root/.ssh/,35,7,0,0,3.54,1,path_traversal
+/api/customers,14,1,0,0,2.93,0,normal
+/profile,8,0,0,0,2.71,0,normal
+/run?command=cat /etc/shadow,28,4,0,0,3.38,1,cmdi
+/update?data=<iframe src=javascript:alert('XSS')>,49,10,0,0,3.82,1,xss
+/api/analytics,14,1,0,0,2.95,0,normal
+/query?sql=SELECT * FROM admin WHERE id=1 OR 1=1,51,9,4,0,3.91,2,sqli
+/render?template=<body onload=alert(1)>,39,9,1,0,3.64,1,xss
+/settings,9,0,0,0,2.77,0,normal

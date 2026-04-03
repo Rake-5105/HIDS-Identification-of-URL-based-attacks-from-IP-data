@@ -341,3 +341,10 @@
 2026-03-13 23:14:54 [INFO] data_modules.data_collection.log_ingestion: Saved JSON → output\demo_url_requests_20260313_231454.json (28 records)
 2026-03-13 23:14:54 [INFO] data_modules.data_collection.log_ingestion: Saved CSV  → output\demo_url_requests_20260313_231454.csv (28 records)
 2026-03-13 23:14:54 [INFO] data_modules.data_collection.log_ingestion: Saved summary → output\demo_summary_20260313_231454.json
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → output)
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: ============================================================
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-03-24 10:43:58
+2026-03-24 10:43:58 [ERROR] data_modules.data_collection.log_ingestion: Directory not found: snort_logs
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-03-24 10:43:58  (0.00s)
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 0, 'ipdr_records': 0, 'url_requests': 0, 'snort_alerts': 0, 'total_records': 0, 'source_files': [], 'errors': 1}
+2026-03-24 10:43:58 [INFO] data_modules.data_collection.collector: ============================================================

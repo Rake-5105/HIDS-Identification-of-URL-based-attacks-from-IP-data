@@ -1,0 +1,29 @@
+timestamp,source_ip,url,classification,confidence,detection_method
+2026-03-24 10:15:23,192.168.1.10,/admin/login?user=admin' OR '1'='1,sqli,95.5,ml
+2026-03-24 10:16:45,192.168.1.10,/search?q=<script>alert('XSS')</script>,xss,92.3,regex
+2026-03-24 10:18:12,10.0.0.5,/download?file=../../etc/passwd,path_traversal,88.7,ml
+2026-03-24 10:20:35,172.16.0.25,/api/users,normal,98.2,statistical
+2026-03-24 10:22:47,192.168.1.15,/home,normal,99.1,statistical
+2026-03-24 10:25:18,192.168.1.10,/products?id=1; DROP TABLE users--,sqli,94.8,ml
+2026-03-24 10:28:33,10.0.0.5,/upload?file=shell.php,cmdi,87.5,regex
+2026-03-24 10:30:56,172.16.0.25,/api/products,normal,97.9,statistical
+2026-03-24 10:33:22,192.168.1.20,/contact,normal,98.5,statistical
+2026-03-24 10:35:41,10.0.0.5,/view?page=<img src=x onerror=alert(1)>,xss,91.2,ml
+2026-03-24 10:38:15,192.168.1.10,/admin?id=1 UNION SELECT * FROM users,sqli,96.1,ml
+2026-03-24 10:40:28,172.16.0.25,/about,normal,99.3,statistical
+2026-03-24 10:42:53,10.0.0.5,/files?path=../../../windows/system32/config/sam,path_traversal,89.4,regex
+2026-03-24 10:45:19,192.168.1.15,/services,normal,98.8,statistical
+2026-03-24 10:48:36,192.168.1.10,/login?username=<script>document.cookie</script>,xss,93.7,ml
+2026-03-24 10:50:44,10.0.0.5,/exec?cmd=rm -rf /,cmdi,90.2,regex
+2026-03-24 10:53:12,172.16.0.25,/api/orders,normal,97.6,statistical
+2026-03-24 10:55:27,192.168.1.20,/dashboard,normal,98.9,statistical
+2026-03-24 10:58:41,192.168.1.10,/search?term=' OR 1=1--,sqli,95.9,ml
+2026-03-24 11:01:15,10.0.0.5,/browse?dir=../../../../root/.ssh/,path_traversal,88.1,ml
+2026-03-24 11:03:38,172.16.0.25,/api/customers,normal,98.1,statistical
+2026-03-24 11:06:52,192.168.1.15,/profile,normal,99.2,statistical
+2026-03-24 11:09:24,10.0.0.5,/run?command=cat /etc/shadow,cmdi,91.8,regex
+2026-03-24 11:12:46,192.168.1.10,/update?data=<iframe src=javascript:alert('XSS')>,xss,92.6,ml
+2026-03-24 11:15:33,172.16.0.25,/api/analytics,normal,97.8,statistical
+2026-03-24 11:18:19,192.168.1.10,/query?sql=SELECT * FROM admin WHERE id=1 OR 1=1,sqli,96.4,ml
+2026-03-24 11:21:47,10.0.0.5,/render?template=<body onload=alert(1)>,xss,90.9,ml
+2026-03-24 11:24:55,192.168.1.20,/settings,normal,98.7,statistical

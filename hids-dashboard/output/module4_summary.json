@@ -1,0 +1,22 @@
+{
+  "total_requests": 28,
+  "threats_detected": 18,
+  "ml_accuracy": 0.964,
+  "class_counts": {
+    "normal": 10,
+    "sqli": 7,
+    "xss": 5,
+    "path_traversal": 3,
+    "cmdi": 3
+  },
+  "suspicious_ips": [
+    "192.168.1.10",
+    "10.0.0.5",
+    "172.16.0.25"
+  ],
+  "detection_methods": {
+    "regex": 8,
+    "ml": 14,
+    "statistical": 6
+  }
+}
