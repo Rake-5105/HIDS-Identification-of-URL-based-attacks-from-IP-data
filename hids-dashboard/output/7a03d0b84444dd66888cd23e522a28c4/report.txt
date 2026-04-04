@@ -1,0 +1,225 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        4/4/2026, 7:30:57 PM
+File Type:            CSV
+Total Entries:        28
+Threats Detected:     24 (85.7%)
+AI Model Used:        phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    4 entries
+  None                      7 entries
+  Command Injection         1 entries
+  SQL Injection             5 entries
+  Suspicious                5 entries
+  Path Traversal            4 entries
+  XSS                       2 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] /index.html
+      Source IP:       192.168.1.10
+      Classification:  Normal
+      Risk Level:      None
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required.
+
+  [2] /style.css
+      Source IP:       192.168.1.10
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Request for a CSS file with no suspicious patterns detected.
+      Recommendation:  No action required.
+
+  [3] /admin/config.php
+      Source IP:       10.0.0.55
+      Classification:  Command Injection
+      Risk Level:      Critical
+      Patterns:        User-Agent header contains 'sqlmap' which is associated with SQL injection tools.
+      Recommendation:  Immediately block the source IP and conduct a thorough security audit of your web application.
+
+  [4] /admin/config.php?id=1'
+      Source IP:       10.0.0.55
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        URL contains a single quote which is often used in SQL injection attacks.
+      Recommendation:  Immediately sanitize and validate all user inputs, implement prepared statements to prevent SQL injection.
+
+  [5] /admin/config.php?id=1
+      Source IP:       10.0.0.55
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        Direct access to a configuration page without authentication.
+      Recommendation:  Implement proper user authentication and authorization checks before accessing sensitive pages.
+
+  [6] /login
+      Source IP:       172.16.0.200
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Monitor for unusual activity and maintain regular security audits.
+
+  [7] /login
+      Source IP:       172.16.0.200
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required based on the provided data.
+
+  [8] /login
+      Source IP:       172.16.0.200
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        User agent string does not match common browsers, and IP address is within a private range.
+      Recommendation:  Implement rate limiting for this source IP to mitigate potential brute force attacks.
+
+  [9] /login
+      Source IP:       172.16.0.200
+      Classification:  Normal
+      Risk Level:      None
+      Patterns:        No suspicious patterns detected in the given data.
+      Recommendation:  Continue monitoring for any unusual activity.
+
+  [10] /login
+      Source IP:       172.16.0.200
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        User agent string does not match common browsers, and IP address is from a private range.
+      Recommendation:  Implement rate limiting for the login endpoint to prevent potential brute force attacks.
+
+  [11] /../../../etc/passwd
+      Source IP:       45.33.32.156
+      Classification:  Path Traversal
+      Risk Level:      Critical
+      Patterns:        /../../../etc/passwd
+      Recommendation:  Implement strict access controls and validate user inputs to prevent directory traversal attacks.
+
+  [12] /wp-login.php
+      Source IP:       45.33.32.156
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        The source IP is not from a known range and the request method for sensitive pages like wp-login could be an attempt at brute force.
+      Recommendation:  Implement rate limiting, require multi-factor authentication on login attempts.
+
+  [13] /.env
+      Source IP:       45.33.32.156
+      Classification:  Path Traversal
+      Risk Level:      Medium
+      Patterns:        The URL contains a path traversal character (\.) which could potentially allow access to restricted directories.
+      Recommendation:  Implement strict input validation and set the 'safe' attribute for sensitive files.
+
+  [14] /phpmyadmin/index.php
+      Source IP:       45.33.32.156
+      Classification:  SQL Injection
+      Risk Level:      High
+      Patterns:        User input directly used in SQL query without sanitization.
+      Recommendation:  Implement prepared statements and validate/sanitize user inputs.
+
+  [15] /products
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and analysis of traffic is recommended.
+
+  [16] /products/item?id=42
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the request data provided.
+      Recommendation:  Maintain current security measures as no immediate threats are identified.
+
+  [17] /cart/add
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Continue monitoring and regularly reviewing security logs.
+
+  [18] /<script>alert(1)</script>
+      Source IP:       198.51.100.7
+      Classification:  XSS
+      Risk Level:      High
+      Patterns:        Script tags within URL, potential for executing JavaScript in browser context.
+      Recommendation:  Implement strict input validation and output encoding to prevent script execution.
+
+  [19] /?q=<img
+      Source IP:       198.51.100.7
+      Classification:  SQL Injection
+      Risk Level:      High
+      Patterns:        <img src=x onerror=alert(1)>
+      Recommendation:  Implement input validation and sanitization, use prepared statements or ORM for database queries.
+
+  [20] /search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E
+      Source IP:       198.51.100.7
+      Classification:  XSS
+      Risk Level:      High
+      Patterns:        <script>alert(document.cookie)</script>
+      Recommendation:  Implement input validation and output encoding to prevent script injection.
+
+  [21] /api/users
+      Source IP:       10.10.10.5
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User agent is not a standard browser, but it's common for API testing tools like Postman.
+      Recommendation:  Ensure that the application properly validates and sanitizes all user inputs to prevent SQL injection.
+
+  [22] /api/users?id=1
+      Source IP:       10.10.10.5
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        The 'id' parameter is potentially used for SQL injection as it lacks proper sanitization.
+      Recommendation:  Implement prepared statements or stored procedures to handle user input and apply strict validation.
+
+  [23] /api/users?id=1;
+      Source IP:       203.0.113.42
+      Classification:  SQL Injection
+      Risk Level:      High
+      Patterns:        The URL parameter 'id' is potentially used for SQL injection.
+      Recommendation:  Validate and sanitize user inputs, use prepared statements or ORM.
+
+  [24] /api/data?file=../../../../etc/shadow
+      Source IP:       203.0.113.42
+      Classification:  Path Traversal
+      Risk Level:      Critical
+      Patterns:        The URL parameter 'file' contains a path traversal sequence that attempts to access sensitive files outside the intended directory.
+      Recommendation:  Implement strict input validation and sanitization. Disallow special characters like '/', '..', in file paths.
+
+  [25] /api/data?file=..%2F..%2F..%2Fetc%2Fpasswd
+      Source IP:       203.0.113.42
+      Classification:  Path Traversal
+      Risk Level:      Critical
+      Patterns:        The URL parameter 'file' contains a path traversal sequence that could potentially access sensitive files on the server.
+      Recommendation:  Implement strict input validation to prevent directory traversal and ensure only safe paths are accepted.
+
+  [26] /api/upload
+      Source IP:       10.10.10.5
+      Classification:  Suspicious
+      Risk Level:      Low
+      Patterns:        User agent not typical for a browser, method POST on an upload endpoint without CSRF token or input validation.
+      Recommendation:  Implement server-side request origin verification and validate all user inputs.
+
+  [27] /robots.txt
+      Source IP:       185.220.101.1
+      Classification:  Normal
+      Risk Level:      None
+      Patterns:        No suspicious patterns detected.
+      Recommendation:  No immediate action required.
+
+  [28] /sitemap.xml
+      Source IP:       185.220.101.1
+      Classification:  Normal
+      Risk Level:      None
+      Patterns:        No suspicious patterns detected.
+      Recommendation:  No action required.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FileText, File, CheckCircle, ArrowRight, Loader, Download } from 'lucide-react';
+import { FileText, File, CheckCircle, ArrowRight, Download } from 'lucide-react';
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
+import { BouncingDots } from '../components/ui/BouncingDots';
 import { useNavigate } from 'react-router-dom';
 
 const Upload = () => {
@@ -219,7 +220,7 @@ const Upload = () => {
                     {step.label}
                   </span>
                   {processing && step.status === 'pending' && idx === getProgressSteps().findIndex(s => s.status === 'pending') && (
-                    <Loader className="w-4 h-4 text-blue-600 animate-spin" />
+                    <BouncingDots dots={3} className="w-2 h-2 bg-blue-500" />
                   )}
                 </div>
               ))}
