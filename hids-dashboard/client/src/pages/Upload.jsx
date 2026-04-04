@@ -42,12 +42,12 @@ const Upload = () => {
 
     try {
       // Start processing
-      await axios.post(`/api/process/${uploadResult.upload_id}`);
+      await axios.post(`/api/upload/process/${uploadResult.upload_id}`);
 
       // Poll for status
       const pollInterval = setInterval(async () => {
         try {
-          const statusResponse = await axios.get(`/api/process/status/${uploadResult.upload_id}`);
+          const statusResponse = await axios.get(`/api/upload/process/status/${uploadResult.upload_id}`);
           setProcessingStatus(statusResponse.data);
 
           if (statusResponse.data.status === 'completed' || statusResponse.data.status === 'failed') {

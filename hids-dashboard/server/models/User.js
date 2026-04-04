@@ -21,10 +21,23 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: 'analyst',
-    enum: ['analyst', 'admin', 'viewer']
+    default: 'user',
+    enum: ['user']
+  },
+  theme: {
+    type: String,
+    default: 'dark',
+    enum: ['dark', 'light']
+  },
+  avatar: {
+    type: String,
+    default: null
   },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
@@ -32,6 +45,8 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
+  this.updatedAt = Date.now();
+  
   if (!this.isModified('password')) {
     return next();
   }

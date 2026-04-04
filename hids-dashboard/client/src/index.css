@@ -3,7 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+  }
+
+  .dark {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+  }
+
   body {
+    @apply bg-gray-900 text-white;
+  }
+
+  .light body,
+  body.light {
     @apply bg-gray-50 text-gray-900;
   }
 }

@@ -5,9 +5,12 @@ const connectDB = require('./config/db');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 const summaryRoutes = require('./routes/summary');
 const requestsRoutes = require('./routes/requests');
 const analysisRoutes = require('./routes/analysis');
+const uploadRoutes = require('./routes/upload');
+const aiRoutes = require('./routes/ai');
 const auth = require('./middleware/auth');
 
 const app = express();
@@ -18,10 +21,14 @@ app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/summary', auth, summaryRoutes);
 app.use('/api/requests', auth, requestsRoutes);
 app.use('/api/analysis', auth, analysisRoutes);

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, BarChart3, Upload, LogOut, Menu, X, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, BarChart3, Upload, LogOut, Menu, X, Shield, User, Settings, Bot } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -12,7 +12,9 @@ const Sidebar = () => {
     { name: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Requests', path: '/app/requests', icon: FileText },
     { name: 'Analysis', path: '/app/analysis', icon: BarChart3 },
-    { name: 'Upload', path: '/app/upload', icon: Upload }
+    { name: 'Upload', path: '/app/upload', icon: Upload },
+    { name: 'AI Assistant', path: '/app/ai', icon: Bot },
+    { name: 'Profile', path: '/app/profile', icon: Settings }
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -66,21 +68,35 @@ const Sidebar = () => {
 
         {/* User section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800">
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
+          <Link
+            to="/app/profile"
+            className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} hover:bg-gray-800 rounded-lg p-2 transition-colors`}
+          >
             {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.username}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.role}</p>
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold">
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.username}</p>
+                  <p className="text-xs text-gray-400 truncate">User</p>
+                </div>
               </div>
             )}
-            <button
-              onClick={logout}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-              title="Logout"
-            >
-              <LogOut size={20} />
-            </button>
-          </div>
+            {collapsed && (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold">
+                {user?.username?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            )}
+          </Link>
+          <button
+            onClick={logout}
+            className={`w-full mt-2 flex items-center ${collapsed ? 'justify-center' : 'gap-3'} p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors`}
+            title="Logout"
+          >
+            <LogOut size={20} />
+            {!collapsed && <span>Logout</span>}
+          </button>
         </div>
       </div>
     </>
