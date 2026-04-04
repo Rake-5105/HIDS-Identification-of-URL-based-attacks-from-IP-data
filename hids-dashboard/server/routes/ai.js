@@ -7,7 +7,7 @@ const path = require('path');
 
 // Ollama API configuration
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
+const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'phi3';
 
 // Check Ollama connection
 router.get('/status', auth, async (req, res) => {

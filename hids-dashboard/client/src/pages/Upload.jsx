@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, File, CheckCircle, ArrowRight, Loader } from 'lucide-react';
+import { FileText, File, CheckCircle, ArrowRight, Loader, Download } from 'lucide-react';
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +38,7 @@ const Upload = () => {
     if (!uploadResult?.upload_id) return;
 
     setProcessing(true);
-    setProcessingStatus({ status: 'processing', progress: 0, message: 'Initializing...' });
+    setProcessingStatus({ status: 'processing', progress: 0, message: 'Initializing Phi3 AI...' });
 
     try {
       // Start processing
@@ -72,14 +72,39 @@ const Upload = () => {
     }
   };
 
+  const handleDownload = async (format) => {
+    if (!uploadResult?.upload_id) return;
+
+    try {
+      const response = await axios.get(`/api/upload/download/${format}/${uploadResult.upload_id}`, {
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], {
+        type: format === 'csv' ? 'text/csv' : 'text/plain'
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hids_report_${uploadResult.upload_id.substring(0, 8)}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
+    }
+  };
+
   const getProgressSteps = () => {
     if (!processingStatus) return [];
 
     const steps = [
       { label: 'Upload', status: 'completed' },
-      { label: 'Parsing', status: processingStatus.progress > 25 ? 'completed' : 'pending' },
-      { label: 'Feature Extraction', status: processingStatus.progress > 50 ? 'completed' : 'pending' },
-      { label: 'Classification', status: processingStatus.progress > 75 ? 'completed' : 'pending' },
+      { label: 'Parsing', status: processingStatus.progress > 20 ? 'completed' : 'pending' },
+      { label: 'Phi3 AI Analysis', status: processingStatus.progress > 50 ? 'completed' : 'pending' },
+      { label: 'Report Generation', status: processingStatus.progress > 85 ? 'completed' : 'pending' },
       { label: 'Complete', status: processingStatus.status === 'completed' ? 'completed' : 'pending' }
     ];
 
@@ -143,7 +168,7 @@ const Upload = () => {
               onClick={handleRunAnalysis}
               className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
             >
-              <span>Run Analysis</span>
+              <span>🤖 Run Phi3 AI Analysis</span>
               <ArrowRight size={20} />
             </button>
 
@@ -200,38 +225,112 @@ const Upload = () => {
               ))}
             </div>
 
-            {/* Results */}
+            {/* Results + Download */}
             {processingStatus?.status === 'completed' && (
               <div className="mt-6 space-y-4">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="font-medium text-green-900">Analysis Complete!</p>
+                  <p className="font-medium text-green-900">✅ Phi3 AI Analysis Complete!</p>
                   <p className="text-sm text-green-700 mt-1">
-                    Your file has been processed successfully.
+                    Your file has been analyzed by Ollama Phi3 AI.
                   </p>
                 </div>
 
                 {processingStatus.results && (
                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p className="text-sm font-medium text-gray-900 mb-2">Summary:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
-                      {JSON.stringify(processingStatus.results, null, 2)}
-                    </pre>
+                    <p className="text-sm font-medium text-gray-900 mb-3">Analysis Summary:</p>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="bg-white p-3 rounded-lg border">
+                        <p className="text-gray-500">Total Entries</p>
+                        <p className="text-2xl font-bold text-gray-900">{processingStatus.results.total_requests || 0}</p>
+                      </div>
+                      <div className="bg-white p-3 rounded-lg border">
+                        <p className="text-gray-500">Threats Found</p>
+                        <p className="text-2xl font-bold text-red-600">{processingStatus.results.threats_detected || 0}</p>
+                      </div>
+                      <div className="bg-white p-3 rounded-lg border">
+                        <p className="text-gray-500">Threat Rate</p>
+                        <p className="text-2xl font-bold text-orange-600">{processingStatus.results.threat_percentage || 0}%</p>
+                      </div>
+                      <div className="bg-white p-3 rounded-lg border">
+                        <p className="text-gray-500">AI Model</p>
+                        <p className="text-lg font-bold text-blue-600">{processingStatus.results.analyzed_with || 'Phi3'}</p>
+                      </div>
+                    </div>
+
+                    {processingStatus.results.classification_breakdown && (
+                      <div className="mt-3 bg-white p-3 rounded-lg border">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Classification Breakdown:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(processingStatus.results.classification_breakdown).map(([cls, count]) => (
+                            <span key={cls} className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              cls.toLowerCase() === 'normal' ? 'bg-green-100 text-green-800' :
+                              cls.toLowerCase().includes('sql') ? 'bg-red-100 text-red-800' :
+                              cls.toLowerCase().includes('xss') ? 'bg-orange-100 text-orange-800' :
+                              cls.toLowerCase().includes('path') ? 'bg-yellow-100 text-yellow-800' :
+                              cls.toLowerCase().includes('command') ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {cls}: {count}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
+                {/* Download Buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => handleDownload('csv')}
+                    className="py-3 px-4 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Download size={20} />
+                    <span>Download CSV Report</span>
+                  </button>
+                  <button
+                    onClick={() => handleDownload('txt')}
+                    className="py-3 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Download size={20} />
+                    <span>Download TXT Report</span>
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/app/dashboard')}
                   className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   View in Dashboard
+                </button>
+
+                <button
+                  onClick={() => {
+                    setUploadResult(null);
+                    setProcessingStatus(null);
+                  }}
+                  className="w-full py-2 px-4 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Analyze Another File
                 </button>
               </div>
             )}
 
             {processingStatus?.status === 'failed' && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="font-medium text-red-900">Processing Failed</p>
-                <p className="text-sm text-red-700 mt-1">{processingStatus.message}</p>
+              <div className="mt-6 space-y-3">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="font-medium text-red-900">Processing Failed</p>
+                  <p className="text-sm text-red-700 mt-1">{processingStatus.message}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setProcessingStatus(null);
+                    setProcessing(false);
+                  }}
+                  className="w-full py-2 px-4 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Try Again
+                </button>
               </div>
             )}
           </div>
@@ -244,9 +343,9 @@ const Upload = () => {
         <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
           <li>Select the appropriate file type tab above</li>
           <li>Upload your file (max 50MB)</li>
-          <li>Click "Run Analysis" to process the file through the ML pipeline</li>
-          <li>Monitor the progress as your file is analyzed</li>
-          <li>View results in the Dashboard once complete</li>
+          <li>Click "Run Phi3 AI Analysis" to process with Ollama's AI</li>
+          <li>Monitor the progress as Phi3 analyzes each entry</li>
+          <li>Download the report as <strong>CSV</strong> or <strong>TXT</strong> for further investigation</li>
         </ul>
       </div>
     </div>

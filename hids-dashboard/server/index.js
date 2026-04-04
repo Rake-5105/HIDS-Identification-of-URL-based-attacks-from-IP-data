@@ -12,6 +12,7 @@ const analysisRoutes = require('./routes/analysis');
 const uploadRoutes = require('./routes/upload');
 const aiRoutes = require('./routes/ai');
 const auth = require('./middleware/auth');
+const { initBuckets } = require('./utils/supabaseStorage');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,8 +49,8 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({
+  console.error(`[ERROR] ${req.method} ${req.path}:`, err.stack || err.message || err);
+  res.status(err.status || 500).json({
     error: 'Server Error',
     message: err.message || 'Internal server error'
   });
@@ -60,6 +61,11 @@ const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
+
+    // Initialize Supabase storage buckets
+    await initBuckets().catch(err => 
+      console.log(`[${new Date().toISOString()}] Supabase storage: not configured (local storage only)`)  
+    );
 
     app.listen(PORT, () => {
       console.log(`[${new Date().toISOString()}] Express server running on port ${PORT}`);

@@ -1,0 +1,5 @@
+{
+  "watch": ["server/"],
+  "ignore": ["uploads/", "output/", "client/", "flask_api/", "node_modules/"],
+  "ext": "js,json"
+}

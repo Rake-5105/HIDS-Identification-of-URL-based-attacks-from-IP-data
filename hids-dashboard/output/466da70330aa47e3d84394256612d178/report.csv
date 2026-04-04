@@ -1,0 +1,2 @@
+source_ip,url,method,classification,risk_level,patterns,recommendation,timestamp
+"","N/A","","None","Low","No suspicious patterns detected based on provided data.","Regularly monitor and review security logs for anomalies.",""

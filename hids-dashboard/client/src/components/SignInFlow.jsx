@@ -523,7 +523,9 @@ export const SignInPage = ({ className, mode = "register" }) => {
           // Trigger success animation
           setReverseCanvasVisible(true);
           setTimeout(() => setInitialCanvasVisible(false), 50);
-          setTimeout(() => setStep("success"), 2000);
+          setTimeout(() => {
+            setStep("success");
+          }, 2000);
         } else {
           // Password verified, now send OTP
           await axios.post('/api/auth/send-otp', { 
@@ -658,7 +660,8 @@ export const SignInPage = ({ className, mode = "register" }) => {
   };
 
   const handleContinueToDashboard = () => {
-    navigate('/app/dashboard');
+    // Force full page reload so AuthContext reads token from localStorage
+    window.location.href = '/app/dashboard';
   };
 
   return (

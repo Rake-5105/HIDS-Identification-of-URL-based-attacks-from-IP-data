@@ -1,0 +1,4 @@
+{
+  "extraPaths": ["./hids-dashboard/flask_api"],
+  "reportMissingImports": "warning"
+}

@@ -3,10 +3,11 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
-const { spawn } = require('child_process');
 const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const FileHistory = require('../models/FileHistory');
+const { BUCKETS, uploadToSupabase, saveReport } = require('../utils/supabaseStorage');
+const { analyzeFile } = require('../utils/ollamaAnalyzer');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -52,7 +53,127 @@ const upload = multer({
 // Store processing jobs in memory (in production, use Redis)
 const processingJobs = new Map();
 
-// Upload endpoint for all file types
+// ─── IMPORTANT: Specific routes MUST come before wildcard /:type ───
+
+// Get processing status (must be before /:type)
+router.get('/process/status/:uploadId', auth, async (req, res) => {
+  try {
+    const { uploadId } = req.params;
+    const job = processingJobs.get(uploadId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    // Compare as strings to avoid ObjectId mismatch
+    if (String(job.userId) !== String(req.user.id)) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Safely build response to avoid serialization errors
+    const response = {
+      status: job.status || 'unknown',
+      progress: job.progress || 0,
+      message: job.message || '',
+      results: null,
+      downloadAvailable: !!job.reportCsv
+    };
+
+    // Safely serialize results
+    if (job.results) {
+      try {
+        JSON.stringify(job.results); // test serialization
+        response.results = job.results;
+      } catch {
+        response.results = { note: 'Results available but cannot be displayed' };
+      }
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error('Status error:', error.stack || error);
+    res.status(500).json({ error: error.message || 'Status check failed' });
+  }
+});
+
+// Download report as CSV (must be before /:type)
+router.get('/download/csv/:uploadId', auth, async (req, res) => {
+  try {
+    const { uploadId } = req.params;
+    const job = processingJobs.get(uploadId);
+
+    if (!job || String(job.userId) !== String(req.user.id)) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    if (!job.reportCsv) {
+      return res.status(400).json({ error: 'Report not ready yet' });
+    }
+
+    const fileName = `hids_report_${uploadId.substring(0, 8)}.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(job.reportCsv);
+  } catch (error) {
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+// Download report as TXT (must be before /:type)
+router.get('/download/txt/:uploadId', auth, async (req, res) => {
+  try {
+    const { uploadId } = req.params;
+    const job = processingJobs.get(uploadId);
+
+    if (!job || String(job.userId) !== String(req.user.id)) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    if (!job.reportTxt) {
+      return res.status(400).json({ error: 'Report not ready yet' });
+    }
+
+    const fileName = `hids_report_${uploadId.substring(0, 8)}.txt`;
+    
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(job.reportTxt);
+  } catch (error) {
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+// Start processing with Ollama Phi3 (must be before /:type)
+router.post('/process/:uploadId', auth, async (req, res) => {
+  try {
+    const { uploadId } = req.params;
+    const job = processingJobs.get(uploadId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Upload not found' });
+    }
+
+    if (String(job.userId) !== String(req.user.id)) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Update status to processing
+    job.status = 'processing';
+    job.progress = 10;
+    job.message = 'Starting Phi3 AI analysis...';
+
+    // Run Ollama analysis in background
+    runOllamaAnalysis(uploadId, job);
+
+    res.json({ success: true, message: 'Phi3 analysis started' });
+  } catch (error) {
+    console.error('Process error:', error);
+    res.status(500).json({ error: error.message || 'Processing failed' });
+  }
+});
+
+// ─── Upload endpoint (wildcard - MUST be last) ───
 router.post('/:type', auth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -83,6 +204,16 @@ router.post('/:type', auth, upload.single('file'), async (req, res) => {
       status: 'uploaded'
     });
 
+    // Upload to Supabase Storage (non-blocking)
+    const supabasePath = `${req.user.id}/${uploadId}/${req.file.originalname}`;
+    uploadToSupabase(req.file.path, BUCKETS.UPLOADS, supabasePath)
+      .then(result => {
+        if (result.url) {
+          console.log(`[Supabase] File uploaded: ${supabasePath}`);
+        }
+      })
+      .catch(err => console.error('Supabase upload error:', err));
+
     res.json({
       success: true,
       upload_id: uploadId,
@@ -96,169 +227,68 @@ router.post('/:type', auth, upload.single('file'), async (req, res) => {
   }
 });
 
-// Start processing
-router.post('/process/:uploadId', auth, async (req, res) => {
+// ─── Ollama Phi3 analysis pipeline ───
+async function runOllamaAnalysis(uploadId, job) {
   try {
-    const { uploadId } = req.params;
-    const job = processingJobs.get(uploadId);
+    job.progress = 15;
+    job.message = 'Reading uploaded file...';
 
-    if (!job) {
-      return res.status(404).json({ error: 'Upload not found' });
-    }
+    const onProgress = (progress, message) => {
+      job.progress = progress;
+      job.message = message;
+    };
 
-    if (job.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
+    // Run analysis with Ollama
+    const result = await analyzeFile(job.filePath, job.fileType, onProgress);
 
-    // Update status to processing
-    job.status = 'processing';
-    job.progress = 10;
-    job.message = 'Starting analysis...';
+    // Store reports for download
+    job.reportCsv = result.csvContent;
+    job.reportTxt = result.txtContent;
 
-    // Run the Python analysis pipeline in background
-    runAnalysisPipeline(uploadId, job);
-
-    res.json({ success: true, message: 'Processing started' });
-  } catch (error) {
-    console.error('Process error:', error);
-    res.status(500).json({ error: error.message || 'Processing failed' });
-  }
-});
-
-// Get processing status
-router.get('/process/status/:uploadId', auth, async (req, res) => {
-  try {
-    const { uploadId } = req.params;
-    const job = processingJobs.get(uploadId);
-
-    if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
-    }
-
-    if (job.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-
-    res.json({
-      status: job.status,
-      progress: job.progress,
-      message: job.message,
-      results: job.results || null
-    });
-  } catch (error) {
-    console.error('Status error:', error);
-    res.status(500).json({ error: error.message || 'Status check failed' });
-  }
-});
-
-// Run the Python analysis pipeline
-async function runAnalysisPipeline(uploadId, job) {
-  const projectRoot = path.join(__dirname, '../../../');
-  const outputDir = path.join(projectRoot, 'output', uploadId);
-
-  try {
+    // Save reports locally
+    const outputDir = path.join(__dirname, '../../output', uploadId);
     await fs.mkdir(outputDir, { recursive: true });
+    await fs.writeFile(path.join(outputDir, 'report.csv'), result.csvContent);
+    await fs.writeFile(path.join(outputDir, 'report.txt'), result.txtContent);
+    await fs.writeFile(path.join(outputDir, 'summary.json'), JSON.stringify(result.summary, null, 2));
 
-    // Update progress
-    job.progress = 20;
-    job.message = 'Parsing file...';
-
-    // Determine the Python command based on file type
-    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-    
-    // Run the main.py script with --run-all flag
-    const args = [
-      path.join(projectRoot, 'main.py'),
-      '--source', job.filePath,
-      '--output', outputDir,
-      '--run-all'
-    ];
-
-    const python = spawn(pythonCmd, args, {
-      cwd: projectRoot,
-      env: { ...process.env, PYTHONUNBUFFERED: '1' }
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    python.stdout.on('data', (data) => {
-      stdout += data.toString();
-      const output = data.toString();
-      
-      // Update progress based on output
-      if (output.includes('Module 3') || output.includes('Feature Extraction')) {
-        job.progress = 50;
-        job.message = 'Extracting features...';
-      } else if (output.includes('Module 4') || output.includes('Classification')) {
-        job.progress = 75;
-        job.message = 'Running classification...';
-      }
-    });
-
-    python.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    python.on('close', async (code) => {
-      if (code === 0) {
-        // Read results
-        try {
-          const summaryPath = path.join(outputDir, 'module4_summary.json');
-          const summaryContent = await fs.readFile(summaryPath, 'utf-8');
-          const summary = JSON.parse(summaryContent);
-
-          // Update file history
-          await FileHistory.findOneAndUpdate(
-            { userId: job.userId, fileName: job.fileName },
-            {
-              status: 'completed',
-              processedAt: new Date(),
-              results: {
-                totalRequests: summary.rows,
-                maliciousRequests: summary.rows - (summary.class_counts?.Normal || 0),
-                attackTypes: summary.class_counts
-              }
-            }
-          );
-
-          job.status = 'completed';
-          job.progress = 100;
-          job.message = 'Analysis complete';
-          job.results = summary;
-        } catch (err) {
-          job.status = 'completed';
-          job.progress = 100;
-          job.message = 'Analysis complete (partial results)';
-          job.results = { stdout, note: 'Full summary not available' };
+    // Update file history in MongoDB
+    await FileHistory.findOneAndUpdate(
+      { userId: job.userId, fileName: job.fileName },
+      {
+        status: 'completed',
+        processedAt: new Date(),
+        results: {
+          totalRequests: result.summary.total_requests,
+          maliciousRequests: result.summary.threats_detected,
+          attackTypes: result.summary.classification_breakdown
         }
-      } else {
-        job.status = 'failed';
-        job.progress = 0;
-        job.message = `Analysis failed: ${stderr || 'Unknown error'}`;
-        
-        await FileHistory.findOneAndUpdate(
-          { userId: job.userId, fileName: job.fileName },
-          { status: 'failed' }
-        );
       }
-    });
+    );
 
-    python.on('error', async (err) => {
-      job.status = 'failed';
-      job.progress = 0;
-      job.message = `Failed to start analysis: ${err.message}`;
-      
-      await FileHistory.findOneAndUpdate(
-        { userId: job.userId, fileName: job.fileName },
-        { status: 'failed' }
-      );
-    });
+    // Save to Supabase (non-blocking)
+    saveReport(job.userId, uploadId, result.summary)
+      .then(r => { if (r.url) job.reportUrl = r.url; })
+      .catch(err => console.error('Supabase report error:', err));
+
+    // Mark as completed
+    job.status = 'completed';
+    job.progress = 100;
+    job.message = 'Phi3 AI analysis complete';
+    job.results = result.summary;
+
+    console.log(`[Ollama] Analysis complete for ${uploadId}: ${result.summary.total_requests} entries, ${result.summary.threats_detected} threats`);
 
   } catch (error) {
+    console.error(`[Ollama] Analysis failed for ${uploadId}:`, error.message);
     job.status = 'failed';
     job.progress = 0;
-    job.message = `Analysis error: ${error.message}`;
+    job.message = `Analysis failed: ${error.message}`;
+
+    await FileHistory.findOneAndUpdate(
+      { userId: job.userId, fileName: job.fileName },
+      { status: 'failed' }
+    ).catch(() => {});
   }
 }
 

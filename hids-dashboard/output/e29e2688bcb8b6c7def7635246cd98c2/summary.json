@@ -1,0 +1,10 @@
+{
+  "total_requests": 1,
+  "threats_detected": 1,
+  "threat_percentage": "100.0",
+  "classification_breakdown": {
+    "None": 1
+  },
+  "analyzed_with": "Ollama phi3",
+  "analyzed_at": "2026-04-04T12:45:03.211Z"
+}

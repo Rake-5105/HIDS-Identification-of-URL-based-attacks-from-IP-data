@@ -1,4 +1,9 @@
 import os
+import sys
+
+# Ensure flask_api directory is on the path (needed when run from parent directory)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask
 from flask_cors import CORS
 
