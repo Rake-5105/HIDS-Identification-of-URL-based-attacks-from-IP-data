@@ -295,16 +295,13 @@ const Shader = ({ source, uniforms, maxFps = 60 }) => {
 // ============= Mini Navbar Component =============
 
 const AnimatedNavLink = ({ href, children }) => {
-  const defaultTextColor = 'text-gray-300';
-  const hoverTextColor = 'text-white';
-  const textSizeClass = 'text-sm';
-
   return (
-    <a href={href} className={`group relative inline-block overflow-hidden h-5 flex items-center ${textSizeClass}`}>
-      <div className="flex flex-col transition-transform duration-400 ease-out transform group-hover:-translate-y-1/2">
-        <span className={defaultTextColor}>{children}</span>
-        <span className={hoverTextColor}>{children}</span>
-      </div>
+    <a
+      href={href}
+      className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group"
+    >
+      {children}
+      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
     </a>
   );
 };
