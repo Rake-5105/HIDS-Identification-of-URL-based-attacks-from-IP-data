@@ -423,7 +423,7 @@ const Upload = () => {
                 {!urlPrepared && !urlProcessingStatus && (
                   <>
                     <div>
-                      <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         URL to Analyze
                       </label>
                       <input
@@ -432,7 +432,7 @@ const Upload = () => {
                         value={urlInput}
                         onChange={(e) => setUrlInput(e.target.value)}
                         placeholder="https://example.com/login?user=admin"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     </div>
 
