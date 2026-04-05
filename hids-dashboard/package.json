@@ -9,7 +9,7 @@
     "client": "cd client && npm run dev",
     "flask": "python flask_api/app.py",
     "build": "cd client && npm run build",
-    "install:all": "npm install && cd client && npm install && pip install -r flask_api/requirements.txt"
+    "install:all": "npm install && cd client && npm install && cd .. && pip install -r flask_api/requirements.txt"
   },
   "keywords": [
     "hids",

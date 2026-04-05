@@ -1,8 +1,11 @@
 import { RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useApi } from '../hooks/useApi';
+import { useTheme } from '../context/ThemeContext';
 
 const Analysis = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const { data: ipData, loading: ipLoading, error: ipError, refetch: refetchIp } = useApi('/api/analysis/ips');
   const { data: features, loading: featuresLoading } = useApi('/api/analysis/features');
   const { data: methods, loading: methodsLoading } = useApi('/api/analysis/methods');
@@ -63,7 +66,11 @@ const Analysis = () => {
         <h1 className="text-3xl font-bold text-gray-900">Analysis</h1>
         <button
           onClick={refetchIp}
-          className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          className={`inline-flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors ${
+            isDark
+              ? 'bg-gray-800 text-gray-200 border-gray-600 hover:bg-gray-700'
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+          }`}
         >
           <RefreshCw size={16} />
           <span>Refresh</span>

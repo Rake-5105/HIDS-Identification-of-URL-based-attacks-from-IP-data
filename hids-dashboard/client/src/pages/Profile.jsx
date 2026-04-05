@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('profile');
@@ -162,13 +163,19 @@ const Profile = () => {
     { id: 'reports', label: 'Reports', icon: '📊' },
   ];
 
+  const pageClass = isDark ? 'min-h-screen bg-gray-900 text-white p-6' : 'min-h-screen bg-gray-50 text-gray-900 p-6';
+  const panelClass = isDark ? 'bg-gray-800 rounded-lg p-6' : 'bg-white rounded-lg p-6 border border-gray-200 shadow-sm';
+  const sidePanelClass = isDark ? 'bg-gray-800 rounded-lg p-4' : 'bg-white rounded-lg p-4 border border-gray-200 shadow-sm';
+  const headingSubClass = isDark ? 'text-gray-400' : 'text-gray-600';
+  const navInactiveClass = isDark ? 'text-gray-400 hover:bg-gray-700 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900';
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className={pageClass}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">User Settings</h1>
-          <p className="text-gray-400">Manage your account settings and preferences</p>
+          <p className={headingSubClass}>Manage your account settings and preferences</p>
         </div>
 
         {/* Message */}
@@ -184,15 +191,15 @@ const Profile = () => {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="lg:w-64 flex-shrink-0">
-            <div className="bg-gray-800 rounded-lg p-4">
+            <div className={sidePanelClass}>
               {/* User Info */}
-              <div className="flex items-center gap-3 pb-4 border-b border-gray-700 mb-4">
+              <div className={`flex items-center gap-3 pb-4 mb-4 ${isDark ? 'border-b border-gray-700' : 'border-b border-gray-200'}`}>
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl font-bold">
                   {profile?.username?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div>
                   <div className="font-semibold">{profile?.username}</div>
-                  <div className="text-sm text-gray-400">User</div>
+                  <div className={`text-sm ${headingSubClass}`}>User</div>
                 </div>
               </div>
 
@@ -205,7 +212,7 @@ const Profile = () => {
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                       activeTab === tab.id
                         ? 'bg-blue-600 text-white'
-                        : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                        : navInactiveClass
                     }`}
                   >
                     <span>{tab.icon}</span>
@@ -218,7 +225,7 @@ const Profile = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-gray-800 rounded-lg p-6">
+            <div className={panelClass}>
               {/* Profile Tab */}
               {activeTab === 'profile' && (
                 <div>

@@ -10,6 +10,7 @@ import TimelineChart from '../components/TimelineChart';
 import { useApi } from '../hooks/useApi';
 import { ATTACK_COLORS } from '../components/RequestDetail';
 import { useUpload } from '../context/UploadContext';
+import { useTheme } from '../context/ThemeContext';
 
 /* ── tiny helper ── */
 const classColor = (cls) => {
@@ -39,6 +40,8 @@ const timeAgo = (isoString) => {
 };
 
 const Dashboard = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const { data: summary, loading: summaryLoading, error: summaryError, refetch: refetchSummary } = useApi('/api/summary');
   const { data: requests, loading: requestsLoading } = useApi('/api/requests');
   const { data: timeline } = useApi('/api/analysis/timeline');
@@ -97,7 +100,11 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <button
           onClick={refetchSummary}
-          className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-800 text-gray-200 border border-gray-600 rounded-lg hover:bg-gray-700 hover:text-white transition-colors shadow-sm"
+          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-sm border ${
+            isDark
+              ? 'bg-gray-800 text-gray-200 border-gray-600 hover:bg-gray-700 hover:text-white'
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900'
+          }`}
         >
           <RefreshCw size={16} />
           <span>Refresh</span>

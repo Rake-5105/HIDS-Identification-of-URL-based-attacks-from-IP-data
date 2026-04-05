@@ -7,7 +7,7 @@ const path = require('path');
 
 // Ollama API configuration
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'phi3';
+const DEFAULT_MODEL = 'phi3';
 
 // Check Ollama connection
 router.get('/status', auth, async (req, res) => {
@@ -38,7 +38,7 @@ router.get('/status', auth, async (req, res) => {
 // Chat with AI about security analysis
 router.post('/chat', auth, async (req, res) => {
   try {
-    const { message, context, model } = req.body;
+    const { message, context } = req.body;
     
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
@@ -60,7 +60,7 @@ Provide concise, actionable insights. When analyzing URLs or logs, identify pote
       : message;
 
     const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
-      model: model || DEFAULT_MODEL,
+      model: DEFAULT_MODEL,
       prompt: fullPrompt,
       system: systemPrompt,
       stream: false,
@@ -206,7 +206,7 @@ Provide:
 // Stream chat response (Server-Sent Events)
 router.post('/chat/stream', auth, async (req, res) => {
   try {
-    const { message, context, model } = req.body;
+    const { message, context } = req.body;
     
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
@@ -219,7 +219,7 @@ router.post('/chat/stream', auth, async (req, res) => {
     const systemPrompt = `You are a cybersecurity expert specializing in URL-based attack detection. Provide concise, actionable security insights.`;
 
     const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
-      model: model || DEFAULT_MODEL,
+      model: DEFAULT_MODEL,
       prompt: context ? `Context:\n${context}\n\nQuestion: ${message}` : message,
       system: systemPrompt,
       stream: true
