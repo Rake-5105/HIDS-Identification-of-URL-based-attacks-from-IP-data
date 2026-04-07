@@ -1,0 +1,16 @@
+{
+  "total_requests": 28,
+  "threats_detected": 27,
+  "threat_percentage": "96.4",
+  "classification_breakdown": {
+    "None": 10,
+    "Command Injection": 2,
+    "SQL Injection": 4,
+    "Suspicious": 5,
+    "Path Traversal": 4,
+    "XSS": 2,
+    "Normal": 1
+  },
+  "analyzed_with": "Ollama phi3",
+  "analyzed_at": "2026-04-06T13:58:53.608Z"
+}
