@@ -1,0 +1,139 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        7/4/2026, 11:49:05 am
+File Type:            LOGS
+Total Entries (Modules): 20
+Threats Detected (Modules): 4 (20%)
+Ollama Enriched Entries: 16
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    16 entries
+  Directory Traversal       2 entries
+  SQL Injection             1 entries
+  Cross-Site Scripting (XSS) 1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] /login.php?username=admin'--&password=123
+      Source IP:       192.168.1.10
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        Username field contains SQL comment sequence indicative of an injection attempt.
+      Recommendation:  Immediately sanitize input fields to prevent malicious code execution and implement prepared statements or stored procedures.
+
+  [2] /login
+      Source IP:       192.168.1.15
+      Classification:  Normal
+      Risk Level:      None
+      Patterns:        None
+      Recommendation:  N/A
+
+  [3] /search?q=<script>alert('XSS')</script>
+      Source IP:       192.168.1.25
+      Classification:  XSS
+      Risk Level:      High
+      Patterns:        <script>alert('XSS')</script>
+      Recommendation:  Implement input validation and output encoding to prevent script injection.
+
+  [4] /index.php?page=../../etc/passwd
+      Source IP:       192.168.1.30
+      Classification:  Path Traversal
+      Risk Level:      Critical
+      Patterns:        The URL contains '../../' which indicates an attempt to traverse directories.
+      Recommendation:  Implement strict input validation and sanitization, restrict directory traversal in URLs.
+
+  [5] /admin
+      Source IP:       192.168.1.35
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        The URL includes the term 'admin', which could indicate an attempt to access a privileged section of a web application.
+      Recommendation:  Implement strict access controls and ensure that only authenticated users can reach administrative interfaces.
+
+  [6] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not in expected range, POST method for login page without CSRF token.
+      Recommendation:  Implement IP whitelisting and enforce the use of a secure form with CSRF tokens.
+
+  [7] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not in whitelist, POST method used for login without CSRF token.
+      Recommendation:  Implement IP blacklisting and enforce the use of CSRF tokens.
+
+  [8] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login attempt.
+      Recommendation:  Review IP reputation and implement rate limiting.
+
+  [9] /upload.php
+      Source IP:       192.168.1.45
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        GET request with query string containing '../../../etc/passwd' which could indicate path traversal attempt.
+      Recommendation:  Implement strict input validation and sanitization, restrict file upload paths to a safe directory.
+
+  [10] /upload.php
+      Source IP:       192.168.1.45
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for file upload without proper validation.
+      Recommendation:  Implement IP blacklisting or allow list and validate uploaded files.
+
+  [11] /cmd.php?cmd=ls
+      Source IP:       192.168.1.50
+      Classification:  Command Injection
+      Risk Level:      Critical
+      Patterns:        The URL parameter 'cmd' is used to execute system commands, which can lead to unautenerated command execution.
+      Recommendation:  Validate and sanitize all user inputs. Never allow direct execution of code through parameters.
+
+  [12] /index.php?page=../../../../windows/win.ini
+      Source IP:       192.168.1.65
+      Classification:  Path Traversal
+      Risk Level:      High
+      Patterns:        The URL contains relative path traversal sequences that could potentially access files outside the intended directory.
+      Recommendation:  Implement strict input validation and sanitization to prevent accessing unautenericated paths. Use canonicalized URLs internally.
+
+  [13] /login
+      Source IP:       192.168.1.75
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required; monitor for changes in request patterns.
+
+  [14] /login
+      Source IP:       192.168.1.75
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required based on the provided data.
+
+  [15] /login
+      Source IP:       192.168.1.75
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which could be vulnerable to CSRF and potential SQL Injection.
+      Recommendation:  Whitelist IP addresses, implement anti-CSRF tokens, use prepared statements or ORM for database queries.
+
+  [16] /login
+      Source IP:       192.168.1.75
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which could be vulnerable to CSRF and potential SQL Injection.
+      Recommendation:  Whitelist IP addresses; implement anti-CSRF tokens.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

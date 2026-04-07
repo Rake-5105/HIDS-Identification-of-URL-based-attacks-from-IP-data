@@ -1,0 +1,9 @@
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: DataCollector initialised (output → C:\D\College\Third Year\Sixth Sem\Mini_Project\HIDS-Identification-of-URL-based-attacks-from-IP-data\output\d1539062c22d5aeb160095b9426e53a4)
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: ============================================================
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: Data collection started  @ 2026-04-04 12:35:11
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.log_ingestion: Ingesting file: C:\D\College\Third Year\Sixth Sem\Mini_Project\HIDS-Identification-of-URL-based-attacks-from-IP-data\hids-dashboard\uploads\1775286307508-a8207b0cb0eb3e80.csv  [detected: ipdr]
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.ipdr_collector: Parsing IPDR file: C:\D\College\Third Year\Sixth Sem\Mini_Project\HIDS-Identification-of-URL-based-attacks-from-IP-data\hids-dashboard\uploads\1775286307508-a8207b0cb0eb3e80.csv
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.ipdr_collector:   → 0 IPDR records parsed from 1775286307508-a8207b0cb0eb3e80.csv
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: Data collection finished @ 2026-04-04 12:35:11  (0.00s)
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: Summary: {'http_log_entries': 0, 'ipdr_records': 0, 'url_requests': 0, 'snort_alerts': 0, 'total_records': 0, 'source_files': ['C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\uploads\\1775286307508-a8207b0cb0eb3e80.csv'], 'errors': 0}
+2026-04-04 12:35:11 [INFO] data_modules.data_collection.collector: ============================================================
