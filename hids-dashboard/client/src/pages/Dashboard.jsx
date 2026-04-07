@@ -487,8 +487,8 @@ const Dashboard = () => {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Threats */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Threats</h3>
+        <div className="rounded-xl shadow-sm border border-amber-200/70 p-6 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
+          <h3 className="text-lg font-semibold text-amber-900 mb-4">Recent Threats</h3>
           {recentThreats.length === 0 ? (
             <p className="text-center text-gray-400 py-8">No threats detected</p>
           ) : (
@@ -500,7 +500,7 @@ const Dashboard = () => {
                 return (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-3 bg-white/70 border border-amber-200/60 rounded-lg hover:bg-white/90 cursor-pointer transition-colors"
                     onClick={() => navigate('/app/requests')}
                   >
                     <div className="flex-1 min-w-0">
@@ -520,8 +520,8 @@ const Dashboard = () => {
         </div>
 
         {/* Suspicious IPs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Suspicious IP Addresses</h3>
+        <div className="rounded-xl shadow-sm border border-rose-200/70 p-6 bg-gradient-to-br from-rose-50 via-red-50 to-pink-50">
+          <h3 className="text-lg font-semibold text-rose-900 mb-4">Suspicious IP Addresses</h3>
           {!summary?.suspicious_ips || summary.suspicious_ips.length === 0 ? (
             <p className="text-center text-gray-400 py-8">No suspicious IPs detected</p>
           ) : (
@@ -530,9 +530,9 @@ const Dashboard = () => {
                 <div
                   key={idx}
                   onClick={() => navigate('/app/analysis')}
-                  className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer transition-colors"
+                  className="px-4 py-3 bg-white/75 border border-rose-200 rounded-lg hover:bg-white cursor-pointer transition-colors"
                 >
-                  <p className="font-mono text-sm font-medium text-red-900">{ip}</p>
+                  <p className="font-mono text-sm font-medium text-rose-900">{ip}</p>
                 </div>
               ))}
             </div>
