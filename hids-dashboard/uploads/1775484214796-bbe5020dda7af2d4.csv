@@ -1,0 +1,13 @@
+source_ip,timestamp,full_url,method,status_code,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+192.168.1.10,2026-02-27T08:01:12,/index.html,GET,200,11,2,0,0,0
+192.168.1.10,2026-02-27T08:01:15,/style.css,GET,200,10,2,0,0,0
+10.0.0.55,2026-02-27T08:02:01,/admin/config.php,GET,403,17,3,0,0,0
+10.0.0.55,2026-02-27T08:02:03,/admin/config.php?id=1' OR 1=1 --,GET,500,35,8,1,0,0
+172.16.0.200,2026-02-27T08:03:44,/login,POST,200,6,1,0,0,0
+172.16.0.200,2026-02-27T08:03:45,/login,POST,401,6,1,0,0,0
+45.33.32.156,2026-02-27T08:05:00,/../../../etc/passwd,GET,400,20,11,0,0,1
+45.33.32.156,2026-02-27T08:05:01,/wp-login.php,GET,404,13,3,0,0,0
+198.51.100.7,2026-02-27T08:15:00,/<script>alert(1)</script>,GET,400,26,8,0,1,0
+198.51.100.7,2026-02-27T08:15:02,/search?q=%3Cscript%3Ealert(1)%3C/script%3E,GET,200,49,11,0,1,0
+203.0.113.42,2026-02-27T09:01:00,/api/users?id=1;,GET,400,16,5,0,0,0
+203.0.113.42,2026-02-27T09:01:01,/api/data?file=../../../../etc/shadow,GET,403,37,17,0,0,1

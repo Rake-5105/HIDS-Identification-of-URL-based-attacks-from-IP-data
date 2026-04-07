@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-06T00:00:00",
+    "raw_url": "https://example.com/search?q=test",
+    "scheme": "https",
+    "host": "example.com",
+    "port": null,
+    "effective_port": 443,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=test",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "test"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "cli",
+    "referrer": "test",
+    "source": "ipdr"
+  }
+]

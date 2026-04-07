@@ -1,6 +1,6 @@
 import {
   Activity, AlertTriangle, Target, Shield, RefreshCw, FileUp,
-  Clock, Zap, ChevronRight, X, History, Trash2, FileText,
+  Clock, ChevronRight, X, History, Trash2, FileText,
   ShieldAlert, BarChart3, ArrowUpRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -98,17 +98,30 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <button
-          onClick={refetchSummary}
-          className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-sm border ${
-            isDark
-              ? 'bg-gray-800 text-gray-200 border-gray-600 hover:bg-gray-700 hover:text-white'
-              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900'
-          }`}
-        >
-          <RefreshCw size={16} />
-          <span>Refresh</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/app/upload')}
+            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-sm border ${
+              isDark
+                ? 'bg-blue-700 text-white border-blue-600 hover:bg-blue-600'
+                : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            <FileUp size={16} />
+            <span>New Scan</span>
+          </button>
+          <button
+            onClick={refetchSummary}
+            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors shadow-sm border ${
+              isDark
+                ? 'bg-gray-800 text-gray-200 border-gray-600 hover:bg-gray-700 hover:text-white'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900'
+            }`}
+          >
+            <RefreshCw size={16} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* ═══  Latest Upload Results Banner ═══ */}
@@ -147,7 +160,7 @@ const Dashboard = () => {
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-white shadow-sm">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Entries</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{latestResult.total_requests || 0}</p>
@@ -172,13 +185,6 @@ const Dashboard = () => {
                 }`}>
                   {latestResult.threat_percentage || 0}%
                 </p>
-              </div>
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-white shadow-sm">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">AI Model</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <Zap size={16} className="text-blue-500" />
-                  <p className="text-lg font-bold text-blue-600">{latestResult.analyzed_with || 'Phi3'}</p>
-                </div>
               </div>
             </div>
 

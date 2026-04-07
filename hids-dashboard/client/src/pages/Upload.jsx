@@ -59,13 +59,11 @@ const Upload = () => {
     const attackType = attackTypeRaw.trim();
     const isThreat = attackType.toLowerCase() !== 'normal' && attackType.toLowerCase() !== 'none';
     const riskLevel = formatForDisplay(urlResult?.analysis?.riskLevel) || 'Unknown';
-    const modelName = formatForDisplay(urlResult?.model) || 'Ollama phi3';
 
     return {
       totalEntries: 1,
       threatsFound: isThreat ? 1 : 0,
       threatRate: isThreat ? '100.0%' : '0.0%',
-      modelName,
       attackType,
       riskLevel
     };
@@ -82,7 +80,6 @@ const Upload = () => {
       ['Risk Level', summary.riskLevel],
       ['Threats Found', String(summary.threatsFound)],
       ['Threat Rate', summary.threatRate],
-      ['AI Model', summary.modelName],
       ['Recommended Action', formatForDisplay(urlResult?.analysis?.action) || ''],
       ['Explanation', formatForDisplay(urlResult?.analysis?.explanation) || ''],
       ['Suspicious Patterns', patterns.join(' | ') || 'None']
@@ -105,7 +102,6 @@ const Upload = () => {
       `Risk Level: ${summary.riskLevel}`,
       `Threats Found: ${summary.threatsFound}`,
       `Threat Rate: ${summary.threatRate}`,
-      `AI Model: ${summary.modelName}`,
       '',
       'Suspicious Patterns:',
       patterns.length ? patterns.map((pattern) => `- ${pattern}`).join('\n') : '- None',
@@ -133,7 +129,7 @@ const Upload = () => {
       total_requests: 1,
       threats_detected: isThreat ? 1 : 0,
       threat_percentage: isThreat ? 100 : 0,
-      analyzed_with: formatForDisplay(resultData?.model) || 'phi3',
+      analyzed_with: formatForDisplay(resultData?.model) || 'AI Analysis',
       classification_breakdown,
       analyzed_url: resultData?.url || ''
     };
@@ -191,7 +187,7 @@ const Upload = () => {
 
     setUrlProcessing(true);
     setUrlResult(null);
-    setUrlProcessingStatus({ status: 'processing', progress: 5, message: 'Initializing Phi3 AI...' });
+    setUrlProcessingStatus({ status: 'processing', progress: 5, message: 'Initializing Modules 1-4 + AI Analysis...' });
 
     let fakeProgress = 5;
     const progressTicker = setInterval(() => {
@@ -201,7 +197,7 @@ const Upload = () => {
       if (fakeProgress >= 25 && fakeProgress < 55) {
         message = 'Parsing URL components...';
       } else if (fakeProgress >= 55 && fakeProgress < 85) {
-        message = 'Analyzing URL patterns with Phi3...';
+        message = 'Running AI Analysis on URL patterns...';
       } else if (fakeProgress >= 85) {
         message = 'Generating final report...';
       }
@@ -219,7 +215,7 @@ const Upload = () => {
 
       clearInterval(progressTicker);
       setUrlProcessing(false);
-      setUrlProcessingStatus({ status: 'completed', progress: 100, message: 'Phi3 AI analysis completed.' });
+      setUrlProcessingStatus({ status: 'completed', progress: 100, message: 'Modules 1-4 + AI Analysis completed.' });
       setUrlResult(response.data);
     } catch (error) {
       clearInterval(progressTicker);
@@ -256,7 +252,7 @@ const Upload = () => {
     if (!uploadResult?.upload_id) return;
 
     setProcessing(true);
-    setProcessingStatus({ status: 'processing', progress: 0, message: 'Initializing Phi3 AI...' });
+    setProcessingStatus({ status: 'processing', progress: 0, message: 'Initializing Modules 1-4 + AI Analysis...' });
 
     try {
       // Start processing
@@ -328,11 +324,15 @@ const Upload = () => {
   const getProgressSteps = () => {
     if (!processingStatus) return [];
 
+    const progress = processingStatus.progress || 0;
     const steps = [
       { label: 'Upload', status: 'completed' },
-      { label: 'Parsing', status: processingStatus.progress > 20 ? 'completed' : 'pending' },
-      { label: 'Phi3 AI Analysis', status: processingStatus.progress > 50 ? 'completed' : 'pending' },
-      { label: 'Report Generation', status: processingStatus.progress > 85 ? 'completed' : 'pending' },
+      { label: 'Module 1: Data Collection', status: progress >= 15 ? 'completed' : 'pending' },
+      { label: 'Module 2: URL Parsing', status: progress >= 25 ? 'completed' : 'pending' },
+      { label: 'Module 3: Feature Extraction', status: progress >= 35 ? 'completed' : 'pending' },
+      { label: 'Module 4: Classification', status: progress >= 45 ? 'completed' : 'pending' },
+      { label: 'AI Analysis', status: progress >= 70 ? 'completed' : 'pending' },
+      { label: 'Report Generation', status: progress >= 90 ? 'completed' : 'pending' },
       { label: 'Complete', status: processingStatus.status === 'completed' ? 'completed' : 'pending' }
     ];
 
@@ -345,9 +345,12 @@ const Upload = () => {
     const progress = urlProcessingStatus.progress || 0;
     return [
       { label: 'Upload', status: 'completed' },
-      { label: 'Parsing', status: progress > 20 ? 'completed' : 'pending' },
-      { label: 'Phi3 AI Analysis', status: progress > 50 ? 'completed' : 'pending' },
-      { label: 'Report Generation', status: progress > 85 ? 'completed' : 'pending' },
+      { label: 'Module 1: Data Collection', status: progress >= 15 ? 'completed' : 'pending' },
+      { label: 'Module 2: URL Parsing', status: progress >= 25 ? 'completed' : 'pending' },
+      { label: 'Module 3: Feature Extraction', status: progress >= 35 ? 'completed' : 'pending' },
+      { label: 'Module 4: Classification', status: progress >= 45 ? 'completed' : 'pending' },
+      { label: 'AI Analysis', status: progress >= 70 ? 'completed' : 'pending' },
+      { label: 'Report Generation', status: progress >= 90 ? 'completed' : 'pending' },
       { label: 'Complete', status: urlProcessingStatus.status === 'completed' ? 'completed' : 'pending' }
     ];
   };
@@ -423,7 +426,7 @@ const Upload = () => {
                 {!urlPrepared && !urlProcessingStatus && (
                   <>
                     <div>
-                      <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         URL to Analyze
                       </label>
                       <input
@@ -432,7 +435,7 @@ const Upload = () => {
                         value={urlInput}
                         onChange={(e) => setUrlInput(e.target.value)}
                         placeholder="https://example.com/login?user=admin"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     </div>
 
@@ -463,7 +466,7 @@ const Upload = () => {
                       onClick={handleRunUrlAnalysis}
                       className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                     >
-                      <span>🤖 Run Phi3 AI Analysis</span>
+                      <span>🤖 Run Attack Analysis</span>
                       <ArrowRight size={20} />
                     </button>
 
@@ -542,15 +545,15 @@ const Upload = () => {
                 {urlResult && !urlResult.error && urlProcessingStatus?.status === 'completed' && (
                   <div className="mt-6 space-y-4">
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="font-medium text-green-900">✅ Phi3 AI Analysis Complete!</p>
+                      <p className="font-medium text-green-900">✅ AI Analysis Complete!</p>
                       <p className="text-sm text-green-700 mt-1">
-                        Your URL has been analyzed by Ollama Phi3 AI.
+                        Your URL has been analyzed with AI Analysis.
                       </p>
                     </div>
 
                     <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                       <p className="text-sm font-medium text-gray-900 mb-3">Analysis Summary:</p>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                         <div className="bg-white p-3 rounded-lg border">
                           <p className="text-gray-500">Total Entries</p>
                           <p className="text-2xl font-bold text-gray-900">{getUrlAnalysisSummary().totalEntries}</p>
@@ -562,10 +565,6 @@ const Upload = () => {
                         <div className="bg-white p-3 rounded-lg border">
                           <p className="text-gray-500">Threat Rate</p>
                           <p className="text-2xl font-bold text-orange-600">{getUrlAnalysisSummary().threatRate}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg border">
-                          <p className="text-gray-500">AI Model</p>
-                          <p className="text-lg font-bold text-blue-600">{getUrlAnalysisSummary().modelName}</p>
                         </div>
                       </div>
 
@@ -651,7 +650,7 @@ const Upload = () => {
                   onClick={handleRunAnalysis}
                   className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                 >
-                  <span>🤖 Run Phi3 AI Analysis</span>
+                  <span>🤖 Run Attack Analysis</span>
                   <ArrowRight size={20} />
                 </button>
 
@@ -712,16 +711,16 @@ const Upload = () => {
                 {processingStatus?.status === 'completed' && (
                   <div className="mt-6 space-y-4">
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="font-medium text-green-900">✅ Phi3 AI Analysis Complete!</p>
+                      <p className="font-medium text-green-900">✅ AI Analysis Complete!</p>
                       <p className="text-sm text-green-700 mt-1">
-                        Your file has been analyzed by Ollama Phi3 AI.
+                        Your file has been analyzed with AI Analysis.
                       </p>
                     </div>
 
                     {processingStatus.results && (
                       <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                         <p className="text-sm font-medium text-gray-900 mb-3">Analysis Summary:</p>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                           <div className="bg-white p-3 rounded-lg border">
                             <p className="text-gray-500">Total Entries</p>
                             <p className="text-2xl font-bold text-gray-900">{processingStatus.results.total_requests || 0}</p>
@@ -733,10 +732,6 @@ const Upload = () => {
                           <div className="bg-white p-3 rounded-lg border">
                             <p className="text-gray-500">Threat Rate</p>
                             <p className="text-2xl font-bold text-orange-600">{processingStatus.results.threat_percentage || 0}%</p>
-                          </div>
-                          <div className="bg-white p-3 rounded-lg border">
-                            <p className="text-gray-500">AI Model</p>
-                            <p className="text-lg font-bold text-blue-600">{processingStatus.results.analyzed_with || 'Phi3'}</p>
                           </div>
                         </div>
 
@@ -827,8 +822,8 @@ const Upload = () => {
               <li>Select the appropriate file type tab above</li>
               <li>Upload your file (max 50MB)</li>
               <li>Or use URL Analysis to inspect a single URL directly</li>
-              <li>Click "Run Phi3 AI Analysis" to process with Ollama's AI</li>
-              <li>Monitor the progress as Phi3 analyzes each entry</li>
+              <li>Click "Run Attack Analysis" to process your data</li>
+              <li>Monitor progress while attack analysis runs on each entry</li>
               <li>Download the report as <strong>CSV</strong> or <strong>TXT</strong> for further investigation</li>
             </ul>
           </div>

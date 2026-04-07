@@ -27,7 +27,9 @@ const fileHistorySchema = new mongoose.Schema({
   results: {
     totalRequests: { type: Number, default: 0 },
     maliciousRequests: { type: Number, default: 0 },
-    attackTypes: { type: Map, of: Number, default: {} }
+    attackTypes: { type: Map, of: Number, default: {} },
+    mlAccuracy: { type: Number, default: 0 },
+    suspiciousIps: { type: [String], default: [] }
   },
   uploadedAt: {
     type: Date,

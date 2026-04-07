@@ -1,9 +1,169 @@
 const axios = require('axios');
+const { existsSync } = require('fs');
 const fs = require('fs').promises;
 const path = require('path');
+const { execFile } = require('child_process');
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'phi3';
+const PANDAS_ERROR = "No module named 'pandas'";
+
+const runExecFile = (command, args) => new Promise((resolve, reject) => {
+  execFile(command, args, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+    if (error) {
+      reject(new Error(`${command} failed: ${stderr || error.message}`));
+      return;
+    }
+    resolve(stdout);
+  });
+});
+
+const parseJsonLine = (stdout) => {
+  const lines = stdout
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  for (let i = lines.length - 1; i >= 0; i--) {
+    try {
+      return JSON.parse(lines[i]);
+    } catch {
+      // Continue searching previous lines.
+    }
+  }
+
+  throw new Error('Module pipeline returned no JSON payload');
+};
+
+const getPythonAttempts = (scriptPath, filePath, outputDir) => {
+  const repoRoot = path.resolve(__dirname, '../../..');
+  const dashboardRoot = path.resolve(__dirname, '../..');
+
+  const venvCandidates = [
+    path.join(repoRoot, '.venv', 'Scripts', 'python.exe'),
+    path.join(repoRoot, 'venv', 'Scripts', 'python.exe'),
+    path.join(dashboardRoot, '.venv', 'Scripts', 'python.exe'),
+    path.join(dashboardRoot, 'venv', 'Scripts', 'python.exe')
+  ];
+
+  const attempts = [];
+  const customPython = process.env.HIDS_PYTHON;
+
+  if (customPython) {
+    attempts.push({ command: customPython, prefixArgs: [] });
+  }
+
+  venvCandidates
+    .filter(candidate => existsSync(candidate))
+    .forEach(candidate => attempts.push({ command: candidate, prefixArgs: [] }));
+
+  attempts.push({ command: 'python', prefixArgs: [] });
+  attempts.push({ command: 'py', prefixArgs: ['-3'] });
+
+  const seen = new Set();
+  const dedupedAttempts = attempts.filter((attempt) => {
+    const key = `${attempt.command}|${attempt.prefixArgs.join(' ')}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return dedupedAttempts.map(attempt => ({
+    ...attempt,
+    pipelineArgs: [...attempt.prefixArgs, scriptPath, '--input', filePath, '--output-dir', outputDir]
+  }));
+};
+
+const buildInstallCommand = (attempt, requirementsPath) => {
+  const quotedReq = `"${requirementsPath}"`;
+  if (attempt.command === 'py') {
+    return `py -3 -m pip install -r ${quotedReq}`;
+  }
+  return `"${attempt.command}" -m pip install -r ${quotedReq}`;
+};
+
+const getEligiblePythonAttempts = async (attempts, requirementsPath) => {
+  const eligibleAttempts = [];
+  const meaningfulErrors = [];
+  const pandasMissingAttempts = [];
+  let lastError = null;
+
+  for (const attempt of attempts) {
+    try {
+      await runExecFile(attempt.command, [...attempt.prefixArgs, '-c', 'import pandas']);
+      eligibleAttempts.push(attempt);
+    } catch (error) {
+      lastError = error;
+      const message = String(error.message || '');
+      const isCommandMissing = message.toLowerCase().includes('enoent');
+
+      if (message.includes(PANDAS_ERROR)) {
+        pandasMissingAttempts.push(attempt);
+        continue;
+      }
+
+      if (!isCommandMissing) {
+        meaningfulErrors.push(`${attempt.command}: ${message}`);
+      }
+    }
+  }
+
+  if (eligibleAttempts.length > 0) {
+    return eligibleAttempts;
+  }
+
+  if (pandasMissingAttempts.length > 0) {
+    const installCommand = buildInstallCommand(pandasMissingAttempts[0], requirementsPath);
+    throw new Error(`Python is missing required dependency 'pandas'. Run: ${installCommand}`);
+  }
+
+  if (meaningfulErrors.length > 0) {
+    throw new Error(`Python dependency check failed: ${meaningfulErrors[0]}`);
+  }
+
+  throw lastError || new Error('Unable to execute Python dependency check');
+};
+
+const runModulePipeline = async (filePath, uploadId) => {
+  const scriptPath = path.join(__dirname, 'module_pipeline_runner.py');
+  const outputDir = path.join(__dirname, '../../output', uploadId || 'manual');
+  const requirementsPath = path.resolve(__dirname, '../../../requirements.txt');
+
+  await fs.mkdir(outputDir, { recursive: true });
+
+  const attempts = getPythonAttempts(scriptPath, filePath, outputDir);
+  const eligibleAttempts = await getEligiblePythonAttempts(attempts, requirementsPath);
+
+  let lastError = null;
+  const meaningfulErrors = [];
+
+  for (const attempt of eligibleAttempts) {
+    try {
+      const stdout = await runExecFile(attempt.command, attempt.pipelineArgs);
+      const payload = parseJsonLine(stdout);
+      return { payload, outputDir };
+    } catch (error) {
+      lastError = error;
+      const message = String(error.message || '');
+      const isCommandMissing = message.toLowerCase().includes('enoent');
+
+      if (message.includes(PANDAS_ERROR)) {
+        const installCommand = buildInstallCommand(attempt, requirementsPath);
+        throw new Error(`Python is missing required dependency 'pandas'. Run: ${installCommand}`);
+      }
+
+      if (!isCommandMissing) {
+        meaningfulErrors.push(`${attempt.command}: ${message}`);
+      }
+    }
+  }
+
+  if (meaningfulErrors.length > 0) {
+    throw new Error(`Module pipeline failed: ${meaningfulErrors[0]}`);
+  }
+
+  throw lastError || new Error('Unable to execute module pipeline (no Python runtime found)');
+};
 
 /**
  * Analyze a single URL/request entry with Ollama phi3
@@ -49,10 +209,10 @@ ${entry.payload ? `- Payload: ${entry.payload}` : ''}`;
  * Parse uploaded file into analyzable entries
  */
 const parseFile = async (filePath, fileType) => {
-  const content = await fs.readFile(filePath, 'utf-8');
   const entries = [];
 
   if (fileType === 'csv') {
+    const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.split('\n').filter(l => l.trim());
     if (lines.length === 0) return entries;
 
@@ -67,6 +227,7 @@ const parseFile = async (filePath, fileType) => {
       entries.push(entry);
     }
   } else if (fileType === 'logs') {
+    const content = await fs.readFile(filePath, 'utf-8');
     // Parse common log formats (Apache/Nginx)
     const logRegex = /(\d+\.\d+\.\d+\.\d+).*?"(\w+)\s+(\S+)\s+HTTP\/[\d.]+"\s+(\d+)/g;
     let match;
@@ -111,16 +272,43 @@ const parseFile = async (filePath, fileType) => {
  * Run full Ollama-powered analysis on an uploaded file
  * Returns { entries, summary, csvContent, txtContent }
  */
-const analyzeFile = async (filePath, fileType, onProgress) => {
+const analyzeFile = async (filePath, fileType, onProgress, uploadId = 'manual') => {
+  if (onProgress) {
+    onProgress(10, 'Module 1: Data Collection...');
+    onProgress(20, 'Module 2: URL Parsing...');
+    onProgress(30, 'Module 3: Feature Extraction...');
+    onProgress(40, 'Module 4: Classification...');
+  }
+
+  const moduleResult = await runModulePipeline(filePath, uploadId);
+  const moduleSummary = moduleResult.payload.summary || {};
+
+  if (onProgress) {
+    onProgress(55, `Phi3 Enrichment (${MODEL})...`);
+  }
+
   // Parse the file
   const entries = await parseFile(filePath, fileType);
 
   if (entries.length === 0) {
+    const moduleCsvPath = moduleResult.payload.artifacts?.module4_csv;
+    const csvContent = moduleCsvPath ? await fs.readFile(moduleCsvPath, 'utf-8') : 'No CSV generated';
+    const txtContent = [
+      'HIDS Hybrid Report',
+      `Modules analyzed ${moduleSummary.total_requests || 0} requests.`,
+      `Ollama enrichment was skipped for file type: ${fileType}.`
+    ].join('\n');
+
     return {
       entries: [],
-      summary: { total: 0, threats: 0, message: 'No analyzable entries found' },
-      csvContent: 'No data to analyze',
-      txtContent: 'No data to analyze'
+      summary: {
+        ...moduleSummary,
+        analyzed_with: `Modules 1-4 + Ollama ${MODEL}`,
+        ollama_enriched_entries: 0,
+        module_pipeline: moduleResult.payload
+      },
+      csvContent,
+      txtContent
     };
   }
 
@@ -131,7 +319,7 @@ const analyzeFile = async (filePath, fileType, onProgress) => {
   // Analyze each entry with Ollama
   for (let i = 0; i < toAnalyze.length; i++) {
     if (onProgress) {
-      onProgress(Math.round(25 + (i / toAnalyze.length) * 60), `Analyzing entry ${i + 1}/${toAnalyze.length} with Phi3...`);
+      onProgress(Math.round(60 + (i / toAnalyze.length) * 30), `Phi3 analyzing entry ${i + 1}/${toAnalyze.length}...`);
     }
 
     const analysis = await analyzeEntry(toAnalyze[i], i, toAnalyze.length);
@@ -152,13 +340,22 @@ const analyzeFile = async (filePath, fileType, onProgress) => {
     classificationCounts[cls] = (classificationCounts[cls] || 0) + 1;
   });
 
-  const summary = {
+  const ollamaSummary = {
     total_requests: results.length,
     threats_detected: threatCount,
-    threat_percentage: ((threatCount / results.length) * 100).toFixed(1),
+    threat_percentage: Number(((threatCount / results.length) * 100).toFixed(1)),
     classification_breakdown: classificationCounts,
     analyzed_with: `Ollama ${MODEL}`,
     analyzed_at: new Date().toISOString()
+  };
+
+  const summary = {
+    ...moduleSummary,
+    analyzed_with: `Modules 1-4 + Ollama ${MODEL}`,
+    analyzed_at: new Date().toISOString(),
+    ollama_enriched_entries: results.length,
+    ollama: ollamaSummary,
+    module_pipeline: moduleResult.payload
   };
 
   // Generate CSV content
@@ -166,8 +363,6 @@ const analyzeFile = async (filePath, fileType, onProgress) => {
   const csvRows = results.map(r =>
     csvHeaders.map(h => `"${(r[h] || '').toString().replace(/"/g, '""')}"`)
   );
-  const csvContent = [csvHeaders.join(','), ...csvRows.map(r => r.join(','))].join('\n');
-
   // Generate TXT report
   const txtLines = [
     '═══════════════════════════════════════════════════════════════',
@@ -177,14 +372,15 @@ const analyzeFile = async (filePath, fileType, onProgress) => {
     '',
     `Analysis Date:        ${new Date().toLocaleString()}`,
     `File Type:            ${fileType.toUpperCase()}`,
-    `Total Entries:        ${summary.total_requests}`,
-    `Threats Detected:     ${summary.threats_detected} (${summary.threat_percentage}%)`,
-    `AI Model Used:        ${MODEL}`,
+    `Total Entries (Modules): ${summary.total_requests}`,
+    `Threats Detected (Modules): ${summary.threats_detected} (${summary.threat_percentage}%)`,
+    `Ollama Enriched Entries: ${summary.ollama_enriched_entries}`,
+    `AI Model Used: ${MODEL}`,
     '',
     '───────────────────────────────────────────────────────────────',
     '  CLASSIFICATION BREAKDOWN',
     '───────────────────────────────────────────────────────────────',
-    ...Object.entries(classificationCounts).map(([cls, count]) =>
+    ...Object.entries(summary.classification_breakdown || {}).map(([cls, count]) =>
       `  ${cls.padEnd(25)} ${count} entries`
     ),
     '',
@@ -209,6 +405,11 @@ const analyzeFile = async (filePath, fileType, onProgress) => {
   txtLines.push('═══════════════════════════════════════════════════════════════');
 
   const txtContent = txtLines.join('\n');
+
+  const moduleCsvPath = moduleResult.payload.artifacts?.module4_csv;
+  const csvContent = moduleCsvPath
+    ? await fs.readFile(moduleCsvPath, 'utf-8')
+    : [csvHeaders.join(','), ...csvRows.map(r => r.join(','))].join('\n');
 
   return { entries: results, summary, csvContent, txtContent };
 };

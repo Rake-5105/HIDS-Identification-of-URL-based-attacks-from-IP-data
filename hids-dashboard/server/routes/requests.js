@@ -1,11 +1,49 @@
 const express = require('express');
 const router = express.Router();
-const { loadRequests } = require('../utils/dataLoader');
+const FileHistory = require('../models/FileHistory');
+
+const buildUserRequests = (files) => {
+  const rows = [];
+
+  files.forEach((file) => {
+    const attackTypes = file?.results?.attackTypes;
+    const timestamp = file.processedAt || file.uploadedAt || new Date();
+    const baseUrl = file.fileName || 'uploaded-file';
+
+    if (!attackTypes) return;
+
+    const entries = attackTypes instanceof Map
+      ? Array.from(attackTypes.entries())
+      : Object.entries(attackTypes);
+
+    entries.forEach(([cls, count]) => {
+      const safeCount = Number(count || 0);
+      if (safeCount <= 0) return;
+
+      rows.push({
+        timestamp,
+        source_ip: 'N/A',
+        url: baseUrl,
+        classification: cls,
+        confidence: cls.toLowerCase() === 'normal' ? 100 : 90,
+        detection_method: 'aggregated',
+        count: safeCount
+      });
+    });
+  });
+
+  return rows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+};
 
 // GET /api/requests - All detection rows
 router.get('/', async (req, res) => {
   try {
-    const requests = await loadRequests();
+    const files = await FileHistory.find({
+      userId: req.user.id,
+      status: 'completed'
+    }).lean();
+
+    const requests = buildUserRequests(files);
     res.json(requests);
   } catch (error) {
     console.error('Requests error:', error);
@@ -28,7 +66,11 @@ router.get('/:index', async (req, res) => {
       });
     }
 
-    const requests = await loadRequests();
+    const files = await FileHistory.find({
+      userId: req.user.id,
+      status: 'completed'
+    }).lean();
+    const requests = buildUserRequests(files);
 
     if (index >= requests.length) {
       return res.status(404).json({

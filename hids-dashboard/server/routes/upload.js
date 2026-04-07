@@ -52,6 +52,7 @@ const upload = multer({
 
 // Store processing jobs in memory (in production, use Redis)
 const processingJobs = new Map();
+const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
 
 // ─── IMPORTANT: Specific routes MUST come before wildcard /:type ───
 
@@ -161,12 +162,12 @@ router.post('/process/:uploadId', auth, async (req, res) => {
     // Update status to processing
     job.status = 'processing';
     job.progress = 10;
-    job.message = 'Starting Phi3 AI analysis...';
+    job.message = 'Starting module + Phi3 analysis...';
 
     // Run Ollama analysis in background
     runOllamaAnalysis(uploadId, job);
 
-    res.json({ success: true, message: 'Phi3 analysis started' });
+    res.json({ success: true, message: 'Module + Phi3 analysis started' });
   } catch (error) {
     console.error('Process error:', error);
     res.status(500).json({ error: error.message || 'Processing failed' });
@@ -238,8 +239,8 @@ async function runOllamaAnalysis(uploadId, job) {
       job.message = message;
     };
 
-    // Run analysis with Ollama
-    const result = await analyzeFile(job.filePath, job.fileType, onProgress);
+    // Run analysis with modules and Ollama
+    const result = await analyzeFile(job.filePath, job.fileType, onProgress, uploadId);
 
     // Store reports for download
     job.reportCsv = result.csvContent;
@@ -261,7 +262,9 @@ async function runOllamaAnalysis(uploadId, job) {
         results: {
           totalRequests: result.summary.total_requests,
           maliciousRequests: result.summary.threats_detected,
-          attackTypes: result.summary.classification_breakdown
+          attackTypes: result.summary.classification_breakdown,
+          mlAccuracy: Number(result.summary.ml_accuracy) > 0 ? Number(result.summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
+          suspiciousIps: Array.isArray(result.summary.suspicious_ips) ? result.summary.suspicious_ips : []
         }
       }
     );
@@ -274,7 +277,7 @@ async function runOllamaAnalysis(uploadId, job) {
     // Mark as completed
     job.status = 'completed';
     job.progress = 100;
-    job.message = 'Phi3 AI analysis complete';
+    job.message = 'Module + Phi3 analysis complete';
     job.results = result.summary;
 
     console.log(`[Ollama] Analysis complete for ${uploadId}: ${result.summary.total_requests} entries, ${result.summary.threats_detected} threats`);

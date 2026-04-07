@@ -1,0 +1,27 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-07T05:58:16.571000",
+    "raw_url": "http://login-amazon-account.comhttp://bit.ly/3FakeLink",
+    "scheme": "http",
+    "host": "login-amazon-account.comhttp",
+    "port": null,
+    "effective_port": 80,
+    "path": "/bit.ly/3FakeLink",
+    "path_segments": [
+      "bit.ly",
+      "3FakeLink"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

@@ -444,6 +444,16 @@ const setTrustedDeviceCookie = (token, days = 30) => {
   document.cookie = `trusted_device=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
 };
 
+const getApiErrorMessage = (err, fallback) => {
+  if (err?.response?.data?.message) {
+    return err.response.data.message;
+  }
+  if (err?.code === 'ERR_NETWORK') {
+    return 'Cannot reach authentication server. Ensure backend is running on port 5000.';
+  }
+  return fallback;
+};
+
 export const SignInPage = ({ className, mode = "register" }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -543,7 +553,7 @@ export const SignInPage = ({ className, mode = "register" }) => {
         setResendCooldown(60);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to proceed. Please try again.");
+      setError(getApiErrorMessage(err, "Failed to proceed. Please try again."));
     } finally {
       setOtpSending(false);
     }
@@ -615,7 +625,7 @@ export const SignInPage = ({ className, mode = "register" }) => {
       }, 2000);
 
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid verification code");
+      setError(getApiErrorMessage(err, "Invalid verification code"));
       setCode(["", "", "", "", "", ""]);
       codeInputRefs.current[0]?.focus();
     } finally {
@@ -650,7 +660,7 @@ export const SignInPage = ({ className, mode = "register" }) => {
       });
       setResendCooldown(60);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend code");
+      setError(getApiErrorMessage(err, "Failed to resend code"));
     } finally {
       setOtpSending(false);
     }

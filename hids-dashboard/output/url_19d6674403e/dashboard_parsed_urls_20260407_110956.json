@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-07T05:39:47.904000",
+    "raw_url": "https://testphp.vulnweb.com/listproducts.php?cat=1%20OR%201=1--",
+    "scheme": "https",
+    "host": "testphp.vulnweb.com",
+    "port": null,
+    "effective_port": 443,
+    "path": "/listproducts.php",
+    "path_segments": [
+      "listproducts.php"
+    ],
+    "path_depth": 1,
+    "query_string": "cat=1%20OR%201%3D1--",
+    "query_params": [
+      {
+        "key": "cat",
+        "value": "1 OR 1=1--"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

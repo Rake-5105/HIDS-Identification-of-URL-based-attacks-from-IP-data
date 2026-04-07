@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-07T06:03:11.282000,http://login-amazon-account.comhttp://test.com/%3Cscript%3Ealert(1)%3C/script%3E,http,login-amazon-account.comhttp,,80,/test.com/<script>alert(1)</script>,test.com;<script>alert(1)<;script>,3,,,0,,,GET,200,web-dashboard,manual-url,ipdr

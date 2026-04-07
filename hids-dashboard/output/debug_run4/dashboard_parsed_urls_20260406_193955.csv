@@ -1,0 +1,13 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+192.168.1.10,2026-02-27T08:01:12,/index.html,http,,,80,/index.html,index.html,1,,,0,,html,GET,200,,,ipdr
+192.168.1.10,2026-02-27T08:01:15,/style.css,http,,,80,/style.css,style.css,1,,,0,,css,GET,200,,,ipdr
+10.0.0.55,2026-02-27T08:02:01,/admin/config.php,http,,,80,/admin/config.php,admin;config.php,2,,,0,,php,GET,403,,,ipdr
+10.0.0.55,2026-02-27T08:02:03,/admin/config.php?id=1' OR 1=1 --,http,,,80,/admin/config.php,admin;config.php,2,id=1%27%20OR%201%3D1%20--,id=1' OR 1=1 --,1,,php,GET,500,,,ipdr
+172.16.0.200,2026-02-27T08:03:44,/login,http,,,80,/login,login,1,,,0,,,POST,200,,,ipdr
+172.16.0.200,2026-02-27T08:03:45,/login,http,,,80,/login,login,1,,,0,,,POST,401,,,ipdr
+45.33.32.156,2026-02-27T08:05:00,/../../../etc/passwd,http,,,80,/etc/passwd,etc;passwd,2,,,0,,,GET,400,,,ipdr
+45.33.32.156,2026-02-27T08:05:01,/wp-login.php,http,,,80,/wp-login.php,wp-login.php,1,,,0,,php,GET,404,,,ipdr
+198.51.100.7,2026-02-27T08:15:00,/<script>alert(1)</script>,http,,,80,/<script>alert(1)</script>,<script>alert(1)<;script>,2,,,0,,,GET,400,,,ipdr
+198.51.100.7,2026-02-27T08:15:02,/search?q=%3Cscript%3Ealert(1)%3C/script%3E,http,,,80,/search,search,1,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,q=<script>alert(1)</script>,1,,,GET,200,,,ipdr
+203.0.113.42,2026-02-27T09:01:00,/api/users?id=1;,http,,,80,/api/users,api;users,2,id=1%3B,id=1;,1,,,GET,400,,,ipdr
+203.0.113.42,2026-02-27T09:01:01,/api/data?file=../../../../etc/shadow,http,,,80,/api/data,api;data,2,file=..%2F..%2F..%2F..%2Fetc%2Fshadow,file=../../../../etc/shadow,1,,,GET,403,,,ipdr

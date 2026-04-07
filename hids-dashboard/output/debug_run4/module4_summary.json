@@ -1,0 +1,22 @@
+{
+  "rows": 12,
+  "class_counts": {
+    "Normal": 7,
+    "Directory Traversal": 2,
+    "Cross-Site Scripting (XSS)": 2,
+    "SQL Injection": 1
+  },
+  "regex_detected": 5,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "10.0.0.55",
+    "45.33.32.156",
+    "198.51.100.7",
+    "203.0.113.42"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "output/debug_run4\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "The least populated classes in y have only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2. Classes with too few members are: ['SQL Injection']"
+}

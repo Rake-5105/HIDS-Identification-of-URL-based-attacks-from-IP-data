@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 
-const OUTPUT_DIR = path.resolve(process.cwd(), 'output');
+const OUTPUT_DIR = path.resolve(__dirname, '../../output');
 
 /**
  * Get all analysis subdirectories (each uploadId has its own folder)

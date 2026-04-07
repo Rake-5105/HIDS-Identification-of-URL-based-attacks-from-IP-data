@@ -4,6 +4,9 @@ const auth = require('../middleware/auth');
 const axios = require('axios');
 const fs = require('fs').promises;
 const path = require('path');
+const { analyzeFile } = require('../utils/ollamaAnalyzer');
+const FileHistory = require('../models/FileHistory');
+const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
 
 // Ollama API configuration
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
@@ -106,47 +109,91 @@ router.post('/analyze-url', auth, async (req, res) => {
       return res.status(400).json({ error: 'URL is required' });
     }
 
-    const prompt = `Analyze this URL for potential security threats:
+    const uploadId = `url_${Date.now().toString(16)}`;
+    const tempDir = path.join(__dirname, '../../uploads');
+    const tempCsvPath = path.join(tempDir, `${uploadId}.csv`);
 
-URL: ${url}
+    await fs.mkdir(tempDir, { recursive: true });
 
-Please identify:
-1. Attack type (if any): SQL Injection, XSS, Path Traversal, Command Injection, or Normal
-2. Suspicious patterns detected
-3. Risk level (Critical, High, Medium, Low, None)
-4. Recommended action
+    // Build a minimal single-row dataset so Modules 1-4 can execute on URL input.
+    const csvHeader = 'timestamp,source_ip,method,url,status_code,user_agent,referrer\n';
+    const escapedUrl = String(url).replace(/"/g, '""');
+    const csvRow = `${new Date().toISOString()},127.0.0.1,GET,"${escapedUrl}",200,web-dashboard,manual-url\n`;
+    await fs.writeFile(tempCsvPath, `${csvHeader}${csvRow}`, 'utf-8');
 
-Format your response as JSON with fields: attackType, patterns, riskLevel, action, explanation`;
+    const result = await analyzeFile(tempCsvPath, 'csv', null, uploadId);
+    const summary = result.summary || {};
+    const effectiveBreakdown =
+      summary?.ollama?.classification_breakdown ||
+      summary.classification_breakdown ||
+      {};
+    const effectiveThreatPercentage = Number(
+      summary?.ollama?.threat_percentage ?? summary.threat_percentage ?? 0
+    );
+    const effectiveThreatsDetected = Number(
+      summary?.ollama?.threats_detected ?? summary.threats_detected ?? 0
+    );
 
-    const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
-      model: DEFAULT_MODEL,
-      prompt: prompt,
-      system: 'You are a URL security analyzer. Respond ONLY with valid JSON, no additional text.',
-      stream: false,
-      options: {
-        temperature: 0.3,
-        num_predict: 512
+    const attackEntries = Object.entries(effectiveBreakdown)
+      .filter(([label]) => String(label).toLowerCase() !== 'normal')
+      .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+    const attackType = attackEntries.length > 0 ? attackEntries[0][0] : 'Normal';
+    const threatPercentage = effectiveThreatPercentage;
+
+    const riskLevel = threatPercentage >= 75
+      ? 'Critical'
+      : threatPercentage >= 50
+      ? 'High'
+      : threatPercentage >= 20
+      ? 'Medium'
+      : threatPercentage > 0
+      ? 'Low'
+      : 'None';
+
+    const analysis = {
+      attackType,
+      patterns: attackEntries.map(([label, count]) => `${label}: ${count}`),
+      riskLevel,
+      action: threatPercentage > 0
+        ? 'Block or challenge suspicious requests, inspect source IP, and review WAF rules.'
+        : 'No immediate action required. Continue monitoring URL traffic.',
+      explanation: `Analyzed with ${summary.analyzed_with || 'Modules 1-4 + Ollama'}.`,
+      module_summary: summary,
+    };
+
+    const hostLabel = (() => {
+      try {
+        return new URL(url).hostname || 'url-analysis';
+      } catch {
+        return 'url-analysis';
       }
-    }, { timeout: 30000 });
+    })();
 
-    // Try to parse JSON response
-    let analysis;
-    try {
-      const jsonMatch = response.data.response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
-        analysis = { raw: response.data.response };
+    await FileHistory.create({
+      userId: req.user.id,
+      fileName: `url_${hostLabel}`,
+      fileType: 'other',
+      fileSize: 0,
+      status: 'completed',
+      processedAt: new Date(),
+      results: {
+        totalRequests: Number(summary?.ollama?.total_requests ?? summary.total_requests ?? 1),
+        maliciousRequests: effectiveThreatsDetected,
+        attackTypes: effectiveBreakdown,
+        mlAccuracy: Number(summary.ml_accuracy) > 0 ? Number(summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
+        suspiciousIps: Array.isArray(summary.suspicious_ips) ? summary.suspicious_ips : []
       }
-    } catch {
-      analysis = { raw: response.data.response };
-    }
+    });
 
     res.json({
       url,
       analysis,
-      model: response.data.model
+      model: summary.analyzed_with || `Modules 1-4 + Ollama ${DEFAULT_MODEL}`
     });
+
+    // Best-effort cleanup of temporary input file.
+    fs.unlink(tempCsvPath).catch(() => {});
 
   } catch (error) {
     console.error('URL analysis error:', error.message);

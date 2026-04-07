@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification
+2026-04-06T00:00:00,127.0.0.1,GET,https://example.com/search?q=test,https://example.com/search?q=test,200,cli,test,https,example.com,/search,q=test,,ipdr,33,7,0,0,0,Normal,,Normal
