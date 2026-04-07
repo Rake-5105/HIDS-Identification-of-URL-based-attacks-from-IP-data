@@ -1,0 +1,21 @@
+source_ip,timestamp,method,url,protocol,status_code,response_size,referrer,user_agent,destination_ip,destination_port,duration_ms,source
+192.168.1.10,2026-04-07T10:15:32+05:30,GET,/login.php?username=admin'--&password=123,HTTP/1.1,200,512,-,Mozilla/5.0,,,,apache
+192.168.1.15,2026-04-07T10:16:01+05:30,POST,/login,HTTP/1.1,401,245,-,sqlmap/1.7.2,,,,apache
+192.168.1.20,2026-04-07T10:17:45+05:30,GET,/product.php?id=1,OR 1=1 HTTP/1.1,200,1024,-,Mozilla/5.0,,,,apache
+192.168.1.25,2026-04-07T10:18:12+05:30,GET,/search?q=<script>alert('XSS')</script>,HTTP/1.1,200,768,-,Mozilla/5.0,,,,apache
+192.168.1.30,2026-04-07T10:19:30+05:30,GET,/index.php?page=../../etc/passwd,HTTP/1.1,200,2048,-,Mozilla/5.0,,,,apache
+192.168.1.35,2026-04-07T10:20:10+05:30,GET,/admin,HTTP/1.1,403,300,-,Mozilla/5.0,,,,apache
+192.168.1.40,2026-04-07T10:20:15+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache
+192.168.1.40,2026-04-07T10:20:18+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache
+192.168.1.40,2026-04-07T10:20:20+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache
+192.168.1.45,2026-04-07T10:21:05+05:30,GET,/upload.php,HTTP/1.1,200,600,-,Mozilla/5.0,,,,apache
+192.168.1.45,2026-04-07T10:21:10+05:30,POST,/upload.php,HTTP/1.1,200,800,-,Mozilla/5.0,,,,apache
+192.168.1.50,2026-04-07T10:22:33+05:30,GET,/cmd.php?cmd=ls,HTTP/1.1,200,1500,-,Mozilla/5.0,,,,apache
+192.168.1.55,2026-04-07T10:23:44+05:30,GET,/login.php?username=admin',OR '1'='1 HTTP/1.1,200,512,-,Mozilla/5.0,,,,apache
+192.168.1.60,2026-04-07T10:24:55+05:30,GET,/search?q=<img,src=x onerror=alert(1)> HTTP/1.1,200,768,-,Mozilla/5.0,,,,apache
+192.168.1.65,2026-04-07T10:25:12+05:30,GET,/index.php?page=../../../../windows/win.ini,HTTP/1.1,200,2048,-,Mozilla/5.0,,,,apache
+192.168.1.70,2026-04-07T10:26:30+05:30,GET,/api/user?id=1,"UNION SELECT username,password FROM users HTTP/1.1",200,1800,-,Mozilla/5.0,,,,apache
+192.168.1.75,2026-04-07T10:27:40+05:30,GET,/login,HTTP/1.1,200,400,-,Mozilla/5.0,,,,apache
+192.168.1.75,2026-04-07T10:27:42+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache
+192.168.1.75,2026-04-07T10:27:44+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache
+192.168.1.75,2026-04-07T10:27:46+05:30,POST,/login,HTTP/1.1,401,210,-,Mozilla/5.0,,,,apache

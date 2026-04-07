@@ -1,0 +1,532 @@
+[
+  {
+    "source_ip": "192.168.1.10",
+    "timestamp": "2026-04-07T10:15:32+05:30",
+    "raw_url": "/login.php?username=admin'--&password=123",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login.php",
+    "path_segments": [
+      "login.php"
+    ],
+    "path_depth": 1,
+    "query_string": "username=admin%27--&password=123",
+    "query_params": [
+      {
+        "key": "username",
+        "value": "admin'--"
+      },
+      {
+        "key": "password",
+        "value": "123"
+      }
+    ],
+    "query_param_count": 2,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.15",
+    "timestamp": "2026-04-07T10:16:01+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "sqlmap/1.7.2",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.20",
+    "timestamp": "2026-04-07T10:17:45+05:30",
+    "raw_url": "/product.php?id=1",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/product.php",
+    "path_segments": [
+      "product.php"
+    ],
+    "path_depth": 1,
+    "query_string": "id=1",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.25",
+    "timestamp": "2026-04-07T10:18:12+05:30",
+    "raw_url": "/search?q=<script>alert('XSS')</script>",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cscript%3Ealert%28%27XSS%27%29%3C%2Fscript%3E",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<script>alert('XSS')</script>"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.30",
+    "timestamp": "2026-04-07T10:19:30+05:30",
+    "raw_url": "/index.php?page=../../etc/passwd",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.35",
+    "timestamp": "2026-04-07T10:20:10+05:30",
+    "raw_url": "/admin",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/admin",
+    "path_segments": [
+      "admin"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 403,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.40",
+    "timestamp": "2026-04-07T10:20:15+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.40",
+    "timestamp": "2026-04-07T10:20:18+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.40",
+    "timestamp": "2026-04-07T10:20:20+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.45",
+    "timestamp": "2026-04-07T10:21:05+05:30",
+    "raw_url": "/upload.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/upload.php",
+    "path_segments": [
+      "upload.php"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.45",
+    "timestamp": "2026-04-07T10:21:10+05:30",
+    "raw_url": "/upload.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/upload.php",
+    "path_segments": [
+      "upload.php"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "POST",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.50",
+    "timestamp": "2026-04-07T10:22:33+05:30",
+    "raw_url": "/cmd.php?cmd=ls",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/cmd.php",
+    "path_segments": [
+      "cmd.php"
+    ],
+    "path_depth": 1,
+    "query_string": "cmd=ls",
+    "query_params": [
+      {
+        "key": "cmd",
+        "value": "ls"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.55",
+    "timestamp": "2026-04-07T10:23:44+05:30",
+    "raw_url": "/login.php?username=admin'",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login.php",
+    "path_segments": [
+      "login.php"
+    ],
+    "path_depth": 1,
+    "query_string": "username=admin%27",
+    "query_params": [
+      {
+        "key": "username",
+        "value": "admin'"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.60",
+    "timestamp": "2026-04-07T10:24:55+05:30",
+    "raw_url": "/search?q=<img",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cimg",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<img"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.65",
+    "timestamp": "2026-04-07T10:25:12+05:30",
+    "raw_url": "/index.php?page=../../../../windows/win.ini",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "../../../../windows/win.ini"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.70",
+    "timestamp": "2026-04-07T10:26:30+05:30",
+    "raw_url": "/api/user?id=1",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/user",
+    "path_segments": [
+      "api",
+      "user"
+    ],
+    "path_depth": 2,
+    "query_string": "id=1",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.75",
+    "timestamp": "2026-04-07T10:27:40+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.75",
+    "timestamp": "2026-04-07T10:27:42+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.75",
+    "timestamp": "2026-04-07T10:27:44+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.75",
+    "timestamp": "2026-04-07T10:27:46+05:30",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  }
+]

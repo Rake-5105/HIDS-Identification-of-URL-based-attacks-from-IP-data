@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -82,7 +83,13 @@ def _csv_fallback_url_requests(input_path):
     except Exception:
         return []
 
-    url_col = 'url' if 'url' in df.columns else ('full_url' if 'full_url' in df.columns else None)
+    normalized_cols = {str(col).strip().lower(): col for col in df.columns}
+    url_col = None
+    for candidate in ('url', 'full_url', 'request_url', 'uri', 'path'):
+        if candidate in normalized_cols:
+            url_col = normalized_cols[candidate]
+            break
+
     if not url_col:
         return []
 
@@ -92,17 +99,24 @@ def _csv_fallback_url_requests(input_path):
         if not url_value:
             continue
 
-        source_ip = str(row.get('source_ip', '0.0.0.0') or '0.0.0.0')
-        method = str(row.get('method', 'GET') or 'GET').upper()
+        source_ip_col = normalized_cols.get('source_ip')
+        method_col = normalized_cols.get('method')
+        timestamp_col = normalized_cols.get('timestamp')
+        status_code_col = normalized_cols.get('status_code')
+        user_agent_col = normalized_cols.get('user_agent')
+        referrer_col = normalized_cols.get('referrer')
 
-        ts_raw = row.get('timestamp')
+        source_ip = str(row.get(source_ip_col, '0.0.0.0') or '0.0.0.0')
+        method = str(row.get(method_col, 'GET') or 'GET').upper()
+
+        ts_raw = row.get(timestamp_col)
         timestamp = pd.Timestamp.utcnow().to_pydatetime().replace(tzinfo=None)
         if ts_raw is not None and str(ts_raw).strip() != '':
             parsed_ts = pd.to_datetime(ts_raw, errors='coerce')
             if pd.notna(parsed_ts):
                 timestamp = parsed_ts.to_pydatetime().replace(tzinfo=None)
 
-        status_code = row.get('status_code')
+        status_code = row.get(status_code_col)
         try:
             if status_code is None or not pd.notna(status_code):
                 status_code = None
@@ -118,13 +132,54 @@ def _csv_fallback_url_requests(input_path):
                 full_url=url_value,
                 method=method,
                 status_code=status_code,
-                user_agent=str(row.get('user_agent', '') or '') or None,
-                referrer=str(row.get('referrer', '') or '') or None,
+                user_agent=str(row.get(user_agent_col, '') or '') or None,
+                referrer=str(row.get(referrer_col, '') or '') or None,
                 source=LogSource.IPDR,
             )
         )
 
     return requests
+
+
+def _raw_text_fallback_url_requests(input_path):
+    try:
+        with open(input_path, 'r', encoding='utf-8', errors='ignore') as fh:
+            content = fh.read(1024 * 1024)
+    except Exception:
+        return []
+
+    if not content.strip():
+        return []
+
+    # Match full URLs first, then path-like URLs often present in logs.
+    full_urls = re.findall(r'https?://[^\s"\'<>]+', content, flags=re.IGNORECASE)
+    path_urls = re.findall(r'(?<![A-Za-z0-9])/[A-Za-z0-9._~:/?#\[\]@!$&\'()*+,;=%-]+', content)
+
+    candidates = []
+    seen = set()
+    for raw in full_urls + path_urls:
+        cleaned = str(raw).strip().strip('.,;')
+        if not cleaned or cleaned in seen:
+            continue
+        seen.add(cleaned)
+        candidates.append(cleaned)
+        if len(candidates) >= 200:
+            break
+
+    now = pd.Timestamp.utcnow().to_pydatetime().replace(tzinfo=None)
+    return [
+        URLRequest(
+            source_ip='0.0.0.0',
+            timestamp=now,
+            full_url=url,
+            method='GET',
+            status_code=None,
+            user_agent=None,
+            referrer=None,
+            source=LogSource.IPDR,
+        )
+        for url in candidates
+    ]
 
 
 def _compose_summary(module4_df, module4_summary):
@@ -220,6 +275,9 @@ def run_pipeline(input_path, output_dir):
 
     if not collection_result.url_requests:
         collection_result.url_requests = _csv_fallback_url_requests(input_path)
+
+    if not collection_result.url_requests:
+        collection_result.url_requests = _raw_text_fallback_url_requests(input_path)
 
     if not collection_result.url_requests:
         raise ValueError("No URL requests were extracted from the uploaded file")
