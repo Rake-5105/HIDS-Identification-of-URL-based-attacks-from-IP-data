@@ -1,0 +1,29 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,ml_class,ml_confidence,stat_is_flood,stat_is_bruteforce,stat_suspicious,final_classification
+2026-02-27 08:02:01,10.0.0.55,GET,/admin/config.php,/admin/config.php,403,sqlmap/1.6,-,http,,/admin/config.php,,php,ipdr,17,3,0,0,0,Normal,,Suspicious Behavior,0.732,0,0,0,Suspicious Behavior
+2026-02-27 08:02:03,10.0.0.55,GET,/admin/config.php?id=1',/admin/config.php?id=1',500,sqlmap/1.6,-,http,,/admin/config.php,id=1%27,php,ipdr,23,6,0,0,0,Normal,,Suspicious Behavior,0.792,0,0,0,Suspicious Behavior
+2026-02-27 08:02:05,10.0.0.55,GET,/admin/config.php?id=1,/admin/config.php?id=1,500,sqlmap/1.6,-,http,,/admin/config.php,id=1,php,ipdr,22,5,0,0,0,Normal,,Suspicious Behavior,0.72,0,0,0,Suspicious Behavior
+2026-02-27 09:00:01,10.10.10.5,GET,/api/users,/api/users,200,PostmanRuntime/7.29,-,http,,/api/users,,,ipdr,10,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 09:00:02,10.10.10.5,GET,/api/users?id=1,/api/users?id=1,200,PostmanRuntime/7.29,-,http,,/api/users,id=1,,ipdr,15,4,0,0,0,Normal,,Normal,0.792,0,0,0,Normal
+2026-02-27 09:05:00,10.10.10.5,POST,/api/upload,/api/upload,200,PostmanRuntime/7.29,-,http,,/api/upload,,,ipdr,11,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 08:03:44,172.16.0.200,POST,/login,/login,200,curl/7.88,-,http,,/login,,,ipdr,6,1,0,0,0,Normal,,Suspicious Behavior,0.8045,0,0,0,Suspicious Behavior
+2026-02-27 08:03:45,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,ipdr,6,1,0,0,0,Normal,,Suspicious Behavior,0.8045,0,0,0,Suspicious Behavior
+2026-02-27 08:03:46,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,ipdr,6,1,0,0,0,Normal,,Suspicious Behavior,0.8045,0,0,0,Suspicious Behavior
+2026-02-27 08:03:47,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,ipdr,6,1,0,0,0,Normal,,Suspicious Behavior,0.8045,0,1,1,Suspicious Behavior
+2026-02-27 08:03:48,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,ipdr,6,1,0,0,0,Normal,,Suspicious Behavior,0.8045,0,1,1,Suspicious Behavior
+2026-02-27 09:10:00,185.220.101.1,GET,/robots.txt,/robots.txt,200,Googlebot/2.1,-,http,,/robots.txt,,txt,ipdr,11,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 09:10:01,185.220.101.1,GET,/sitemap.xml,/sitemap.xml,200,Googlebot/2.1,-,http,,/sitemap.xml,,xml,ipdr,12,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 08:01:12,192.168.1.10,GET,/index.html,/index.html,200,Mozilla/5.0 (Windows NT 10.0; Win64; x64),-,http,,/index.html,,html,ipdr,11,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 08:01:15,192.168.1.10,GET,/style.css,/style.css,200,Mozilla/5.0,http://example.com/,http,,/style.css,,css,ipdr,10,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 08:10:00,192.168.1.20,GET,/products,/products,200,Mozilla/5.0,-,http,,/products,,,ipdr,9,1,0,0,0,Normal,,Normal,0.8734,0,0,0,Normal
+2026-02-27 08:10:05,192.168.1.20,GET,/products/item?id=42,/products/item?id=42,200,Mozilla/5.0,http://example.com/products,http,,/products/item,id=42,,ipdr,20,4,0,0,0,Normal,,Suspicious Behavior,0.74,0,0,0,Suspicious Behavior
+2026-02-27 08:10:10,192.168.1.20,POST,/cart/add,/cart/add,200,Mozilla/5.0,http://example.com/products/item?id=42,http,,/cart/add,,,ipdr,9,2,0,0,0,Normal,,Normal,1.0,0,0,0,Normal
+2026-02-27 08:15:00,198.51.100.7,GET,/<script>alert(1)</script>,/<script>alert(1)</script>,400,python-requests/2.28,-,http,,/<script>alert(1)</script>,,,ipdr,26,8,0,1,0,Cross-Site Scripting (XSS),<\s*script,Cross-Site Scripting (XSS),0.784,0,0,0,Cross-Site Scripting (XSS)
+2026-02-27 08:15:01,198.51.100.7,GET,/?q=<img,/?q=<img,200,python-requests/2.28,-,http,,/,q=%3Cimg,,ipdr,8,4,0,0,0,Normal,,Normal,0.9247,0,0,0,Normal
+2026-02-27 08:15:02,198.51.100.7,GET,/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,200,python-requests/2.28,-,http,,/search,q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,,ipdr,49,11,0,1,0,Cross-Site Scripting (XSS),<\s*script,Cross-Site Scripting (XSS),0.856,0,0,0,Cross-Site Scripting (XSS)
+2026-02-27 09:01:00,203.0.113.42,GET,/api/users?id=1;,/api/users?id=1;,400,python-requests/2.28,-,http,,/api/users,id=1%3B,,ipdr,16,5,0,0,0,Normal,,Normal,0.792,0,0,0,Normal
+2026-02-27 09:01:01,203.0.113.42,GET,/api/data?file=../../../../etc/shadow,/api/data?file=../../../../etc/shadow,403,python-requests/2.28,-,http,,/api/data,file=..%2F..%2F..%2F..%2Fetc%2Fshadow,,ipdr,37,17,0,0,1,Directory Traversal,\.\./|\.\.\\\\,Directory Traversal,0.904,0,0,0,Directory Traversal
+2026-02-27 09:01:02,203.0.113.42,GET,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,403,python-requests/2.28,-,http,,/api/data,file=..%2F..%2F..%2Fetc%2Fpasswd,,ipdr,34,14,0,0,1,Directory Traversal,\.\./|\.\.\\\\,Directory Traversal,0.856,0,0,0,Directory Traversal
+2026-02-27 08:05:00,45.33.32.156,GET,/../../../etc/passwd,/../../../etc/passwd,400,Nikto/2.1.6,-,http,,/etc/passwd,,,ipdr,20,11,0,0,1,Directory Traversal,\.\./|\.\.\\\\,Directory Traversal,0.544,0,0,0,Directory Traversal
+2026-02-27 08:05:01,45.33.32.156,GET,/wp-login.php,/wp-login.php,404,Nikto/2.1.6,-,http,,/wp-login.php,,php,ipdr,13,3,0,0,0,Normal,,Normal,0.792,0,0,0,Normal
+2026-02-27 08:05:02,45.33.32.156,GET,/.env,/.env,404,Nikto/2.1.6,-,http,,/.env,,,ipdr,5,2,0,0,0,Normal,,Suspicious Behavior,0.7981,0,0,0,Suspicious Behavior
+2026-02-27 08:05:03,45.33.32.156,GET,/phpmyadmin/index.php,/phpmyadmin/index.php,404,Nikto/2.1.6,-,http,,/phpmyadmin/index.php,,php,ipdr,21,3,0,0,0,Normal,,Suspicious Behavior,0.892,0,0,0,Suspicious Behavior

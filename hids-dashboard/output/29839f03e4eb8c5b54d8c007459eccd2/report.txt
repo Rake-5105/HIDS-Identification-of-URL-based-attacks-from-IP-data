@@ -1,0 +1,139 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        4/7/2026, 9:24:54 PM
+File Type:            LOGS
+Total Entries (Modules): 20
+Threats Detected (Modules): 4 (20%)
+Ollama Enriched Entries: 16
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    16 entries
+  Directory Traversal       2 entries
+  SQL Injection             1 entries
+  Cross-Site Scripting (XSS) 1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] /login.php?username=admin'--&password=123
+      Source IP:       192.168.1.10
+      Classification:  SQL Injection
+      Risk Level:      High
+      Patterns:        Username input contains SQL comment sequence.
+      Recommendation:  Validate and sanitize user inputs, use prepared statements.
+
+  [2] /login
+      Source IP:       192.168.1.15
+      Classification:  Low
+      Risk Level:      Medium
+      Patterns:        Possible SQL Injection attempt with 'username' and 'password' fields in the request body.
+      Recommendation:  Implement prepared statements or stored procedures to handle database queries, validate user input on both client-side and server-side.
+
+  [3] /search?q=<script>alert('XSS')</script>
+      Source IP:       192.168.1.25
+      Classification:  XSS
+      Risk Level:      Critical
+      Patterns:        <script>alert('XSS')</script>
+      Recommendation:  Implement input validation and output encoding to prevent script injection.
+
+  [4] /index.php?page=../../etc/passwd
+      Source IP:       192.168.1.30
+      Classification:  Path Traversal
+      Risk Level:      Critical
+      Patterns:        The URL contains relative path traversal sequences that could potentially access sensitive files outside the web root.
+      Recommendation:  Implement strict input validation to prevent directory traversal and ensure all user-supplied data is sanitized.
+
+  [5] /admin
+      Source IP:       192.168.1.35
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        Request to sensitive admin path from a local IP with no authentication.
+      Recommendation:  Implement access control and restrict the URL to authenticated users only.
+
+  [6] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which could be vulnerable to CSRF and potential SQL Injection.
+      Recommendation:  Whitelist IP addresses. Implement anti-CSRF tokens in forms and use prepared statements or ORM for database queries.
+
+  [7] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which could be vulnerable to CSRF attacks.
+      Recommendation:  Implement IP whitelisting and use of anti-CSRF tokens.
+
+  [8] /login
+      Source IP:       192.168.1.40
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which is less common and could indicate an attempt to bypass security measures.
+      Recommendation:  Review IP reputation in firewall settings; consider using a more secure authentication mechanism.
+
+  [9] /upload.php
+      Source IP:       192.168.1.45
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        GET request with query string containing '../' sequences and potential for script injection through URL parameters.
+      Recommendation:  Implement input validation, parameterized queries, and output encoding to mitigate risks.
+
+  [10] /upload.php
+      Source IP:       192.168.1.45
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for file upload without proper validation.
+      Recommendation:  Implement IP blacklisting or allow list and validate all uploaded files.
+
+  [11] /cmd.php?cmd=ls
+      Source IP:       192.168.1.50
+      Classification:  Command Injection
+      Risk Level:      Critical
+      Patterns:        The URL contains a parameter that is intended to execute shell commands, which can lead to unautstatic access and control.
+      Recommendation:  Immediately remove the 'cmd' parameter from all inputs. Implement strict input validation using whitelisting techniques.
+
+  [12] /index.php?page=../../../../windows/win.ini
+      Source IP:       192.168.1.65
+      Classification:  Path Traversal
+      Risk Level:      High
+      Patterns:        The URL contains a sequence of '../' which could potentially allow an attacker to access files outside the intended directory.
+      Recommendation:  Implement strict input validation and sanitization, use canonicalized paths internally.
+
+  [13] /login
+      Source IP:       192.168.1.75
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, GET method used for login page.
+      Recommendation:  Implement IP filtering and enforce HTTP POST with parameterized queries.
+
+  [14] /login
+      Source IP:       192.168.1.75
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not whitelisted, POST method used for login which could be vulnerable to CSRF and potential SQL Injection.
+      Recommendation:  Whitelist IP addresses; implement anti-CSRF tokens; use prepared statements or ORM.
+
+  [15] /login
+      Source IP:       192.168.1.75
+      Classification:  Suspicious
+      Risk Level:      Medium
+      Patterns:        IP address not in whitelist, POST method used for login without CSRF token.
+      Recommendation:  Implement IP whitelisting and enforce the use of a secure form with proper input validation.
+
+  [16] /login
+      Source IP:       192.168.1.75
+      Classification:  Low
+      Risk Level:      Medium
+      Patterns:        Possible SQL Injection attempt with 'OR' condition in username and password fields.
+      Recommendation:  Implement prepared statements or stored procedures to mitigate potential injection attacks.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

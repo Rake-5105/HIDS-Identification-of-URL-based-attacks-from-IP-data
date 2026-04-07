@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import {
   Activity, AlertTriangle, Target, Shield, RefreshCw, FileUp,
   Clock, ChevronRight, X, History, Trash2, FileText,
@@ -43,10 +44,24 @@ const Dashboard = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { data: summary, loading: summaryLoading, error: summaryError, refetch: refetchSummary } = useApi('/api/summary');
-  const { data: requests, loading: requestsLoading } = useApi('/api/requests');
-  const { data: timeline } = useApi('/api/analysis/timeline');
+  const { data: requests, loading: requestsLoading, refetch: refetchRequests } = useApi('/api/requests');
+  const { data: timeline, refetch: refetchTimeline } = useApi('/api/analysis/timeline');
   const { latestResult, resultsHistory, clearResult, clearHistory, removeFromHistory } = useUpload();
   const navigate = useNavigate();
+  
+  // Track last refreshed analysis to prevent infinite loops
+  const lastRefreshedRef = useRef(null);
+
+  // Auto-refetch when new analysis completes (only once per analysis)
+  useEffect(() => {
+    const analysisId = latestResult?.analyzedAt;
+    if (analysisId && analysisId !== lastRefreshedRef.current) {
+      lastRefreshedRef.current = analysisId;
+      refetchSummary();
+      refetchRequests();
+      refetchTimeline();
+    }
+  }, [latestResult?.analyzedAt, refetchSummary, refetchRequests, refetchTimeline]);
 
   if (summaryLoading || requestsLoading) {
     return (
@@ -212,7 +227,7 @@ const Dashboard = () => {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/app/upload')}
+                onClick={() => navigate('/app/analysis')}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
               >
                 View Full Results

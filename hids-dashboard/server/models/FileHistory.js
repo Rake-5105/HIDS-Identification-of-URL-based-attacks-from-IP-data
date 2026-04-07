@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
+// Individual request record for detailed display
+const requestDetailSchema = new mongoose.Schema({
+  timestamp: { type: Date, default: Date.now },
+  source_ip: { type: String, default: '0.0.0.0' },
+  url: { type: String, required: true },
+  classification: { type: String, default: 'unknown' },
+  confidence: { type: Number, default: 90 },
+  detection_method: { type: String, default: 'ML' }
+}, { _id: false });
+
 const fileHistorySchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +40,11 @@ const fileHistorySchema = new mongoose.Schema({
     attackTypes: { type: Map, of: Number, default: {} },
     mlAccuracy: { type: Number, default: 0 },
     suspiciousIps: { type: [String], default: [] }
+  },
+  // Store individual request details for the Requests page
+  detailedRequests: {
+    type: [requestDetailSchema],
+    default: []
   },
   uploadedAt: {
     type: Date,

@@ -1,0 +1,17 @@
+{
+  "rows": 8,
+  "class_counts": {
+    "Normal": 6,
+    "Directory Traversal": 2
+  },
+  "regex_detected": 2,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "203.0.113.42"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\1db1fff379a54d681758eeac33335380\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "The least populated classes in y have only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2. Classes with too few members are: ['Suspicious Behavior']"
+}

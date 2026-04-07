@@ -23,7 +23,7 @@ const Upload = () => {
   const tabs = [
     { id: 'logs', label: 'Log Files', icon: FileText, accept: '.log,.txt' },
     { id: 'pcap', label: 'PCAP Files', icon: File, accept: '.pcap,.pcapng' },
-    { id: 'csv', label: 'CSV Files', icon: File, accept: '.csv' },
+    { id: 'csv', label: 'IPDR', icon: File, accept: '.csv' },
     { id: 'url', label: 'URL Analysis', icon: LinkIcon, accept: '' }
   ];
 

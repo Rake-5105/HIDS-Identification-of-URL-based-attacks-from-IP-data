@@ -2,13 +2,35 @@ const express = require('express');
 const router = express.Router();
 const FileHistory = require('../models/FileHistory');
 
+/**
+ * Build request list from FileHistory documents
+ * Uses detailedRequests if available, falls back to aggregated data
+ */
 const buildUserRequests = (files) => {
   const rows = [];
 
   files.forEach((file) => {
-    const attackTypes = file?.results?.attackTypes;
     const timestamp = file.processedAt || file.uploadedAt || new Date();
     const baseUrl = file.fileName || 'uploaded-file';
+
+    // Prefer detailedRequests if available
+    if (file.detailedRequests && file.detailedRequests.length > 0) {
+      file.detailedRequests.forEach((req) => {
+        rows.push({
+          timestamp: req.timestamp || timestamp,
+          source_ip: req.source_ip || '0.0.0.0',
+          url: req.url || baseUrl,
+          classification: req.classification || 'unknown',
+          confidence: req.confidence || 90,
+          detection_method: req.detection_method || 'ML'
+        });
+      });
+      return;
+    }
+
+    // Fallback: Use suspiciousIps + attackTypes to generate rows
+    const attackTypes = file?.results?.attackTypes;
+    const suspiciousIps = file?.results?.suspiciousIps || [];
 
     if (!attackTypes) return;
 
@@ -20,15 +42,45 @@ const buildUserRequests = (files) => {
       const safeCount = Number(count || 0);
       if (safeCount <= 0) return;
 
-      rows.push({
-        timestamp,
-        source_ip: 'N/A',
-        url: baseUrl,
-        classification: cls,
-        confidence: cls.toLowerCase() === 'normal' ? 100 : 90,
-        detection_method: 'aggregated',
-        count: safeCount
-      });
+      // Distribute across suspicious IPs if available
+      if (suspiciousIps.length > 0 && cls.toLowerCase() !== 'normal') {
+        // Assign IPs to malicious classifications
+        const ipsPerClass = Math.ceil(safeCount / suspiciousIps.length);
+        suspiciousIps.slice(0, safeCount).forEach((ip, idx) => {
+          rows.push({
+            timestamp,
+            source_ip: ip,
+            url: baseUrl,
+            classification: cls,
+            confidence: cls.toLowerCase() === 'normal' ? 100 : 90,
+            detection_method: 'Aggregated'
+          });
+        });
+        // Add remaining entries without specific IP
+        const remaining = safeCount - suspiciousIps.length;
+        if (remaining > 0) {
+          rows.push({
+            timestamp,
+            source_ip: 'Multiple',
+            url: baseUrl,
+            classification: cls,
+            confidence: cls.toLowerCase() === 'normal' ? 100 : 90,
+            detection_method: 'Aggregated',
+            count: remaining
+          });
+        }
+      } else {
+        // Normal traffic or no IPs available
+        rows.push({
+          timestamp,
+          source_ip: cls.toLowerCase() === 'normal' ? '—' : (suspiciousIps[0] || 'Unknown'),
+          url: baseUrl,
+          classification: cls,
+          confidence: cls.toLowerCase() === 'normal' ? 100 : 90,
+          detection_method: 'Aggregated',
+          count: safeCount
+        });
+      }
     });
   });
 

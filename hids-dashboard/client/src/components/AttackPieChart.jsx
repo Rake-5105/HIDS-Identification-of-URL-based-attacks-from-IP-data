@@ -7,6 +7,7 @@ const ATTACK_COLORS = {
   directory_traversal: '#eab308',
   command_injection: '#8b5cf6',
   suspicious: '#06b6d4',
+  suspicious_behavior: '#06b6d4',
   unknown: '#64748b'
 };
 
@@ -17,7 +18,8 @@ const ATTACK_ALIASES = {
   traversal: 'directory_traversal',
   xss: 'cross_site_scripting_xss',
   cmdi: 'command_injection',
-  command_injection: 'command_injection'
+  command_injection: 'command_injection',
+  suspicious_behavior: 'suspicious_behavior'
 };
 
 const normalizeAttackKey = (name) => {
@@ -35,18 +37,35 @@ const getAttackColor = (name) => {
   return ATTACK_COLORS[normalized] || ATTACK_COLORS.unknown;
 };
 
+const formatAttackName = (name) => {
+  return String(name || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+};
+
 const AttackPieChart = ({ data }) => {
-  if (!data) return null;
+  if (!data || Object.keys(data).length === 0) return null;
 
-  const chartData = Object.entries(data).map(([name, value]) => ({
-    name: name.replace('_', ' ').toUpperCase(),
-    value,
-    color: getAttackColor(name)
-  }));
+  // Sort by value descending and prepare chart data
+  const chartData = Object.entries(data)
+    .map(([name, value]) => ({
+      name: formatAttackName(name),
+      value: Number(value) || 0,
+      color: getAttackColor(name)
+    }))
+    .filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value);
 
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, name }) => {
+  if (chartData.length === 0) return null;
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
+
+  // Custom label - only show for slices > 5% to avoid crowding
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent }) => {
+    if (percent < 0.05) return null; // Don't label tiny slices
+    
     const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -55,40 +74,60 @@ const AttackPieChart = ({ data }) => {
         x={x}
         y={y}
         fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
+        textAnchor="middle"
         dominantBaseline="central"
-        className="text-sm font-semibold"
+        style={{ fontSize: '12px', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
       >
-        {value}
+        {value.toLocaleString()}
       </text>
     );
   };
 
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      const percentage = ((item.value / total) * 100).toFixed(1);
+      return (
+        <div className="bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
+          <p className="font-semibold">{item.name}</p>
+          <p>{item.value.toLocaleString()} ({percentage}%)</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="rounded-xl shadow-sm border border-gray-200 p-6 bg-white">
-      <h3 className="text-lg font-semibold text-indigo-900 mb-4">Attack Type Distribution</h3>
-      <ResponsiveContainer width="100%" height={300}>
+    <div className="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
+      <h3 className="text-lg font-semibold text-indigo-900 dark:text-white mb-4">Attack Type Distribution</h3>
+      <ResponsiveContainer width="100%" height={320}>
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
-            cy="50%"
+            cy="45%"
             labelLine={false}
             label={renderCustomLabel}
-            outerRadius={100}
+            outerRadius={90}
+            innerRadius={0}
             fill="#8884d8"
             dataKey="value"
+            paddingAngle={1}
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />} />
           <Legend
             verticalAlign="bottom"
-            height={36}
+            align="center"
+            wrapperStyle={{ paddingTop: '20px' }}
             formatter={(value, entry) => (
-              <span className="text-sm text-indigo-800">{value} ({entry.payload.value})</span>
+              <span className="text-xs text-gray-700 dark:text-gray-300">
+                {value} ({entry.payload.value.toLocaleString()})
+              </span>
             )}
           />
         </PieChart>

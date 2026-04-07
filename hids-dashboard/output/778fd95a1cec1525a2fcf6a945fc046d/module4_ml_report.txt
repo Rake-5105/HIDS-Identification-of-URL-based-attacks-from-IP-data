@@ -1,0 +1,8 @@
+                     precision    recall  f1-score   support
+
+Directory Traversal     0.0000    0.0000    0.0000         1
+             Normal     0.9677    1.0000    0.9836        30
+
+           accuracy                         0.9677        31
+          macro avg     0.4839    0.5000    0.4918        31
+       weighted avg     0.9365    0.9677    0.9519        31

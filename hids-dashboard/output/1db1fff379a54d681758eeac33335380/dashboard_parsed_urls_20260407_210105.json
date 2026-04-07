@@ -1,0 +1,220 @@
+[
+  {
+    "source_ip": "10.10.10.5",
+    "timestamp": "2026-02-27T09:00:01+00:00",
+    "raw_url": "/api/users",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/users",
+    "path_segments": [
+      "api",
+      "users"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "PostmanRuntime/7.29",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "10.10.10.5",
+    "timestamp": "2026-02-27T09:00:02+00:00",
+    "raw_url": "/api/users?id=1",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/users",
+    "path_segments": [
+      "api",
+      "users"
+    ],
+    "path_depth": 2,
+    "query_string": "id=1",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "PostmanRuntime/7.29",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "203.0.113.42",
+    "timestamp": "2026-02-27T09:01:00+00:00",
+    "raw_url": "/api/users?id=1;",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/users",
+    "path_segments": [
+      "api",
+      "users"
+    ],
+    "path_depth": 2,
+    "query_string": "id=1%3B",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1;"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 400,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "203.0.113.42",
+    "timestamp": "2026-02-27T09:01:01+00:00",
+    "raw_url": "/api/data?file=../../../../etc/shadow",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/data",
+    "path_segments": [
+      "api",
+      "data"
+    ],
+    "path_depth": 2,
+    "query_string": "file=..%2F..%2F..%2F..%2Fetc%2Fshadow",
+    "query_params": [
+      {
+        "key": "file",
+        "value": "../../../../etc/shadow"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 403,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "203.0.113.42",
+    "timestamp": "2026-02-27T09:01:02+00:00",
+    "raw_url": "/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/data",
+    "path_segments": [
+      "api",
+      "data"
+    ],
+    "path_depth": 2,
+    "query_string": "file=..%2F..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "file",
+        "value": "../../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 403,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "10.10.10.5",
+    "timestamp": "2026-02-27T09:05:00+00:00",
+    "raw_url": "/api/upload",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api/upload",
+    "path_segments": [
+      "api",
+      "upload"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 200,
+    "user_agent": "PostmanRuntime/7.29",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "185.220.101.1",
+    "timestamp": "2026-02-27T09:10:00+00:00",
+    "raw_url": "/robots.txt",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/robots.txt",
+    "path_segments": [
+      "robots.txt"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "txt",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Googlebot/2.1",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "185.220.101.1",
+    "timestamp": "2026-02-27T09:10:01+00:00",
+    "raw_url": "/sitemap.xml",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/sitemap.xml",
+    "path_segments": [
+      "sitemap.xml"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "xml",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Googlebot/2.1",
+    "referrer": "-",
+    "source": "apache"
+  }
+]

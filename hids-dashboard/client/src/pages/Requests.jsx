@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Filter, ChevronUp, ChevronDown, RefreshCw } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
+import { useUpload } from '../context/UploadContext';
 import RequestDetail, { ATTACK_COLORS } from '../components/RequestDetail';
 import { useTheme } from '../context/ThemeContext';
 
@@ -8,11 +9,24 @@ const Requests = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { data: requests, loading, error, refetch } = useApi('/api/requests');
+  const { latestResult } = useUpload();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('all');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  
+  // Track last refreshed analysis to prevent infinite loops
+  const lastRefreshedRef = useRef(null);
+
+  // Auto-refetch when new analysis completes (only once per analysis)
+  useEffect(() => {
+    const analysisId = latestResult?.analyzedAt;
+    if (analysisId && analysisId !== lastRefreshedRef.current) {
+      lastRefreshedRef.current = analysisId;
+      refetch();
+    }
+  }, [latestResult?.analyzedAt, refetch]);
 
   const classifications = useMemo(() => {
     if (!requests) return [];

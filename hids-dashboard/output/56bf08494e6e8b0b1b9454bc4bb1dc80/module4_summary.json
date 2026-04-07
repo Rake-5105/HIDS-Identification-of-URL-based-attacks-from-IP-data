@@ -1,0 +1,18 @@
+{
+  "rows": 28,
+  "class_counts": {
+    "Normal": 12,
+    "Suspicious Behavior": 11,
+    "Directory Traversal": 3,
+    "Cross-Site Scripting (XSS)": 2
+  },
+  "regex_detected": 5,
+  "statistical_suspicious_rows": 2,
+  "suspicious_ips": [
+    "172.16.0.200"
+  ],
+  "ml_accuracy": 0.5714,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_hybrid_results.csv",
+  "ml_report": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_ml_report.txt",
+  "model_path": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_rf_model.joblib"
+}

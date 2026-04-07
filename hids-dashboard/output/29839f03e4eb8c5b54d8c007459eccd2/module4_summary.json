@@ -1,0 +1,22 @@
+{
+  "rows": 20,
+  "class_counts": {
+    "Normal": 16,
+    "Directory Traversal": 2,
+    "SQL Injection": 1,
+    "Cross-Site Scripting (XSS)": 1
+  },
+  "regex_detected": 4,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "192.168.1.10",
+    "192.168.1.25",
+    "192.168.1.30",
+    "192.168.1.65"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\29839f03e4eb8c5b54d8c007459eccd2\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "The least populated classes in y have only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2. Classes with too few members are: ['Cross-Site Scripting (XSS)', 'SQL Injection']"
+}

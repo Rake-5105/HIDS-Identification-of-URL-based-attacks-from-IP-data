@@ -110,7 +110,7 @@ def _csv_fallback_url_requests(input_path):
         method = str(row.get(method_col, 'GET') or 'GET').upper()
 
         ts_raw = row.get(timestamp_col)
-        timestamp = pd.Timestamp.utcnow().to_pydatetime().replace(tzinfo=None)
+        timestamp = pd.Timestamp.now('UTC').to_pydatetime().replace(tzinfo=None)
         if ts_raw is not None and str(ts_raw).strip() != '':
             parsed_ts = pd.to_datetime(ts_raw, errors='coerce')
             if pd.notna(parsed_ts):
@@ -166,7 +166,7 @@ def _raw_text_fallback_url_requests(input_path):
         if len(candidates) >= 200:
             break
 
-    now = pd.Timestamp.utcnow().to_pydatetime().replace(tzinfo=None)
+    now = pd.Timestamp.now('UTC').to_pydatetime().replace(tzinfo=None)
     return [
         URLRequest(
             source_ip='0.0.0.0',
@@ -280,7 +280,43 @@ def run_pipeline(input_path, output_dir):
         collection_result.url_requests = _raw_text_fallback_url_requests(input_path)
 
     if not collection_result.url_requests:
-        raise ValueError("No URL requests were extracted from the uploaded file")
+        # Create a minimal result instead of failing
+        now = pd.Timestamp.now('UTC').to_pydatetime().replace(tzinfo=None)
+        empty_summary = {
+            "total_requests": 0,
+            "threats_detected": 0,
+            "threat_percentage": 0.0,
+            "classification_breakdown": {"normal": 0},
+            "suspicious_ips": [],
+            "ml_accuracy": 0.0,
+            "analyzed_at": now.isoformat(),
+        }
+        
+        # Create empty output files
+        empty_csv = os.path.join(output_dir, "module4_hybrid_results.csv")
+        with open(empty_csv, 'w', encoding='utf-8') as f:
+            f.write("timestamp,source_ip,url,classification,confidence,detection_method\n")
+        
+        summary_path = os.path.join(output_dir, "module4_summary.json")
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump({"class_counts": {}, "suspicious_ips": [], "ml_accuracy": 0.0}, f)
+        
+        payload = {
+            "summary": empty_summary,
+            "artifacts": {
+                "module3_csv": "",
+                "module4_csv": empty_csv,
+                "module4_summary_json": summary_path,
+                "module4_model": "",
+            },
+            "module1": {"http_log_entries": 0, "ipdr_records": 0, "pcap_flows": 0},
+            "module2": {"parsed_urls": 0},
+            "module3": {"feature_rows": 0},
+            "module4": {"final_rows": 0},
+            "warning": "No URL requests could be extracted from the uploaded file"
+        }
+        print(json.dumps(payload))
+        return
 
     parsing_pipeline = URLParsingPipeline(normalize=True)
     parse_result = parsing_pipeline.run(collection_result, tag="dashboard")

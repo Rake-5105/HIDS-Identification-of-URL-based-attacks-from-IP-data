@@ -1,0 +1,85 @@
+{
+  "total_requests": 124,
+  "threats_detected": 28,
+  "threat_percentage": 22.6,
+  "classification_breakdown": {
+    "Normal": 96,
+    "Suspicious Behavior": 23,
+    "Directory Traversal": 5
+  },
+  "suspicious_ips": [
+    "0.0.0.0"
+  ],
+  "ml_accuracy": 0.9677,
+  "analyzed_at": "2026-04-07T16:08:25.158Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 50,
+  "ollama": {
+    "total_requests": 50,
+    "threats_detected": 48,
+    "threat_percentage": 96,
+    "classification_breakdown": {
+      "None": 32,
+      "Normal": 1,
+      "Error": 14,
+      "Suspicious": 2,
+      "Unknown": 1
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-07T16:08:25.158Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 124,
+      "threats_detected": 28,
+      "threat_percentage": 22.6,
+      "classification_breakdown": {
+        "Normal": 96,
+        "Suspicious Behavior": 23,
+        "Directory Traversal": 5
+      },
+      "suspicious_ips": [
+        "0.0.0.0"
+      ],
+      "ml_accuracy": 0.9677,
+      "analyzed_at": "2026-04-07T21:37:07.031040"
+    },
+    "artifacts": {
+      "module3_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\e8204b7e9d90eb9b407bd0175225d224\\url_feature_dataset.csv",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\e8204b7e9d90eb9b407bd0175225d224\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\e8204b7e9d90eb9b407bd0175225d224\\module4_summary.json",
+      "module4_model": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\e8204b7e9d90eb9b407bd0175225d224\\module4_rf_model.joblib"
+    },
+    "module1": {
+      "http_log_entries": 0,
+      "ipdr_records": 500,
+      "url_requests": 124
+    },
+    "module2": {
+      "total_parsed": 124,
+      "skipped": 0,
+      "errors": 0,
+      "methods": {
+        "GET": 124
+      },
+      "schemes": {
+        "http": 124
+      },
+      "file_extensions": {
+        "0": 32,
+        "1": 49,
+        "2": 26,
+        "(none)": 17
+      },
+      "source_tag": "dashboard"
+    },
+    "module3": {
+      "rows": 124
+    },
+    "module4": {
+      "rows": 124,
+      "regex_detected": 5,
+      "statistical_suspicious_rows": 25
+    }
+  }
+}

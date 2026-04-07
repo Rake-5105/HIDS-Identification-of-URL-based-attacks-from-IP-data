@@ -75,6 +75,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    // Clear old shared storage keys (from before user-isolation update)
+    localStorage.removeItem('hids_latest_result');
+    localStorage.removeItem('hids_results_history');
     setToken(null);
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];

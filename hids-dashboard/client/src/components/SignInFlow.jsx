@@ -454,6 +454,56 @@ const getApiErrorMessage = (err, fallback) => {
   return fallback;
 };
 
+// Password validation regex - enforces: 8+ chars, uppercase, lowercase, number, special char
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+// Individual password requirement checks
+const checkPasswordRequirements = (pwd) => ({
+  minLength: pwd.length >= 8,
+  hasUppercase: /[A-Z]/.test(pwd),
+  hasLowercase: /[a-z]/.test(pwd),
+  hasNumber: /\d/.test(pwd),
+  hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+});
+
+// Password requirement checklist component
+const PasswordChecklist = ({ password, show }) => {
+  const requirements = checkPasswordRequirements(password);
+  
+  const items = [
+    { key: 'minLength', label: 'At least 8 characters', met: requirements.minLength },
+    { key: 'hasUppercase', label: 'Contains uppercase letter', met: requirements.hasUppercase },
+    { key: 'hasLowercase', label: 'Contains lowercase letter', met: requirements.hasLowercase },
+    { key: 'hasNumber', label: 'Contains number', met: requirements.hasNumber },
+    { key: 'hasSpecial', label: 'Contains special character (!@#$%^&*)', met: requirements.hasSpecial },
+  ];
+
+  if (!show) return null;
+
+  return (
+    <div className="mt-2 p-3 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10">
+      <p className="text-xs text-white/60 mb-2">Password requirements:</p>
+      <ul className="space-y-1">
+        {items.map(({ key, label, met }) => (
+          <li 
+            key={key}
+            className={`flex items-center gap-2 text-xs transition-all duration-300 ${
+              met ? 'text-green-400' : 'text-white/40'
+            }`}
+          >
+            <span className={`flex items-center justify-center w-4 h-4 rounded-full text-[10px] transition-all duration-300 ${
+              met ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/40'
+            }`}>
+              {met ? '✓' : '○'}
+            </span>
+            {label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 export const SignInPage = ({ className, mode = "register" }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -470,6 +520,10 @@ export const SignInPage = ({ className, mode = "register" }) => {
   const [otpSending, setOtpSending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [trustDevice, setTrustDevice] = useState(false);
+  const [showPasswordChecklist, setShowPasswordChecklist] = useState(false);
+
+  // Check if all password requirements are met
+  const isPasswordValid = PASSWORD_REGEX.test(password);
 
   // Cooldown timer for resend OTP
   useEffect(() => {
@@ -485,12 +539,12 @@ export const SignInPage = ({ className, mode = "register" }) => {
         setError("Please fill in all fields");
         return false;
       }
-      if (password !== confirmPassword) {
-        setError("Passwords do not match");
+      if (!isPasswordValid) {
+        setError("Password does not meet all requirements");
         return false;
       }
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters");
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
         return false;
       }
     } else {
@@ -777,9 +831,20 @@ export const SignInPage = ({ className, mode = "register" }) => {
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full backdrop-blur-[1px] text-white border border-white/10 rounded-full py-3 px-4 focus:outline-none focus:border-white/30 text-center bg-transparent"
+                          onFocus={() => mode === "register" && setShowPasswordChecklist(true)}
+                          onBlur={() => setTimeout(() => setShowPasswordChecklist(false), 200)}
+                          className={`w-full backdrop-blur-[1px] text-white border rounded-full py-3 px-4 focus:outline-none text-center bg-transparent transition-colors duration-300 ${
+                            mode === "register" && password.length > 0
+                              ? isPasswordValid
+                                ? 'border-green-500/50 focus:border-green-500/70'
+                                : 'border-red-500/30 focus:border-red-500/50'
+                              : 'border-white/10 focus:border-white/30'
+                          }`}
                           required
                         />
+                        {mode === "register" && (
+                          <PasswordChecklist password={password} show={showPasswordChecklist || password.length > 0} />
+                        )}
                       </div>
 
                       {mode === "register" && (
@@ -789,15 +854,24 @@ export const SignInPage = ({ className, mode = "register" }) => {
                             placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full backdrop-blur-[1px] text-white border border-white/10 rounded-full py-3 px-4 focus:outline-none focus:border-white/30 text-center bg-transparent"
+                            className={`w-full backdrop-blur-[1px] text-white border rounded-full py-3 px-4 focus:outline-none text-center bg-transparent transition-colors duration-300 ${
+                              confirmPassword.length > 0
+                                ? password === confirmPassword
+                                  ? 'border-green-500/50 focus:border-green-500/70'
+                                  : 'border-red-500/30 focus:border-red-500/50'
+                                : 'border-white/10 focus:border-white/30'
+                            }`}
                             required
                           />
+                          {confirmPassword.length > 0 && password !== confirmPassword && (
+                            <p className="text-red-400 text-xs mt-1 text-center">Passwords do not match</p>
+                          )}
                         </div>
                       )}
 
                       <button 
                         type="submit"
-                        disabled={otpSending}
+                        disabled={otpSending || (mode === "register" && (!isPasswordValid || password !== confirmPassword))}
                         className="w-full backdrop-blur-[2px] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/10 rounded-full py-3 px-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {otpSending ? (

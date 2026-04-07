@@ -1,0 +1,9 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-02-27T09:00:01+00:00,10.10.10.5,GET,/api/users,/api/users,200,PostmanRuntime/7.29,-,http,,/api/users,,,apache,10,2,0,0,0
+2026-02-27T09:00:02+00:00,10.10.10.5,GET,/api/users?id=1,/api/users?id=1,200,PostmanRuntime/7.29,-,http,,/api/users,id=1,,apache,15,4,0,0,0
+2026-02-27T09:01:00+00:00,203.0.113.42,GET,/api/users?id=1;,/api/users?id=1;,400,python-requests/2.28,-,http,,/api/users,id=1%3B,,apache,16,5,0,0,0
+2026-02-27T09:01:01+00:00,203.0.113.42,GET,/api/data?file=../../../../etc/shadow,/api/data?file=../../../../etc/shadow,403,python-requests/2.28,-,http,,/api/data,file=..%2F..%2F..%2F..%2Fetc%2Fshadow,,apache,37,17,0,0,1
+2026-02-27T09:01:02+00:00,203.0.113.42,GET,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,403,python-requests/2.28,-,http,,/api/data,file=..%2F..%2F..%2Fetc%2Fpasswd,,apache,34,14,0,0,1
+2026-02-27T09:05:00+00:00,10.10.10.5,POST,/api/upload,/api/upload,200,PostmanRuntime/7.29,-,http,,/api/upload,,,apache,11,2,0,0,0
+2026-02-27T09:10:00+00:00,185.220.101.1,GET,/robots.txt,/robots.txt,200,Googlebot/2.1,-,http,,/robots.txt,,txt,apache,11,2,0,0,0
+2026-02-27T09:10:01+00:00,185.220.101.1,GET,/sitemap.xml,/sitemap.xml,200,Googlebot/2.1,-,http,,/sitemap.xml,,xml,apache,12,2,0,0,0

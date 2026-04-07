@@ -9,6 +9,81 @@ const FileHistory = require('../models/FileHistory');
 const { BUCKETS, uploadToSupabase, saveReport } = require('../utils/supabaseStorage');
 const { analyzeFile } = require('../utils/ollamaAnalyzer');
 
+/**
+ * Simple CSV parser (handles basic CSVs without external dependency)
+ */
+const parseCSV = (content) => {
+  const lines = content.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+  
+  // Parse headers
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+  
+  // Parse rows
+  const records = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+    const record = {};
+    headers.forEach((h, idx) => {
+      record[h] = (values[idx] || '').trim().replace(/^"|"$/g, '');
+    });
+    records.push(record);
+  }
+  return records;
+};
+
+/**
+ * Extract detailed request records from module4 CSV output
+ */
+const extractDetailedRequests = async (csvPath, maxRecords = 100) => {
+  try {
+    const content = await fs.readFile(csvPath, 'utf-8');
+    const records = parseCSV(content);
+    
+    console.log(`[Extract] Parsing ${records.length} records from ${csvPath}`);
+    if (records.length > 0) {
+      console.log(`[Extract] Sample record keys:`, Object.keys(records[0]));
+    }
+
+    return records.slice(0, maxRecords).map(rec => {
+      // Handle different CSV formats
+      const sourceIp = rec.source_ip || rec.ip || rec['source ip'] || '0.0.0.0';
+      const url = rec.url || rec.full_url || rec.path || rec.uri || '';
+      
+      // Classification can come from various columns
+      let classification = rec.final_classification || rec.classification || rec.regex_class || rec.attack_type || 'unknown';
+      
+      // If classification is "None" or risk level, try to get actual attack type
+      if (classification === 'None' || classification.toLowerCase() === 'low' || classification.toLowerCase() === 'medium' || classification.toLowerCase() === 'high' || classification.toLowerCase() === 'critical') {
+        // Check if there's a patterns column that might indicate attack type
+        const patterns = rec.patterns || rec.recommendation || '';
+        if (patterns.toLowerCase().includes('sql')) classification = 'SQL Injection';
+        else if (patterns.toLowerCase().includes('xss') || patterns.toLowerCase().includes('script')) classification = 'XSS';
+        else if (patterns.toLowerCase().includes('traversal') || patterns.toLowerCase().includes('passwd')) classification = 'Path Traversal';
+        else if (patterns.toLowerCase().includes('command') || patterns.toLowerCase().includes('injection')) classification = 'Command Injection';
+        else if (rec.risk_level && rec.risk_level !== 'Low') classification = 'Suspicious';
+        else classification = 'Normal';
+      }
+      
+      // Confidence from various sources
+      const confidence = parseFloat(rec.confidence) || 
+        (rec.risk_level === 'Critical' ? 95 : rec.risk_level === 'High' ? 85 : rec.risk_level === 'Medium' ? 75 : 90);
+      
+      return {
+        timestamp: rec.timestamp || new Date().toISOString(),
+        source_ip: sourceIp,
+        url: url,
+        classification: classification,
+        confidence: confidence,
+        detection_method: rec.detection_method || rec.method || 'ML'
+      };
+    }).filter(r => r.source_ip && r.source_ip !== '0.0.0.0');
+  } catch (error) {
+    console.error('Error extracting detailed requests:', error.message);
+    return [];
+  }
+};
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -253,7 +328,48 @@ async function runOllamaAnalysis(uploadId, job) {
     await fs.writeFile(path.join(outputDir, 'report.txt'), result.txtContent);
     await fs.writeFile(path.join(outputDir, 'summary.json'), JSON.stringify(result.summary, null, 2));
 
-    // Update file history in MongoDB
+    // Extract detailed requests from module4 CSV or report CSV
+    let detailedRequests = [];
+    
+    // Try multiple paths for the CSV
+    const possibleCsvPaths = [
+      result.summary?.module_pipeline?.artifacts?.module4_csv,
+      path.join(outputDir, 'report.csv'),
+      result.summary?.module_pipeline?.output_csv
+    ].filter(Boolean);
+    
+    console.log(`[Upload] Looking for CSV in paths:`, possibleCsvPaths);
+    
+    for (const csvPath of possibleCsvPaths) {
+      try {
+        await fs.access(csvPath);
+        console.log(`[Upload] Found CSV at: ${csvPath}`);
+        detailedRequests = await extractDetailedRequests(csvPath);
+        if (detailedRequests.length > 0) {
+          console.log(`[Upload] Extracted ${detailedRequests.length} detailed requests`);
+          break;
+        }
+      } catch (e) {
+        // File doesn't exist, try next path
+      }
+    }
+
+    // Fallback: Use entries from result if available
+    if (detailedRequests.length === 0 && result.entries && result.entries.length > 0) {
+      console.log(`[Upload] Using ${result.entries.length} entries from result as fallback`);
+      detailedRequests = result.entries.slice(0, 100).map(entry => ({
+        timestamp: entry.timestamp || new Date().toISOString(),
+        source_ip: entry.source_ip || entry.ip || '0.0.0.0',
+        url: entry.url || entry.full_url || '',
+        classification: entry.classification || 'unknown',
+        confidence: parseFloat(entry.confidence) || 90,
+        detection_method: entry.detection_method || 'ML'
+      }));
+    }
+    
+    console.log(`[Upload] Final detailedRequests count: ${detailedRequests.length}`);
+
+    // Update file history in MongoDB with detailed requests
     await FileHistory.findOneAndUpdate(
       { userId: job.userId, fileName: job.fileName },
       {
@@ -265,7 +381,8 @@ async function runOllamaAnalysis(uploadId, job) {
           attackTypes: result.summary.classification_breakdown,
           mlAccuracy: Number(result.summary.ml_accuracy) > 0 ? Number(result.summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
           suspiciousIps: Array.isArray(result.summary.suspicious_ips) ? result.summary.suspicious_ips : []
-        }
+        },
+        detailedRequests: detailedRequests
       }
     );
 
@@ -280,7 +397,7 @@ async function runOllamaAnalysis(uploadId, job) {
     job.message = 'Module + Phi3 analysis complete';
     job.results = result.summary;
 
-    console.log(`[Ollama] Analysis complete for ${uploadId}: ${result.summary.total_requests} entries, ${result.summary.threats_detected} threats`);
+    console.log(`[Ollama] Analysis complete for ${uploadId}: ${result.summary.total_requests} entries, ${result.summary.threats_detected} threats, ${detailedRequests.length} detailed records`);
 
   } catch (error) {
     console.error(`[Ollama] Analysis failed for ${uploadId}:`, error.message);

@@ -1,0 +1,87 @@
+{
+  "total_requests": 5000,
+  "threats_detected": 454,
+  "threat_percentage": 9.1,
+  "classification_breakdown": {
+    "Normal": 4546,
+    "Directory Traversal": 204,
+    "Cross-Site Scripting (XSS)": 178,
+    "SQL Injection": 68,
+    "Suspicious Behavior": 4
+  },
+  "suspicious_ips": [],
+  "ml_accuracy": 0.9288,
+  "analyzed_at": "2026-04-07T15:32:12.078Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 1,
+  "ollama": {
+    "total_requests": 1,
+    "threats_detected": 1,
+    "threat_percentage": 100,
+    "classification_breakdown": {
+      "None": 1
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-07T15:32:12.078Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 5000,
+      "threats_detected": 454,
+      "threat_percentage": 9.1,
+      "classification_breakdown": {
+        "Normal": 4546,
+        "Directory Traversal": 204,
+        "Cross-Site Scripting (XSS)": 178,
+        "SQL Injection": 68,
+        "Suspicious Behavior": 4
+      },
+      "suspicious_ips": [],
+      "ml_accuracy": 0.9288,
+      "analyzed_at": "2026-04-07T21:02:09.994091"
+    },
+    "artifacts": {
+      "module3_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\57ec36dd3fcfc7a1ed397aae79cfe6f9\\url_feature_dataset.csv",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\57ec36dd3fcfc7a1ed397aae79cfe6f9\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\57ec36dd3fcfc7a1ed397aae79cfe6f9\\module4_summary.json",
+      "module4_model": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\57ec36dd3fcfc7a1ed397aae79cfe6f9\\module4_rf_model.joblib"
+    },
+    "module1": {
+      "http_log_entries": 0,
+      "ipdr_records": 0,
+      "url_requests": 5000
+    },
+    "module2": {
+      "total_parsed": 5000,
+      "skipped": 0,
+      "errors": 0,
+      "methods": {
+        "GET": 3396,
+        "HEAD": 542,
+        "POST": 1062
+      },
+      "schemes": {
+        "https": 1721,
+        "http": 3279
+      },
+      "file_extensions": {
+        "(none)": 4629,
+        "png": 88,
+        "html": 79,
+        "css": 98,
+        "js": 80,
+        "log": 13,
+        "php": 13
+      },
+      "source_tag": "dashboard"
+    },
+    "module3": {
+      "rows": 5000
+    },
+    "module4": {
+      "rows": 5000,
+      "regex_detected": 446,
+      "statistical_suspicious_rows": 0
+    }
+  }
+}

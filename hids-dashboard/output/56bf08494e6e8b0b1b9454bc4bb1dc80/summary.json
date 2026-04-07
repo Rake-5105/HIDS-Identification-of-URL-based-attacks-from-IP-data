@@ -1,0 +1,92 @@
+{
+  "total_requests": 28,
+  "threats_detected": 16,
+  "threat_percentage": 57.1,
+  "classification_breakdown": {
+    "Normal": 12,
+    "Suspicious Behavior": 11,
+    "Directory Traversal": 3,
+    "Cross-Site Scripting (XSS)": 2
+  },
+  "suspicious_ips": [
+    "172.16.0.200"
+  ],
+  "ml_accuracy": 0.5714,
+  "analyzed_at": "2026-04-07T15:45:36.562Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 28,
+  "ollama": {
+    "total_requests": 28,
+    "threats_detected": 27,
+    "threat_percentage": 96.4,
+    "classification_breakdown": {
+      "None": 12,
+      "Command Injection": 2,
+      "SQL Injection": 4,
+      "Suspicious": 3,
+      "Path Traversal": 4,
+      "Normal": 1,
+      "XSS": 2
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-07T15:45:36.562Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 28,
+      "threats_detected": 16,
+      "threat_percentage": 57.1,
+      "classification_breakdown": {
+        "Normal": 12,
+        "Suspicious Behavior": 11,
+        "Directory Traversal": 3,
+        "Cross-Site Scripting (XSS)": 2
+      },
+      "suspicious_ips": [
+        "172.16.0.200"
+      ],
+      "ml_accuracy": 0.5714,
+      "analyzed_at": "2026-04-07T21:14:52.552743"
+    },
+    "artifacts": {
+      "module3_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\url_feature_dataset.csv",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_summary.json",
+      "module4_model": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\56bf08494e6e8b0b1b9454bc4bb1dc80\\module4_rf_model.joblib"
+    },
+    "module1": {
+      "http_log_entries": 0,
+      "ipdr_records": 0,
+      "url_requests": 28
+    },
+    "module2": {
+      "total_parsed": 28,
+      "skipped": 0,
+      "errors": 0,
+      "methods": {
+        "GET": 21,
+        "POST": 7
+      },
+      "schemes": {
+        "http": 28
+      },
+      "file_extensions": {
+        "html": 1,
+        "css": 1,
+        "php": 5,
+        "(none)": 19,
+        "txt": 1,
+        "xml": 1
+      },
+      "source_tag": "dashboard"
+    },
+    "module3": {
+      "rows": 28
+    },
+    "module4": {
+      "rows": 28,
+      "regex_detected": 5,
+      "statistical_suspicious_rows": 2
+    }
+  }
+}
