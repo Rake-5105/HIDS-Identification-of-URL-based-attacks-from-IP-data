@@ -1,0 +1,11 @@
+{
+  "http_log_entries": 0,
+  "ipdr_records": 500,
+  "url_requests": 0,
+  "snort_alerts": 0,
+  "total_records": 500,
+  "source_files": [
+    "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\uploads\\1775661171058-d7df1cac4d2d7524.csv"
+  ],
+  "errors": 0
+}

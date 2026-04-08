@@ -1,0 +1,145 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        4/8/2026, 8:55:03 PM
+File Type:            LOGS
+Total Entries (Modules): 20
+Threats Detected (Modules): 3 (15%)
+Ollama Enriched Entries: 17
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    17 entries
+  Cross-Site Scripting (XSS) 2 entries
+  Directory Traversal       1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] /index.html
+      Source IP:       192.168.1.10
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided information.
+      Recommendation:  Maintain regular security monitoring and follow best practices.
+
+  [2] /style.css
+      Source IP:       192.168.1.10
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required.
+
+  [3] /admin/config.php
+      Source IP:       10.0.0.55
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL contains 'config.php', which is commonly associated with sensitive areas of a web application and could be exploited for XSS if not properly sanitized.
+      Recommendation:  Implement proper input validation, output encoding to prevent script execution.
+
+  [4] /login
+      Source IP:       172.16.0.200
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is not properly sanitized, allowing scripts to be injected.
+      Recommendation:  Implement strict content security policies and validate/sanitize all user inputs.
+
+  [5] /login
+      Source IP:       172.16.0.200
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is directly included in the response without proper sanitization.
+      Recommendation:  Implement output encoding and context-sensitive escaping for user inputs.
+
+  [6] /login
+      Source IP:       172.16.0.200
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is directly included in the response without proper sanitization.
+      Recommendation:  Implement output encoding and context-sensitive escaping to prevent script execution.
+
+  [7] /login
+      Source IP:       172.16.0.200
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is directly included in the response without proper sanitization.
+      Recommendation:  Implement output encoding and context-sensitive escaping to prevent XSS attacks.
+
+  [8] /login
+      Source IP:       172.16.0.200
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is not properly sanitized, allowing scripts to be injected.
+      Recommendation:  Implement strict content security policies and validate/sanitize all user inputs.
+
+  [9] /../../../etc/passwd
+      Source IP:       45.33.32.156
+      Classification:  Directory Traversal
+      Risk Level:      Critical
+      Patterns:        /../../../etc/passwd
+      Recommendation:  Immediately block the IP address and review server configurations to prevent path traversal.
+
+  [10] /wp-login.php
+      Source IP:       45.33.32.156
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL contains query parameters that could be used to inject malicious scripts.
+      Recommendation:  Implement strict Content Security Policy and input validation.
+
+  [11] /.env
+      Source IP:       45.33.32.156
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        Request URL contains a dot, suggesting potential for directory traversal or access to sensitive files.
+      Recommendation:  Implement strict input validation and set appropriate HTTP headers like Content-Security-Policy.
+
+  [12] /phpmyadmin/index.php
+      Source IP:       45.33.32.156
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL contains 'phpmyadmin', which is a common target for XSS attacks.
+      Recommendation:  Implement Content Security Policy headers and validate/escape user input.
+
+  [13] /products
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required based on the provided data.
+
+  [14] /products/item?id=42
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Monitor for unusual activity and maintain regular security audits.
+
+  [15] /cart/add
+      Source IP:       192.168.1.20
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web application traffic for unusual activities.
+
+  [16] /<script>alert(1)</script>
+      Source IP:       198.51.100.7
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        The URL contains a script tag which is indicative of an XSS attack.
+      Recommendation:  Implement strict input validation and output encoding to prevent the execution of scripts.
+
+  [17] /search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E
+      Source IP:       198.51.100.7
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        Payload within URL parameter intended to execute JavaScript.
+      Recommendation:  Implement Content Security Policy and sanitize user input.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

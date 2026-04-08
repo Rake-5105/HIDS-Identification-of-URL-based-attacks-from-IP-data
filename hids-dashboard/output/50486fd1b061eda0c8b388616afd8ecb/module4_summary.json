@@ -1,0 +1,26 @@
+{
+  "rows": 14,
+  "class_counts": {
+    "SQL Injection": 2,
+    "Cross-Site Scripting (XSS)": 2,
+    "Normal": 2,
+    "Local File Inclusion (LFI)": 1,
+    "Remote File Inclusion (RFI)": 1,
+    "Web Shell Upload": 1,
+    "Command Injection": 1,
+    "Server-Side Request Forgery (SSRF)": 1,
+    "LDAP Injection": 1,
+    "HTTP Header Injection": 1,
+    "Typosquatting / URL Spoofing": 1
+  },
+  "regex_detected": 12,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "0.0.0.0"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\50486fd1b061eda0c8b388616afd8ecb\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "The least populated classes in y have only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2. Classes with too few members are: ['Command Injection', 'HTTP Header Injection', 'LDAP Injection', 'Local File Inclusion (LFI)', 'Remote File Inclusion (RFI)', 'Server-Side Request Forgery (SSRF)', 'Typosquatting / URL Spoofing', 'Web Shell Upload']"
+}

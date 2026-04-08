@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T15:31:19.770000,http://example.com/api?url=http://127.0.0.1/admin,http,example.com,,80,/api,api,1,url=http%3A%2F%2F127.0.0.1%2Fadmin,url=http://127.0.0.1/admin,1,,,GET,200,web-dashboard,manual-url,ipdr

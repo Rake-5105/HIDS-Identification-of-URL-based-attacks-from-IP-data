@@ -1,0 +1,21 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-02-27T08:01:12+00:00,192.168.1.10,GET,/index.html,/index.html,200,Mozilla/5.0 (Windows NT 10.0; Win64; x64),-,http,,/index.html,,html,apache,11,2,0,0,0
+2026-02-27T08:01:15+00:00,192.168.1.10,GET,/style.css,/style.css,200,Mozilla/5.0,http://example.com/,http,,/style.css,,css,apache,10,2,0,0,0
+2026-02-27T08:02:01+00:00,10.0.0.55,GET,/admin/config.php,/admin/config.php,403,sqlmap/1.6,-,http,,/admin/config.php,,php,apache,17,3,0,0,0
+2026-02-27T08:02:03+00:00,10.0.0.55,GET,/admin/config.php?id=1',/admin/config.php?id=1',500,sqlmap/1.6,-,http,,/admin/config.php,id=1%27,php,apache,23,6,0,0,0
+2026-02-27T08:02:05+00:00,10.0.0.55,GET,/admin/config.php?id=1,/admin/config.php?id=1,500,sqlmap/1.6,-,http,,/admin/config.php,id=1,php,apache,22,5,0,0,0
+2026-02-27T08:03:44+00:00,172.16.0.200,POST,/login,/login,200,curl/7.88,-,http,,/login,,,apache,6,1,0,0,0
+2026-02-27T08:03:45+00:00,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,apache,6,1,0,0,0
+2026-02-27T08:03:46+00:00,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,apache,6,1,0,0,0
+2026-02-27T08:03:47+00:00,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,apache,6,1,0,0,0
+2026-02-27T08:03:48+00:00,172.16.0.200,POST,/login,/login,401,curl/7.88,-,http,,/login,,,apache,6,1,0,0,0
+2026-02-27T08:05:00+00:00,45.33.32.156,GET,/../../../etc/passwd,/../../../etc/passwd,400,Nikto/2.1.6,-,http,,/etc/passwd,,,apache,20,11,0,0,1
+2026-02-27T08:05:01+00:00,45.33.32.156,GET,/wp-login.php,/wp-login.php,404,Nikto/2.1.6,-,http,,/wp-login.php,,php,apache,13,3,0,0,0
+2026-02-27T08:05:02+00:00,45.33.32.156,GET,/.env,/.env,404,Nikto/2.1.6,-,http,,/.env,,,apache,5,2,0,0,0
+2026-02-27T08:05:03+00:00,45.33.32.156,GET,/phpmyadmin/index.php,/phpmyadmin/index.php,404,Nikto/2.1.6,-,http,,/phpmyadmin/index.php,,php,apache,21,3,0,0,0
+2026-02-27T08:10:00+00:00,192.168.1.20,GET,/products,/products,200,Mozilla/5.0,-,http,,/products,,,apache,9,1,0,0,0
+2026-02-27T08:10:05+00:00,192.168.1.20,GET,/products/item?id=42,/products/item?id=42,200,Mozilla/5.0,http://example.com/products,http,,/products/item,id=42,,apache,20,4,0,0,0
+2026-02-27T08:10:10+00:00,192.168.1.20,POST,/cart/add,/cart/add,200,Mozilla/5.0,http://example.com/products/item?id=42,http,,/cart/add,,,apache,9,2,0,0,0
+2026-02-27T08:15:00+00:00,198.51.100.7,GET,/<script>alert(1)</script>,/<script>alert(1)</script>,400,python-requests/2.28,-,http,,/<script>alert(1)</script>,,,apache,26,8,0,1,0
+2026-02-27T08:15:01+00:00,198.51.100.7,GET,/?q=<img,/?q=<img,200,python-requests/2.28,-,http,,/,q=%3Cimg,,apache,8,4,0,0,0
+2026-02-27T08:15:02+00:00,198.51.100.7,GET,/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,200,python-requests/2.28,-,http,,/search,q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E,,apache,49,11,0,1,0

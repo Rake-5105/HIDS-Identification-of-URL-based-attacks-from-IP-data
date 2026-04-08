@@ -1,0 +1,58 @@
+{
+  "total_requests": 0,
+  "threats_detected": 0,
+  "threat_percentage": 0,
+  "classification_breakdown": {
+    "normal": 0
+  },
+  "suspicious_ips": [],
+  "ml_accuracy": 0,
+  "analyzed_at": "2026-04-08T15:27:30.721Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 10,
+  "ollama": {
+    "total_requests": 10,
+    "threats_detected": 10,
+    "threat_percentage": 100,
+    "classification_breakdown": {
+      "None": 9,
+      "Cross-Site Scripting (XSS)": 1
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-08T15:27:30.721Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 0,
+      "threats_detected": 0,
+      "threat_percentage": 0,
+      "classification_breakdown": {
+        "normal": 0
+      },
+      "suspicious_ips": [],
+      "ml_accuracy": 0,
+      "analyzed_at": "2026-04-08T15:27:17.026991"
+    },
+    "artifacts": {
+      "module3_csv": "",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\747801f66510f2bd41be9445c1221e02\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\747801f66510f2bd41be9445c1221e02\\module4_summary.json",
+      "module4_model": ""
+    },
+    "module1": {
+      "http_log_entries": 0,
+      "ipdr_records": 0,
+      "pcap_flows": 0
+    },
+    "module2": {
+      "parsed_urls": 0
+    },
+    "module3": {
+      "feature_rows": 0
+    },
+    "module4": {
+      "final_rows": 0
+    },
+    "warning": "No URL requests could be extracted from the uploaded file"
+  }
+}

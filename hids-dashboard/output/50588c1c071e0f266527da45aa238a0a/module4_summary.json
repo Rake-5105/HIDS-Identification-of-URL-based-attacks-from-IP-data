@@ -1,0 +1,19 @@
+{
+  "rows": 124,
+  "class_counts": {
+    "Normal": 114,
+    "Command Injection": 5,
+    "Local File Inclusion (LFI)": 4,
+    "Directory Traversal": 1
+  },
+  "regex_detected": 10,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "0.0.0.0"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\50588c1c071e0f266527da45aa238a0a\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "The least populated classes in y have only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2. Classes with too few members are: ['Directory Traversal']"
+}

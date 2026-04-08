@@ -1,0 +1,513 @@
+[
+  {
+    "source_ip": "192.168.1.10",
+    "timestamp": "2026-02-27T08:01:12+00:00",
+    "raw_url": "/index.html",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.html",
+    "path_segments": [
+      "index.html"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "html",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.10",
+    "timestamp": "2026-02-27T08:01:15+00:00",
+    "raw_url": "/style.css",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/style.css",
+    "path_segments": [
+      "style.css"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "css",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "http://example.com/",
+    "source": "apache"
+  },
+  {
+    "source_ip": "10.0.0.55",
+    "timestamp": "2026-02-27T08:02:01+00:00",
+    "raw_url": "/admin/config.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/admin/config.php",
+    "path_segments": [
+      "admin",
+      "config.php"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 403,
+    "user_agent": "sqlmap/1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "10.0.0.55",
+    "timestamp": "2026-02-27T08:02:03+00:00",
+    "raw_url": "/admin/config.php?id=1'",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/admin/config.php",
+    "path_segments": [
+      "admin",
+      "config.php"
+    ],
+    "path_depth": 2,
+    "query_string": "id=1%27",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1'"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 500,
+    "user_agent": "sqlmap/1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "10.0.0.55",
+    "timestamp": "2026-02-27T08:02:05+00:00",
+    "raw_url": "/admin/config.php?id=1",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/admin/config.php",
+    "path_segments": [
+      "admin",
+      "config.php"
+    ],
+    "path_depth": 2,
+    "query_string": "id=1",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 500,
+    "user_agent": "sqlmap/1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "172.16.0.200",
+    "timestamp": "2026-02-27T08:03:44+00:00",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 200,
+    "user_agent": "curl/7.88",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "172.16.0.200",
+    "timestamp": "2026-02-27T08:03:45+00:00",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "curl/7.88",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "172.16.0.200",
+    "timestamp": "2026-02-27T08:03:46+00:00",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "curl/7.88",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "172.16.0.200",
+    "timestamp": "2026-02-27T08:03:47+00:00",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "curl/7.88",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "172.16.0.200",
+    "timestamp": "2026-02-27T08:03:48+00:00",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 401,
+    "user_agent": "curl/7.88",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "45.33.32.156",
+    "timestamp": "2026-02-27T08:05:00+00:00",
+    "raw_url": "/../../../etc/passwd",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/etc/passwd",
+    "path_segments": [
+      "etc",
+      "passwd"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 400,
+    "user_agent": "Nikto/2.1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "45.33.32.156",
+    "timestamp": "2026-02-27T08:05:01+00:00",
+    "raw_url": "/wp-login.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/wp-login.php",
+    "path_segments": [
+      "wp-login.php"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 404,
+    "user_agent": "Nikto/2.1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "45.33.32.156",
+    "timestamp": "2026-02-27T08:05:02+00:00",
+    "raw_url": "/.env",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/.env",
+    "path_segments": [
+      ".env"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 404,
+    "user_agent": "Nikto/2.1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "45.33.32.156",
+    "timestamp": "2026-02-27T08:05:03+00:00",
+    "raw_url": "/phpmyadmin/index.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/phpmyadmin/index.php",
+    "path_segments": [
+      "phpmyadmin",
+      "index.php"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 404,
+    "user_agent": "Nikto/2.1.6",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.20",
+    "timestamp": "2026-02-27T08:10:00+00:00",
+    "raw_url": "/products",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/products",
+    "path_segments": [
+      "products"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.20",
+    "timestamp": "2026-02-27T08:10:05+00:00",
+    "raw_url": "/products/item?id=42",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/products/item",
+    "path_segments": [
+      "products",
+      "item"
+    ],
+    "path_depth": 2,
+    "query_string": "id=42",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "42"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "http://example.com/products",
+    "source": "apache"
+  },
+  {
+    "source_ip": "192.168.1.20",
+    "timestamp": "2026-02-27T08:10:10+00:00",
+    "raw_url": "/cart/add",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/cart/add",
+    "path_segments": [
+      "cart",
+      "add"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": 200,
+    "user_agent": "Mozilla/5.0",
+    "referrer": "http://example.com/products/item?id=42",
+    "source": "apache"
+  },
+  {
+    "source_ip": "198.51.100.7",
+    "timestamp": "2026-02-27T08:15:00+00:00",
+    "raw_url": "/<script>alert(1)</script>",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/<script>alert(1)</script>",
+    "path_segments": [
+      "<script>alert(1)<",
+      "script>"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 400,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "198.51.100.7",
+    "timestamp": "2026-02-27T08:15:01+00:00",
+    "raw_url": "/?q=<img",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/",
+    "path_segments": [],
+    "path_depth": 0,
+    "query_string": "q=%3Cimg",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<img"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  },
+  {
+    "source_ip": "198.51.100.7",
+    "timestamp": "2026-02-27T08:15:02+00:00",
+    "raw_url": "/search?q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<script>alert(document.cookie)</script>"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "python-requests/2.28",
+    "referrer": "-",
+    "source": "apache"
+  }
+]

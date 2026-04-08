@@ -1,0 +1,23 @@
+{
+  "rows": 5000,
+  "class_counts": {
+    "Normal": 2904,
+    "Server-Side Request Forgery (SSRF)": 1227,
+    "LDAP Injection": 186,
+    "Command Injection": 153,
+    "Cross-Site Scripting (XSS)": 139,
+    "Suspicious Behavior": 135,
+    "Local File Inclusion (LFI)": 79,
+    "SQL Injection": 77,
+    "Directory Traversal": 49,
+    "Remote File Inclusion (RFI)": 48,
+    "Web Shell Upload": 3
+  },
+  "regex_detected": 2016,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [],
+  "ml_accuracy": 0.7856,
+  "output_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\22343025d7a5fdeda3b148d419f832fe\\module4_hybrid_results.csv",
+  "ml_report": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\22343025d7a5fdeda3b148d419f832fe\\module4_ml_report.txt",
+  "model_path": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\22343025d7a5fdeda3b148d419f832fe\\module4_rf_model.joblib"
+}

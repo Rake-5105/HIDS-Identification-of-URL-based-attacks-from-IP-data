@@ -1,0 +1,17 @@
+                                    precision    recall  f1-score   support
+
+                 Command Injection     0.0000    0.0000    0.0000        38
+        Cross-Site Scripting (XSS)     0.9444    0.9714    0.9577        35
+               Directory Traversal     0.7778    0.5833    0.6667        12
+                    LDAP Injection     0.3846    0.2174    0.2778        46
+        Local File Inclusion (LFI)     0.4444    0.4000    0.4211        20
+                            Normal     0.8413    0.9543    0.8942       722
+       Remote File Inclusion (RFI)     1.0000    0.0833    0.1538        12
+                     SQL Injection     1.0000    0.8421    0.9143        19
+Server-Side Request Forgery (SSRF)     0.6721    0.7213    0.6958       287
+               Suspicious Behavior     0.6250    0.1724    0.2703        58
+                  Web Shell Upload     0.0000    0.0000    0.0000         1
+
+                          accuracy                         0.7856      1250
+                         macro avg     0.6081    0.4496    0.4774      1250
+                      weighted avg     0.7492    0.7856    0.7543      1250
