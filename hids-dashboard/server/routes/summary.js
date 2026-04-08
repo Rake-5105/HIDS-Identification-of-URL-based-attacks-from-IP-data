@@ -27,6 +27,8 @@ router.get('/', async (req, res) => {
     const classCounts = {};
     let totalRequests = 0;
     let totalThreats = 0;
+    let totalConfirmedSuccess = 0;
+    let totalAttempts = 0;
     let weightedAccuracyTotal = 0;
     let weightedAccuracyCount = 0;
     const suspiciousIpSet = new Set();
@@ -35,6 +37,8 @@ router.get('/', async (req, res) => {
       const results = file.results || {};
       totalRequests += Number(results.totalRequests || 0);
       totalThreats += Number(results.maliciousRequests || 0);
+      totalConfirmedSuccess += Number(results.confirmedSuccessfulAttacks || 0);
+      totalAttempts += Number(results.attackAttempts || 0);
 
       const reqCount = Number(results.totalRequests || 0);
       const storedAcc = Number(results.mlAccuracy || 0);
@@ -69,6 +73,8 @@ router.get('/', async (req, res) => {
       total_requests: totalRequests,
       threats_detected: totalThreats,
       threat_percentage: totalRequests > 0 ? ((totalThreats / totalRequests) * 100).toFixed(1) : '0.0',
+      confirmed_successful_attacks: totalConfirmedSuccess,
+      attack_attempts: totalAttempts,
       ml_accuracy: weightedAccuracyCount > 0 ? (weightedAccuracyTotal / weightedAccuracyCount) : 0,
       class_counts: classCounts,
       suspicious_ips: Array.from(suspiciousIpSet),

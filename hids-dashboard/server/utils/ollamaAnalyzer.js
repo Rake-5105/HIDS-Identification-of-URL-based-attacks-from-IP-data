@@ -8,6 +8,28 @@ const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'phi3';
 const PANDAS_ERROR = "No module named 'pandas'";
 
+const normalizeClassificationLabel = (label) => {
+  const text = String(label || '').trim().toLowerCase();
+  if (!text) return 'Unknown';
+
+  if (text === 'normal' || text === 'benign' || text === 'safe') return 'Normal';
+  if (text.includes('sql')) return 'SQL Injection';
+  if (text.includes('xss') || text.includes('cross-site') || text.includes('script')) return 'Cross-Site Scripting (XSS)';
+  if (text.includes('traversal') || text.includes('path traversal')) return 'Directory Traversal';
+  if (text.includes('command')) return 'Command Injection';
+  if (text.includes('ssrf') || text.includes('server-side request forgery')) return 'Server-Side Request Forgery (SSRF)';
+  if (text.includes('local file inclusion') || text === 'lfi') return 'Local File Inclusion (LFI)';
+  if (text.includes('remote file inclusion') || text === 'rfi') return 'Remote File Inclusion (RFI)';
+  if (text.includes('parameter pollution')) return 'HTTP Parameter Pollution';
+  if (text.includes('xxe') || text.includes('xml external entity')) return 'XML External Entity Injection (XXE)';
+  if (text.includes('web shell') || text.includes('backdoor')) return 'Web Shell Upload';
+  if (text.includes('typosquat') || text.includes('spoof')) return 'Typosquatting / URL Spoofing';
+  if (text.includes('brute') || text.includes('credential stuffing')) return 'Credential Stuffing / Brute Force';
+  if (text.includes('suspicious')) return 'Suspicious Behavior';
+
+  return String(label || 'Unknown');
+};
+
 const runExecFile = (command, args) => new Promise((resolve, reject) => {
   execFile(command, args, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
     if (error) {
@@ -170,7 +192,7 @@ const runModulePipeline = async (filePath, uploadId) => {
  */
 const analyzeEntry = async (entry, index, total) => {
   const prompt = `Analyze this HTTP request for security threats. Respond ONLY in this exact JSON format, no extra text:
-{"classification":"Normal|SQL Injection|XSS|Path Traversal|Command Injection|Suspicious","risk_level":"None|Low|Medium|High|Critical","patterns":"brief description of suspicious patterns or None","recommendation":"brief action to take"}
+{"classification":"Normal|SQL Injection|Cross-Site Scripting (XSS)|Directory Traversal|Command Injection|Server-Side Request Forgery (SSRF)|Local File Inclusion (LFI)|Remote File Inclusion (RFI)|HTTP Parameter Pollution|XML External Entity Injection (XXE)|Web Shell Upload|Typosquatting / URL Spoofing|Credential Stuffing / Brute Force|Suspicious Behavior","risk_level":"None|Low|Medium|High|Critical","patterns":"brief description of suspicious patterns or None","recommendation":"brief action to take"}
 
 Request data:
 - URL: ${entry.url || entry.full_url || 'N/A'}
@@ -196,7 +218,9 @@ ${entry.payload ? `- Payload: ${entry.payload}` : ''}`;
     const text = response.data.response || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      const parsed = JSON.parse(jsonMatch[0]);
+      parsed.classification = normalizeClassificationLabel(parsed.classification);
+      return parsed;
     }
     return { classification: 'Unknown', risk_level: 'Unknown', patterns: 'Parse error', recommendation: 'Manual review needed' };
   } catch (error) {

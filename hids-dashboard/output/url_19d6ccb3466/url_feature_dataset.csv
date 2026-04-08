@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-08T11:12:29.799000,127.0.0.1,GET,http://testphp.vuln/home?page=about,http://testphp.vuln/home?page=about,200,web-dashboard,manual-url,http,testphp.vuln,/home,page=about,,ipdr,35,7,0,0,0

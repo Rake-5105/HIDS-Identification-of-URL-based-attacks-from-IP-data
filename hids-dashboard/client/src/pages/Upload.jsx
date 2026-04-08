@@ -114,6 +114,21 @@ const Upload = () => {
     ].join('\n');
   };
 
+  const buildUrlJsonContent = () => {
+    const summary = getUrlAnalysisSummary();
+    return JSON.stringify({
+      analyzed_at: new Date().toISOString(),
+      url: urlResult?.url || '',
+      total_entries: summary.totalEntries,
+      threats_found: summary.threatsFound,
+      threat_rate: summary.threatRate,
+      attack_type: summary.attackType,
+      risk_level: summary.riskLevel,
+      analysis: urlResult?.analysis || {},
+      model: urlResult?.model || ''
+    }, null, 2);
+  };
+
   const buildUrlHistoryResult = (resultData) => {
     const attackTypeRaw = formatForDisplay(resultData?.analysis?.attackType) || 'Unknown';
     const attackType = attackTypeRaw.trim() || 'Unknown';
@@ -138,8 +153,18 @@ const Upload = () => {
   const handleDownloadUrlReport = (format) => {
     if (!urlResult) return;
 
-    const content = format === 'csv' ? buildUrlCsvContent() : buildUrlTxtContent();
-    const mimeType = format === 'csv' ? 'text/csv;charset=utf-8' : 'text/plain;charset=utf-8';
+    const content =
+      format === 'csv'
+        ? buildUrlCsvContent()
+        : format === 'json'
+          ? buildUrlJsonContent()
+          : buildUrlTxtContent();
+    const mimeType =
+      format === 'csv'
+        ? 'text/csv;charset=utf-8'
+        : format === 'json'
+          ? 'application/json;charset=utf-8'
+          : 'text/plain;charset=utf-8';
     const safeTime = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `hids_url_report_${safeTime}.${format}`;
 
@@ -305,7 +330,7 @@ const Upload = () => {
       });
 
       const blob = new Blob([response.data], {
-        type: format === 'csv' ? 'text/csv' : 'text/plain'
+        type: format === 'csv' ? 'text/csv' : (format === 'json' ? 'application/json' : 'text/plain')
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -592,7 +617,7 @@ const Upload = () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <button
                         onClick={() => handleDownloadUrlReport('csv')}
                         className="py-3 px-4 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
@@ -606,6 +631,13 @@ const Upload = () => {
                       >
                         <Download size={20} />
                         <span>Download TXT Report</span>
+                      </button>
+                      <button
+                        onClick={() => handleDownloadUrlReport('json')}
+                        className="py-3 px-4 bg-slate-700 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center space-x-2"
+                      >
+                        <Download size={20} />
+                        <span>Download JSON Report</span>
                       </button>
                     </div>
 
@@ -758,7 +790,7 @@ const Upload = () => {
                     )}
 
                     {/* Download Buttons */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <button
                         onClick={() => handleDownload('csv')}
                         className="py-3 px-4 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
@@ -772,6 +804,13 @@ const Upload = () => {
                       >
                         <Download size={20} />
                         <span>Download TXT Report</span>
+                      </button>
+                      <button
+                        onClick={() => handleDownload('json')}
+                        className="py-3 px-4 bg-slate-700 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center space-x-2"
+                      >
+                        <Download size={20} />
+                        <span>Download JSON Report</span>
                       </button>
                     </div>
 
@@ -824,7 +863,7 @@ const Upload = () => {
               <li>Or use URL Analysis to inspect a single URL directly</li>
               <li>Click "Run Attack Analysis" to process your data</li>
               <li>Monitor progress while attack analysis runs on each entry</li>
-              <li>Download the report as <strong>CSV</strong> or <strong>TXT</strong> for further investigation</li>
+              <li>Download the report as <strong>CSV</strong>, <strong>JSON</strong>, or <strong>TXT</strong> for further investigation</li>
             </ul>
           </div>
         </div>

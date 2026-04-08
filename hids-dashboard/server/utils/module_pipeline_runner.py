@@ -198,15 +198,100 @@ def _compose_summary(module4_df, module4_summary):
     total_requests = int(len(module4_df))
     threat_percentage = round((threats_detected / total_requests) * 100, 1) if total_requests else 0.0
 
+    success_count = int((module4_df.get("attack_outcome", pd.Series(dtype=str)) == "confirmed_success").sum())
+    attempt_count = int((module4_df.get("attack_outcome", pd.Series(dtype=str)) == "attempt").sum())
+
     return {
         "total_requests": total_requests,
         "threats_detected": threats_detected,
         "threat_percentage": threat_percentage,
         "classification_breakdown": class_counts,
+        "confirmed_successful_attacks": success_count,
+        "attack_attempts": attempt_count,
         "suspicious_ips": module4_summary.get("suspicious_ips", []),
         "ml_accuracy": module4_summary.get("ml_accuracy", 0.0),
         "analyzed_at": datetime.now().isoformat(),
     }
+
+
+def _infer_attack_outcome(
+    classification_value,
+    status_code_value,
+    url_value="",
+    payload_value="",
+    response_body="",
+    response_headers="",
+    response_time=None,
+    threshold_ms=3000,
+):
+    label = str(classification_value or "").strip().lower()
+    if not label or label == "normal":
+        return "none"
+
+    try:
+        code = int(float(status_code_value)) if pd.notna(status_code_value) else None
+    except Exception:
+        code = None
+
+    if code is None or code < 200 or code >= 300:
+        return "attempt"
+
+    response_text = str(response_body or "").lower()
+    headers_text = str(response_headers or "").lower()
+    combined = f"{str(url_value or '')} {str(payload_value or '')} {response_text} {headers_text}".lower()
+    try:
+        rt = float(response_time) if response_time is not None and pd.notna(response_time) else None
+    except Exception:
+        rt = None
+
+    has_success_evidence = False
+
+    if "sql injection" in label or label == "sqli":
+        has_success_evidence = (
+            "welcome" in response_text
+            or "sql" in response_text
+            or "mysql_fetch" in response_text
+            or "sql syntax" in response_text
+        )
+    elif "xss" in label or "cross-site scripting" in label:
+        has_success_evidence = "<script>" in response_text
+    elif "local file inclusion" in label or "directory traversal" in label or "path traversal" in label or "lfi" in label:
+        has_success_evidence = "root:x:0:0" in response_text or bool(
+            re.search(r"/etc/passwd|/proc/self/environ|win\.ini|boot\.ini|windows/system32", combined)
+        )
+    elif "remote file inclusion" in label or "web shell" in label:
+        has_success_evidence = (
+            "shell" in response_text
+            or "cmd" in response_text
+            or bool(re.search(r"cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php", combined))
+        )
+    elif "server-side request forgery" in label or "ssrf" in label:
+        has_success_evidence = (
+            "internal server" in response_text
+            or "admin panel" in response_text
+            or bool(re.search(r"169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433", combined))
+        )
+    elif "command injection" in label:
+        has_success_evidence = (
+            "uid=" in response_text
+            or "www-data" in response_text
+            or bool(re.search(r"(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)", combined))
+        )
+    elif "ldap injection" in label or "ldap" in label:
+        has_success_evidence = "login success" in response_text
+    elif "header injection" in label or "http header injection" in label:
+        has_success_evidence = "set-cookie" in headers_text
+    elif "brute force" in label:
+        has_success_evidence = "login success" in response_text
+    elif "dos" in label or "denial of service" in label:
+        has_success_evidence = rt is not None and rt > float(threshold_ms)
+    elif "csrf" in label or "cross-site request forgery" in label:
+        has_success_evidence = "transaction successful" in response_text
+
+    if has_success_evidence:
+        return "confirmed_success"
+
+    return "attempt"
 
 
 def _run_module4_with_fallback(module3_df, module3_csv, output_dir):
@@ -330,6 +415,21 @@ def run_pipeline(input_path, output_dir):
     module3_df.to_csv(module3_csv, index=False)
 
     module4_df, module4_summary = _run_module4_with_fallback(module3_df, module3_csv, output_dir)
+    module4_df["attack_outcome"] = module4_df.apply(
+        lambda row: _infer_attack_outcome(
+            row.get("final_classification", row.get("regex_class", "Normal")),
+            row.get("status_code"),
+            row.get("url", row.get("full_url", "")),
+            row.get("raw", ""),
+            row.get("response", row.get("response_body", row.get("body", ""))),
+            row.get("response_headers", row.get("headers", "")),
+            row.get("response_time", row.get("latency", row.get("duration_ms", None))),
+        ),
+        axis=1,
+    )
+
+    # Persist the enriched output used by dashboard exports.
+    module4_df.to_csv(module4_summary["output_csv"], index=False)
     module4_csv = module4_summary["output_csv"]
 
     summary = _compose_summary(module4_df, module4_summary)

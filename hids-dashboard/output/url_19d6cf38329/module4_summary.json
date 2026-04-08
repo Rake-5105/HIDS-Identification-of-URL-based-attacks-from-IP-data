@@ -1,0 +1,16 @@
+{
+  "rows": 1,
+  "class_counts": {
+    "Server-Side Request Forgery (SSRF)": 1
+  },
+  "regex_detected": 1,
+  "statistical_suspicious_rows": 0,
+  "suspicious_ips": [
+    "127.0.0.1"
+  ],
+  "ml_accuracy": 0.0,
+  "output_csv": "C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\url_19d6cf38329\\module4_hybrid_results.csv",
+  "ml_report": "",
+  "model_path": "",
+  "fallback_reason": "With n_samples=1, test_size=0.25 and train_size=None, the resulting train set will be empty. Adjust any of the aforementioned parameters."
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T12:16:06.951000",
+    "raw_url": "http://testphp.vuln/ping?ip=127.0.0.1&&sleep 5",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/ping",
+    "path_segments": [
+      "ping"
+    ],
+    "path_depth": 1,
+    "query_string": "ip=127.0.0.1&sleep%205=",
+    "query_params": [
+      {
+        "key": "ip",
+        "value": "127.0.0.1"
+      },
+      {
+        "key": "sleep 5",
+        "value": ""
+      }
+    ],
+    "query_param_count": 2,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

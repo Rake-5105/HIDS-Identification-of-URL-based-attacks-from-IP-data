@@ -12,6 +12,8 @@ const Requests = () => {
   const { latestResult } = useUpload();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('all');
+  const [filterOutcome, setFilterOutcome] = useState('all');
+  const [ipRangeInput, setIpRangeInput] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -34,6 +36,42 @@ const Requests = () => {
     return unique.filter(Boolean).sort();
   }, [requests]);
 
+  const parseIp = (value) => {
+    const parts = String(value || '').trim().split('.');
+    if (parts.length !== 4) return null;
+    const nums = parts.map((p) => Number(p));
+    if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+    return ((nums[0] << 24) >>> 0) + (nums[1] << 16) + (nums[2] << 8) + nums[3];
+  };
+
+  const parseRange = (input) => {
+    const text = String(input || '').trim();
+    if (!text) return null;
+
+    if (text.includes('/')) {
+      const [base, prefixText] = text.split('/');
+      const baseInt = parseIp(base);
+      const prefix = Number(prefixText);
+      if (baseInt === null || !Number.isInteger(prefix) || prefix < 0 || prefix > 32) return null;
+      const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+      const start = baseInt & mask;
+      const end = start | (~mask >>> 0);
+      return { start, end };
+    }
+
+    if (text.includes('-')) {
+      const [startIp, endIp] = text.split('-').map((x) => x.trim());
+      const start = parseIp(startIp);
+      const end = parseIp(endIp);
+      if (start === null || end === null) return null;
+      return start <= end ? { start, end } : { start: end, end: start };
+    }
+
+    const single = parseIp(text);
+    if (single === null) return null;
+    return { start: single, end: single };
+  };
+
   const filteredAndSorted = useMemo(() => {
     if (!requests) return [];
 
@@ -45,7 +83,17 @@ const Requests = () => {
       const matchesFilter = filterClass === 'all' ||
         req.classification?.toLowerCase() === filterClass.toLowerCase();
 
-      return matchesSearch && matchesFilter;
+      const requestOutcome = (req.attack_outcome || 'none').toLowerCase();
+      const matchesOutcome = filterOutcome === 'all' || requestOutcome === filterOutcome;
+
+      const parsedRange = parseRange(ipRangeInput);
+      let matchesIpRange = true;
+      if (parsedRange) {
+        const ipValue = parseIp(req.source_ip);
+        matchesIpRange = ipValue !== null && ipValue >= parsedRange.start && ipValue <= parsedRange.end;
+      }
+
+      return matchesSearch && matchesFilter && matchesOutcome && matchesIpRange;
     });
 
     if (sortConfig.key) {
@@ -60,7 +108,7 @@ const Requests = () => {
     }
 
     return filtered;
-  }, [requests, searchTerm, filterClass, sortConfig]);
+  }, [requests, searchTerm, filterClass, filterOutcome, ipRangeInput, sortConfig]);
 
   const handleSort = (key) => {
     setSortConfig(prev => ({
@@ -121,7 +169,7 @@ const Requests = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -130,7 +178,11 @@ const Requests = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by IP or URL..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:opacity-100 ${
+                isDark
+                  ? 'bg-gray-800 border-gray-600 text-gray-100 placeholder:text-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500'
+              }`}
             />
           </div>
 
@@ -140,13 +192,50 @@ const Requests = () => {
             <select
               value={filterClass}
               onChange={(e) => setFilterClass(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none ${
+                isDark
+                  ? 'bg-gray-800 border-gray-600 text-gray-100'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
             >
               <option value="all">All Classifications</option>
               {classifications.map(cls => (
                 <option key={cls} value={cls}>{cls.toUpperCase()}</option>
               ))}
             </select>
+          </div>
+
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <select
+              value={filterOutcome}
+              onChange={(e) => setFilterOutcome(e.target.value)}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none ${
+                isDark
+                  ? 'bg-gray-800 border-gray-600 text-gray-100'
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="all">All Outcomes</option>
+              <option value="confirmed_success">Confirmed Success</option>
+              <option value="attempt">Attempt</option>
+              <option value="none">No Attack</option>
+            </select>
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={ipRangeInput}
+              onChange={(e) => setIpRangeInput(e.target.value)}
+              placeholder="IP / CIDR / range"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:opacity-100 ${
+                isDark
+                  ? 'bg-gray-800 border-gray-600 text-gray-100 placeholder:text-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500'
+              }`}
+            />
           </div>
         </div>
 
@@ -192,6 +281,15 @@ const Requests = () => {
                   </div>
                 </th>
                 <th
+                  onClick={() => handleSort('attack_outcome')}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Outcome</span>
+                    <SortIcon column="attack_outcome" />
+                  </div>
+                </th>
+                <th
                   onClick={() => handleSort('confidence')}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 >
@@ -231,6 +329,17 @@ const Requests = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
                         {classification.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        (req.attack_outcome || 'none') === 'confirmed_success'
+                          ? 'bg-red-100 text-red-800'
+                          : (req.attack_outcome || 'none') === 'attempt'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                      }`}>
+                        {(req.attack_outcome || 'none').replace('_', ' ').toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

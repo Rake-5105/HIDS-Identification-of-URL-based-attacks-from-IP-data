@@ -9,6 +9,63 @@ const FileHistory = require('../models/FileHistory');
 const { BUCKETS, uploadToSupabase, saveReport } = require('../utils/supabaseStorage');
 const { analyzeFile } = require('../utils/ollamaAnalyzer');
 
+const inferAttackOutcome = (
+  classification,
+  statusCode,
+  urlValue = '',
+  payloadValue = '',
+  responseBody = '',
+  responseHeaders = '',
+  responseTime = null,
+  thresholdMs = 3000
+) => {
+  const normalized = String(classification || '').trim().toLowerCase();
+  if (!normalized || normalized === 'normal') {
+    return 'none';
+  }
+
+  const code = Number(statusCode);
+  if (!Number.isFinite(code) || code < 200 || code >= 300) {
+    return 'attempt';
+  }
+
+  const responseText = String(responseBody || '').toLowerCase();
+  const headersText = String(responseHeaders || '').toLowerCase();
+  const combined = `${String(urlValue || '')} ${String(payloadValue || '')} ${responseText} ${headersText}`.toLowerCase();
+  const rt = Number(responseTime);
+
+  let hasSuccessEvidence = false;
+  if (normalized.includes('sql injection') || normalized === 'sqli') {
+    hasSuccessEvidence = responseText.includes('welcome') || responseText.includes('sql') || responseText.includes('mysql_fetch') || responseText.includes('sql syntax');
+  } else if (normalized.includes('xss') || normalized.includes('cross-site scripting')) {
+    hasSuccessEvidence = responseText.includes('<script>');
+  } else if (normalized.includes('local file inclusion') || normalized.includes('directory traversal') || normalized.includes('path traversal') || normalized.includes('lfi')) {
+    hasSuccessEvidence = responseText.includes('root:x:0:0') || /(\/etc\/passwd|\/proc\/self\/environ|win\.ini|boot\.ini|windows\/system32)/i.test(combined);
+  } else if (normalized.includes('remote file inclusion') || normalized.includes('web shell')) {
+    hasSuccessEvidence = responseText.includes('shell') || responseText.includes('cmd') || /(cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php)/i.test(combined);
+  } else if (normalized.includes('server-side request forgery') || normalized.includes('ssrf')) {
+    hasSuccessEvidence = responseText.includes('internal server') || responseText.includes('admin panel') || /(169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433)/i.test(combined);
+  } else if (normalized.includes('command injection')) {
+    hasSuccessEvidence = responseText.includes('uid=') || responseText.includes('www-data') || /(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)/i.test(combined);
+  } else if (normalized.includes('ldap injection') || normalized.includes('ldap')) {
+    hasSuccessEvidence = responseText.includes('login success');
+  } else if (normalized.includes('header injection') || normalized.includes('http header injection')) {
+    hasSuccessEvidence = headersText.includes('set-cookie');
+  } else if (normalized.includes('brute force')) {
+    hasSuccessEvidence = responseText.includes('login success');
+  } else if (normalized.includes('dos') || normalized.includes('denial of service')) {
+    hasSuccessEvidence = Number.isFinite(rt) && rt > Number(thresholdMs);
+  } else if (normalized.includes('csrf') || normalized.includes('cross-site request forgery')) {
+    hasSuccessEvidence = responseText.includes('transaction successful');
+  }
+
+  if (hasSuccessEvidence) {
+    return 'confirmed_success';
+  }
+
+  return 'attempt';
+};
+
 /**
  * Simple CSV parser (handles basic CSVs without external dependency)
  */
@@ -68,12 +125,22 @@ const extractDetailedRequests = async (csvPath, maxRecords = 100) => {
       // Confidence from various sources
       const confidence = parseFloat(rec.confidence) || 
         (rec.risk_level === 'Critical' ? 95 : rec.risk_level === 'High' ? 85 : rec.risk_level === 'Medium' ? 75 : 90);
+      const attackOutcome = rec.attack_outcome || inferAttackOutcome(
+        classification,
+        rec.status_code,
+        rec.url || rec.full_url || rec.path || rec.uri || '',
+        rec.payload || rec.raw || '',
+        rec.response || rec.response_body || rec.body || '',
+        rec.response_headers || rec.headers || '',
+        rec.response_time || rec.latency || rec.duration_ms || null
+      );
       
       return {
         timestamp: rec.timestamp || new Date().toISOString(),
         source_ip: sourceIp,
         url: url,
         classification: classification,
+        attack_outcome: attackOutcome,
         confidence: confidence,
         detection_method: rec.detection_method || rec.method || 'ML'
       };
@@ -215,6 +282,34 @@ router.get('/download/txt/:uploadId', auth, async (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
     res.send(job.reportTxt);
+  } catch (error) {
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+// Download report as JSON (must be before /:type)
+router.get('/download/json/:uploadId', auth, async (req, res) => {
+  try {
+    const { uploadId } = req.params;
+    const job = processingJobs.get(uploadId);
+
+    if (!job || String(job.userId) !== String(req.user.id)) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const detailedRequests = job.reportCsv ? parseCSV(job.reportCsv).slice(0, 200) : [];
+    const payload = {
+      upload_id: uploadId,
+      file_name: job.fileName,
+      analyzed_at: new Date().toISOString(),
+      summary: job.results || {},
+      detailed_requests: detailedRequests,
+    };
+
+    const fileName = `hids_report_${uploadId.substring(0, 8)}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(JSON.stringify(payload, null, 2));
   } catch (error) {
     res.status(500).json({ error: 'Download failed' });
   }
@@ -362,6 +457,15 @@ async function runOllamaAnalysis(uploadId, job) {
         source_ip: entry.source_ip || entry.ip || '0.0.0.0',
         url: entry.url || entry.full_url || '',
         classification: entry.classification || 'unknown',
+        attack_outcome: inferAttackOutcome(
+          entry.classification,
+          entry.status_code,
+          entry.url || entry.full_url || '',
+          entry.payload || entry.raw_content || '',
+          entry.response || entry.response_body || entry.body || '',
+          entry.response_headers || entry.headers || '',
+          entry.response_time || entry.latency || entry.duration_ms || null
+        ),
         confidence: parseFloat(entry.confidence) || 90,
         detection_method: entry.detection_method || 'ML'
       }));
@@ -379,6 +483,8 @@ async function runOllamaAnalysis(uploadId, job) {
           totalRequests: result.summary.total_requests,
           maliciousRequests: result.summary.threats_detected,
           attackTypes: result.summary.classification_breakdown,
+          confirmedSuccessfulAttacks: Number(result.summary.confirmed_successful_attacks || 0),
+          attackAttempts: Number(result.summary.attack_attempts || 0),
           mlAccuracy: Number(result.summary.ml_accuracy) > 0 ? Number(result.summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
           suspiciousIps: Array.isArray(result.summary.suspicious_ips) ? result.summary.suspicious_ips : []
         },

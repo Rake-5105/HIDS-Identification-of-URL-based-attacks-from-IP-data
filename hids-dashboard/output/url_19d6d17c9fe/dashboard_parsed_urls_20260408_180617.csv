@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T12:36:08.831000,https://juice-shop.herokuapp.com/#/,https,juice-shop.herokuapp.com,,443,/,,0,,,0,/,,GET,200,web-dashboard,manual-url,ipdr

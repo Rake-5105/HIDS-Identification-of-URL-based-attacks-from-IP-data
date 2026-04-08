@@ -1,0 +1,35 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T11:11:04.529000",
+    "raw_url": "http://testphp.vuln/login?user=*)(|(user=*))&pass=anything",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "user=%2A%29%28%7C%28user%3D%2A%29%29&pass=anything",
+    "query_params": [
+      {
+        "key": "user",
+        "value": "*)(|(user=*))"
+      },
+      {
+        "key": "pass",
+        "value": "anything"
+      }
+    ],
+    "query_param_count": 2,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

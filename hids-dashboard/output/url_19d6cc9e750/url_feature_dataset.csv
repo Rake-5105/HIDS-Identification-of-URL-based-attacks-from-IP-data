@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-08T11:11:04.529000,127.0.0.1,GET,http://testphp.vuln/login?user=*)(|(user=*))&pass=anything,http://testphp.vuln/login?user=*)(|(user=*))&pass=anything,200,web-dashboard,manual-url,http,testphp.vuln,/login,user=%2A%29%28%7C%28user%3D%2A%29%29&pass=anything,,ipdr,58,18,0,0,0

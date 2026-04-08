@@ -18,9 +18,18 @@ def _resolve_url_column(df: pd.DataFrame) -> str:
     raise KeyError("Expected 'url' or 'full_url' column in dataset")
 
 
-def _final_class(regex_class: str, ml_class: str, ml_confidence: float, stat_suspicious: int) -> str:
+def _final_class(
+    regex_class: str,
+    ml_class: str,
+    ml_confidence: float,
+    stat_suspicious: int,
+    stat_is_bruteforce: int,
+) -> str:
     if regex_class != "Normal":
         return regex_class
+
+    if stat_is_bruteforce == 1:
+        return "Credential Stuffing / Brute Force"
 
     if stat_suspicious == 1:
         return "Suspicious Behavior"
@@ -62,6 +71,7 @@ def run_hybrid_detection(
             ml_class=str(row["ml_class"]),
             ml_confidence=float(row["ml_confidence"]),
             stat_suspicious=int(row["stat_suspicious"]),
+            stat_is_bruteforce=int(row.get("stat_is_bruteforce", 0)),
         ),
         axis=1,
     )

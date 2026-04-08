@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification
+2026-04-08T10:08:23.347000,127.0.0.1,GET,https://steam-500-usd-gift-card-free,https://steam-500-usd-gift-card-free,200,web-dashboard,manual-url,https,steam-500-usd-gift-card-free,/,,,ipdr,36,8,0,0,0,Normal,,Normal

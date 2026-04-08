@@ -25,6 +25,8 @@ const classColor = (cls) => {
   if (k.includes('ssrf')) return { dot: 'bg-teal-500', badge: 'bg-teal-100 text-teal-800 border-teal-200' };
   if (k.includes('rfi') || k.includes('remote')) return { dot: 'bg-pink-500', badge: 'bg-pink-100 text-pink-800 border-pink-200' };
   if (k.includes('lfi') || k.includes('local')) return { dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-800 border-amber-200' };
+  if (k.includes('typosquatting') || k.includes('spoof')) return { dot: 'bg-fuchsia-500', badge: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200' };
+  if (k.includes('web shell')) return { dot: 'bg-rose-500', badge: 'bg-rose-100 text-rose-800 border-rose-200' };
   return { dot: 'bg-gray-500', badge: 'bg-gray-100 text-gray-800 border-gray-200' };
 };
 

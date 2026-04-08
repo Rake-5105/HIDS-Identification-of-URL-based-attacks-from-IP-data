@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T12:06:58.188000",
+    "raw_url": "http://testphp.vuln/index.php?page=../../etc/passwd%00",
+    "scheme": "http",
+    "host": "testphp.vuln",
+    "port": null,
+    "effective_port": 80,
+    "path": "/index.php",
+    "path_segments": [
+      "index.php"
+    ],
+    "path_depth": 1,
+    "query_string": "page=..%2F..%2Fetc%2Fpasswd%00",
+    "query_params": [
+      {
+        "key": "page",
+        "value": "../../etc/passwd\u0000"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

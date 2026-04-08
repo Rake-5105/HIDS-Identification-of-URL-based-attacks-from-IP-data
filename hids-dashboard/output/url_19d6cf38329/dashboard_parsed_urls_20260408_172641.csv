@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T11:56:31.402000,http://testphp.vuln/fetch?url=http://2130706433/admin,http,testphp.vuln,,80,/fetch,fetch,1,url=http%3A%2F%2F2130706433%2Fadmin,url=http://2130706433/admin,1,,,GET,200,web-dashboard,manual-url,ipdr

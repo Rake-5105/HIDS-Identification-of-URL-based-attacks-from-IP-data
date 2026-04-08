@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T12:44:05.108000",
+    "raw_url": "http://example.com/login?id=1' OR '1'='1",
+    "scheme": "http",
+    "host": "example.com",
+    "port": null,
+    "effective_port": 80,
+    "path": "/login",
+    "path_segments": [
+      "login"
+    ],
+    "path_depth": 1,
+    "query_string": "id=1%27%20OR%20%271%27%3D%271",
+    "query_params": [
+      {
+        "key": "id",
+        "value": "1' OR '1'='1"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-08T12:22:52.168000,127.0.0.1,GET,http://testphp.vuln/page?name=abc%0D%0ALocation:%20http://evil.com,http://testphp.vuln/page?name=abc%0D%0ALocation:%20http://evil.com,200,web-dashboard,manual-url,http,testphp.vuln,/page,name=abc%0D%0ALocation%3A%20http%3A%2F%2Fevil.com,,ipdr,60,15,0,0,0

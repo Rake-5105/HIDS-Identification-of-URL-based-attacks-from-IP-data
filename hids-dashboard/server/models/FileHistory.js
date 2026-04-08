@@ -6,6 +6,7 @@ const requestDetailSchema = new mongoose.Schema({
   source_ip: { type: String, default: '0.0.0.0' },
   url: { type: String, required: true },
   classification: { type: String, default: 'unknown' },
+  attack_outcome: { type: String, enum: ['none', 'attempt', 'confirmed_success'], default: 'none' },
   confidence: { type: Number, default: 90 },
   detection_method: { type: String, default: 'ML' }
 }, { _id: false });
@@ -38,6 +39,8 @@ const fileHistorySchema = new mongoose.Schema({
     totalRequests: { type: Number, default: 0 },
     maliciousRequests: { type: Number, default: 0 },
     attackTypes: { type: Map, of: Number, default: {} },
+    confirmedSuccessfulAttacks: { type: Number, default: 0 },
+    attackAttempts: { type: Number, default: 0 },
     mlAccuracy: { type: Number, default: 0 },
     suspiciousIps: { type: [String], default: [] }
   },

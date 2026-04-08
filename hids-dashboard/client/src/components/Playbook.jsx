@@ -80,6 +80,29 @@ const ATTACK_PLAYBOOKS = [
     ]
   },
   {
+    id: 'typosquatting',
+    name: 'Typosquatting / URL Spoofing',
+    icon: Globe,
+    severity: 'high',
+    color: 'from-fuchsia-500 to-purple-600',
+    badgeColor: 'bg-fuchsia-100 text-fuchsia-800',
+    description: 'Attackers register deceptive look-alike domains to phish users and steal credentials.',
+    indicators: [
+      'Brand names combined with lure words (login, verify, account) in hostname',
+      'Hyphen-heavy suspicious domains (e.g., login-amazon-account.com)',
+      'Punycode domains (xn--) and homoglyph substitutions',
+      'Newly observed domains mimicking trusted services'
+    ],
+    remediation: [
+      'Block look-alike domains at DNS and secure web gateways',
+      'Enable anti-phishing URL filtering in email and browser security layers',
+      'Use domain monitoring/takedown services for brand impersonation',
+      'Train users to verify exact domain names before login',
+      'Enforce MFA to reduce credential misuse impact',
+      'Alert on typo-brand domains in outbound and inbound traffic logs'
+    ]
+  },
+  {
     id: 'cmdi',
     name: 'Command Injection',
     icon: Terminal,
@@ -308,6 +331,29 @@ const ATTACK_PLAYBOOKS = [
       'Implement request size limits',
       'Use traffic analysis to identify and block attack patterns'
     ]
+  },
+  {
+    id: 'web_shell',
+    name: 'Web Shell Upload',
+    icon: Bug,
+    severity: 'critical',
+    color: 'from-red-600 to-rose-700',
+    badgeColor: 'bg-red-100 text-red-800',
+    description: 'Attackers upload executable web scripts (cmd.jsp, backdoor.asp, shell.php) for persistent remote control.',
+    indicators: [
+      'Uploads containing executable extensions (.jsp, .asp, .aspx, .php, .cgi)',
+      'Filenames like cmd.jsp, backdoor.asp, shell.php, webshell.php',
+      'Abnormal POST multipart requests to upload endpoints',
+      'Unexpected command execution patterns after file upload'
+    ],
+    remediation: [
+      'Allow only strict safe file extensions and verify MIME type server-side',
+      'Store uploads outside web root and disable script execution in upload directories',
+      'Rename uploaded files and scan content with AV/YARA signatures',
+      'Block direct access to uploaded files unless explicitly required',
+      'Audit upload endpoints with authentication and rate limiting',
+      'Continuously monitor for suspicious executable files in web directories'
+    ]
   }
 ];
 
@@ -414,6 +460,35 @@ const PlaybookCard = ({ playbook, isDetected, defaultExpanded = false }) => {
 const Playbook = ({ detectedAttacks = null }) => {
   const [filter, setFilter] = useState('all'); // 'all' | 'detected' | 'precautionary'
 
+  const aliasMap = {
+    'sql injection': 'sqli',
+    'cross-site scripting (xss)': 'xss',
+    'xss': 'xss',
+    'directory traversal': 'path_traversal',
+    'path traversal': 'path_traversal',
+    'command injection': 'cmdi',
+    'ldap injection': 'ldapi',
+    'server-side request forgery (ssrf)': 'ssrf',
+    'ssrf': 'ssrf',
+    'remote file inclusion (rfi)': 'rfi',
+    'rfi': 'rfi',
+    'local file inclusion (lfi)': 'lfi',
+    'lfi': 'lfi',
+    'csrf (possible)': 'csrf',
+    'cross-site request forgery': 'csrf',
+    'xml external entity injection (xxe)': 'xxe',
+    'xxe': 'xxe',
+    'credential stuffing / brute force': 'brute_force',
+    'brute force': 'brute_force',
+    'http header injection': 'header_injection',
+    'denial of service (dos)': 'dos',
+    'dos': 'dos',
+    'typosquatting / url spoofing': 'typosquatting',
+    'url spoofing': 'typosquatting',
+    'typosquatting': 'typosquatting',
+    'web shell upload': 'web_shell'
+  };
+
   // Determine which attacks from the playbook were detected
   const detectedSet = useMemo(() => {
     if (!detectedAttacks) return new Set();
@@ -421,6 +496,11 @@ const Playbook = ({ detectedAttacks = null }) => {
     Object.keys(detectedAttacks).forEach(cls => {
       const key = cls.toLowerCase().trim();
       if (key === 'normal') return;
+
+      if (aliasMap[key]) {
+        set.add(aliasMap[key]);
+      }
+
       // Match playbook IDs or partial matches
       ATTACK_PLAYBOOKS.forEach(pb => {
         if (

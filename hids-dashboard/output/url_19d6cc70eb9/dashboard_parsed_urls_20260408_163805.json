@@ -1,0 +1,26 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-08T11:07:58.022000",
+    "raw_url": "http://evil.com/shell.php",
+    "scheme": "http",
+    "host": "evil.com",
+    "port": null,
+    "effective_port": 80,
+    "path": "/shell.php",
+    "path_segments": [
+      "shell.php"
+    ],
+    "path_depth": 1,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "php",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

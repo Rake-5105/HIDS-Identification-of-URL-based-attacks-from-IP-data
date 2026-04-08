@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T11:09:26.895000,http://testphp.vuln/ping.php?ip=127.0.0.1;whoami,http,testphp.vuln,,80,/ping.php,ping.php,1,ip=127.0.0.1%3Bwhoami,ip=127.0.0.1;whoami,1,,php,GET,200,web-dashboard,manual-url,ipdr

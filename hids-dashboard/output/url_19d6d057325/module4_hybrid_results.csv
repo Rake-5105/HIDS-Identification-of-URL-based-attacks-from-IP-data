@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification,attack_outcome
+2026-04-08T12:16:06.951000,127.0.0.1,GET,http://testphp.vuln/ping?ip=127.0.0.1&&sleep 5,http://testphp.vuln/ping?ip=127.0.0.1&&sleep 5,200,web-dashboard,manual-url,http,testphp.vuln,/ping,ip=127.0.0.1&sleep%205=,,ipdr,46,13,0,0,0,Normal,,Normal,none
