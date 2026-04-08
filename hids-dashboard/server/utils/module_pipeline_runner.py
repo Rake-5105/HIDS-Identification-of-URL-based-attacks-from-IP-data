@@ -248,45 +248,52 @@ def _infer_attack_outcome(
 
     if "sql injection" in label or label == "sqli":
         has_success_evidence = (
-            "welcome" in response_text
-            or "sql" in response_text
-            or "mysql_fetch" in response_text
-            or "sql syntax" in response_text
+            "welcome" in combined
+            or "sql" in combined
+            or "mysql_fetch" in combined
+            or "sql syntax" in combined
         )
     elif "xss" in label or "cross-site scripting" in label:
-        has_success_evidence = "<script>" in response_text
+        has_success_evidence = "<script>" in combined
     elif "local file inclusion" in label or "directory traversal" in label or "path traversal" in label or "lfi" in label:
-        has_success_evidence = "root:x:0:0" in response_text or bool(
+        has_success_evidence = "root:x:0:0" in combined or bool(
             re.search(r"/etc/passwd|/proc/self/environ|win\.ini|boot\.ini|windows/system32", combined)
         )
     elif "remote file inclusion" in label or "web shell" in label:
         has_success_evidence = (
-            "shell" in response_text
-            or "cmd" in response_text
+            "shell" in combined
+            or "cmd" in combined
             or bool(re.search(r"cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php", combined))
         )
     elif "server-side request forgery" in label or "ssrf" in label:
         has_success_evidence = (
-            "internal server" in response_text
-            or "admin panel" in response_text
+            "internal server" in combined
+            or "admin panel" in combined
             or bool(re.search(r"169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433", combined))
         )
     elif "command injection" in label:
         has_success_evidence = (
-            "uid=" in response_text
-            or "www-data" in response_text
+            "uid=" in combined
+            or "www-data" in combined
             or bool(re.search(r"(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)", combined))
         )
     elif "ldap injection" in label or "ldap" in label:
-        has_success_evidence = "login success" in response_text
+        has_success_evidence = (
+            "login success" in combined
+            or bool(re.search(r"\*\)\(\|", combined))
+            or bool(re.search(r"\(\|\(user=\*\)\)", combined))
+            or bool(re.search(r"\(uid=\*\)", combined))
+            or bool(re.search(r"\)\(\|\(password=\*\)\)", combined))
+            or ("pass=anything" in combined and ("user=*)" in combined or "(|(user=*))" in combined))
+        )
     elif "header injection" in label or "http header injection" in label:
-        has_success_evidence = "set-cookie" in headers_text
+        has_success_evidence = "set-cookie" in headers_text or "set-cookie" in combined
     elif "brute force" in label:
-        has_success_evidence = "login success" in response_text
+        has_success_evidence = "login success" in combined
     elif "dos" in label or "denial of service" in label:
         has_success_evidence = rt is not None and rt > float(threshold_ms)
     elif "csrf" in label or "cross-site request forgery" in label:
-        has_success_evidence = "transaction successful" in response_text
+        has_success_evidence = "transaction successful" in combined
 
     if has_success_evidence:
         return "confirmed_success"

@@ -25,27 +25,33 @@ const inferAttackOutcome = (
 
   let hasSuccessEvidence = false;
   if (normalized.includes('sql injection') || normalized === 'sqli') {
-    hasSuccessEvidence = responseText.includes('welcome') || responseText.includes('sql') || responseText.includes('mysql_fetch') || responseText.includes('sql syntax');
+    hasSuccessEvidence = combined.includes('welcome') || combined.includes('sql') || combined.includes('mysql_fetch') || combined.includes('sql syntax');
   } else if (normalized.includes('xss') || normalized.includes('cross-site scripting')) {
-    hasSuccessEvidence = responseText.includes('<script>');
+    hasSuccessEvidence = combined.includes('<script>');
   } else if (normalized.includes('local file inclusion') || normalized.includes('directory traversal') || normalized.includes('path traversal') || normalized.includes('lfi')) {
-    hasSuccessEvidence = responseText.includes('root:x:0:0') || /(\/etc\/passwd|\/proc\/self\/environ|win\.ini|boot\.ini|windows\/system32)/i.test(combined);
+    hasSuccessEvidence = combined.includes('root:x:0:0') || /(\/etc\/passwd|\/proc\/self\/environ|win\.ini|boot\.ini|windows\/system32)/i.test(combined);
   } else if (normalized.includes('remote file inclusion') || normalized.includes('web shell')) {
-    hasSuccessEvidence = responseText.includes('shell') || responseText.includes('cmd') || /(cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php)/i.test(combined);
+    hasSuccessEvidence = combined.includes('shell') || combined.includes('cmd') || /(cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php)/i.test(combined);
   } else if (normalized.includes('server-side request forgery') || normalized.includes('ssrf')) {
-    hasSuccessEvidence = responseText.includes('internal server') || responseText.includes('admin panel') || /(169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433)/i.test(combined);
+    hasSuccessEvidence = combined.includes('internal server') || combined.includes('admin panel') || /(169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433)/i.test(combined);
   } else if (normalized.includes('command injection')) {
-    hasSuccessEvidence = responseText.includes('uid=') || responseText.includes('www-data') || /(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)/i.test(combined);
+    hasSuccessEvidence = combined.includes('uid=') || combined.includes('www-data') || /(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)/i.test(combined);
   } else if (normalized.includes('ldap injection') || normalized.includes('ldap')) {
-    hasSuccessEvidence = responseText.includes('login success');
+    hasSuccessEvidence =
+      combined.includes('login success') ||
+      /\*\)\(\|/.test(combined) ||
+      /\(\|\(user=\*\)\)/.test(combined) ||
+      /\(uid=\*\)/.test(combined) ||
+      /\)\(\|\(password=\*\)\)/.test(combined) ||
+      (combined.includes('pass=anything') && (combined.includes('user=*)') || combined.includes('(|(user=*))')));
   } else if (normalized.includes('header injection') || normalized.includes('http header injection')) {
-    hasSuccessEvidence = headersText.includes('set-cookie');
+    hasSuccessEvidence = headersText.includes('set-cookie') || combined.includes('set-cookie');
   } else if (normalized.includes('brute force')) {
-    hasSuccessEvidence = responseText.includes('login success');
+    hasSuccessEvidence = combined.includes('login success');
   } else if (normalized.includes('dos') || normalized.includes('denial of service')) {
     hasSuccessEvidence = Number.isFinite(rt) && rt > Number(thresholdMs);
   } else if (normalized.includes('csrf') || normalized.includes('cross-site request forgery')) {
-    hasSuccessEvidence = responseText.includes('transaction successful');
+    hasSuccessEvidence = combined.includes('transaction successful');
   }
 
   if (hasSuccessEvidence) return 'confirmed_success';

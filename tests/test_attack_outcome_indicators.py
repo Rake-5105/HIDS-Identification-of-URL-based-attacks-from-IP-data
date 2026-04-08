@@ -38,6 +38,11 @@ class AttackOutcomeIndicatorTests(unittest.TestCase):
         result = _infer_attack_outcome("LDAP Injection", 200, response_body="login success")
         self.assertEqual(result, "confirmed_success")
 
+    def test_ldap_bypass_payload_success(self):
+        payload = "http://testphp.vuln/login?user=*)(|(user=*))&pass=anything"
+        result = _infer_attack_outcome("LDAP Injection", 200, url_value=payload)
+        self.assertEqual(result, "confirmed_success")
+
     def test_header_injection_success(self):
         result = _infer_attack_outcome("Header Injection", 200, response_headers="Set-Cookie: auth=1")
         self.assertEqual(result, "confirmed_success")

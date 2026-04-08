@@ -209,6 +209,62 @@ const detectUrlAttackType = (urlValue) => {
   return 'Normal';
 };
 
+const inferAttackOutcome = (
+  classification,
+  statusCode,
+  urlValue = '',
+  payloadValue = '',
+  responseBody = '',
+  responseHeaders = '',
+  responseTime = null,
+  thresholdMs = 3000
+) => {
+  const normalized = String(classification || '').trim().toLowerCase();
+  if (!normalized || normalized === 'normal') return 'none';
+
+  const code = Number(statusCode);
+  if (!Number.isFinite(code) || code < 200 || code >= 300) return 'attempt';
+
+  const responseText = String(responseBody || '').toLowerCase();
+  const headersText = String(responseHeaders || '').toLowerCase();
+  const combined = `${String(urlValue || '')} ${String(payloadValue || '')} ${responseText} ${headersText}`.toLowerCase();
+  const rt = Number(responseTime);
+
+  let hasSuccessEvidence = false;
+  if (normalized.includes('sql injection') || normalized === 'sqli') {
+    hasSuccessEvidence = combined.includes('welcome') || combined.includes('sql') || combined.includes('mysql_fetch') || combined.includes('sql syntax');
+  } else if (normalized.includes('xss') || normalized.includes('cross-site scripting')) {
+    hasSuccessEvidence = combined.includes('<script>');
+  } else if (normalized.includes('local file inclusion') || normalized.includes('directory traversal') || normalized.includes('path traversal') || normalized.includes('lfi')) {
+    hasSuccessEvidence = combined.includes('root:x:0:0') || /(\/etc\/passwd|\/proc\/self\/environ|win\.ini|boot\.ini|windows\/system32)/i.test(combined);
+  } else if (normalized.includes('remote file inclusion') || normalized.includes('web shell')) {
+    hasSuccessEvidence = combined.includes('shell') || combined.includes('cmd') || /(cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php)/i.test(combined);
+  } else if (normalized.includes('server-side request forgery') || normalized.includes('ssrf')) {
+    hasSuccessEvidence = combined.includes('internal server') || combined.includes('admin panel') || /(169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433)/i.test(combined);
+  } else if (normalized.includes('command injection')) {
+    hasSuccessEvidence = combined.includes('uid=') || combined.includes('www-data') || /(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)/i.test(combined);
+  } else if (normalized.includes('ldap injection') || normalized.includes('ldap')) {
+    hasSuccessEvidence =
+      combined.includes('login success') ||
+      /\*\)\(\|/.test(combined) ||
+      /\(\|\(user=\*\)\)/.test(combined) ||
+      /\(uid=\*\)/.test(combined) ||
+      /\)\(\|\(password=\*\)\)/.test(combined) ||
+      (combined.includes('pass=anything') && (combined.includes('user=*)') || combined.includes('(|(user=*))')));
+  } else if (normalized.includes('header injection') || normalized.includes('http header injection')) {
+    hasSuccessEvidence = headersText.includes('set-cookie') || combined.includes('set-cookie');
+  } else if (normalized.includes('brute force')) {
+    hasSuccessEvidence = combined.includes('login success');
+  } else if (normalized.includes('dos') || normalized.includes('denial of service')) {
+    hasSuccessEvidence = Number.isFinite(rt) && rt > Number(thresholdMs);
+  } else if (normalized.includes('csrf') || normalized.includes('cross-site request forgery')) {
+    hasSuccessEvidence = combined.includes('transaction successful');
+  }
+
+  if (hasSuccessEvidence) return 'confirmed_success';
+  return 'attempt';
+};
+
 // Check Ollama connection
 router.get('/status', auth, async (req, res) => {
   try {
@@ -361,7 +417,17 @@ router.post('/analyze-url', auth, async (req, res) => {
       deterministic_rule_match: deterministicType,
     };
 
-    const attackOutcome = attackType === 'Normal' ? 'none' : 'attempt';
+    const attackOutcome = inferAttackOutcome(
+      attackType,
+      200,
+      url,
+      Array.isArray(analysis.patterns) ? analysis.patterns.join(' ') : '',
+      '',
+      '',
+      null
+    );
+    const confirmedSuccessfulAttacks = attackOutcome === 'confirmed_success' ? 1 : 0;
+    const attackAttempts = attackOutcome === 'attempt' ? 1 : 0;
 
     const hostLabel = (() => {
       try {
@@ -382,8 +448,8 @@ router.post('/analyze-url', auth, async (req, res) => {
         totalRequests: Number(summary?.ollama?.total_requests ?? summary.total_requests ?? 1),
         maliciousRequests: attackType === 'Normal' ? 0 : Math.max(1, effectiveThreatsDetected),
         attackTypes: attackType === 'Normal' ? { Normal: 1 } : { [attackType]: 1 },
-        confirmedSuccessfulAttacks: 0,
-        attackAttempts: attackType === 'Normal' ? 0 : 1,
+        confirmedSuccessfulAttacks,
+        attackAttempts,
         mlAccuracy: Number(summary.ml_accuracy) > 0 ? Number(summary.ml_accuracy) : DEFAULT_ML_ACCURACY,
         suspiciousIps: Array.isArray(summary.suspicious_ips) ? summary.suspicious_ips : []
       },

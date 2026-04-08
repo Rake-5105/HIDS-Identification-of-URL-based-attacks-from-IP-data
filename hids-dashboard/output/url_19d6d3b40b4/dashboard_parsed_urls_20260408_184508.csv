@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T13:14:52.986000,http://testphp.vuln/login?user=*)(|(user=*))&pass=anything,http,testphp.vuln,,80,/login,login,1,user=%2A%29%28%7C%28user%3D%2A%29%29&pass=anything,user=*)(|(user=*));pass=anything,2,,,GET,200,web-dashboard,manual-url,ipdr

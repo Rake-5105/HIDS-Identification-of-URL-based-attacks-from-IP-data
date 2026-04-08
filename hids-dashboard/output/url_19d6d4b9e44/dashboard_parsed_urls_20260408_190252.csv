@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-08T13:32:45.510000,https://example.com/search?q=%3Cscript%3Ealert(1)%3C/script%3E,https,example.com,,443,/search,search,1,q=%3Cscript%3Ealert%281%29%3C%2Fscript%3E,q=<script>alert(1)</script>,1,,,GET,200,web-dashboard,manual-url,ipdr
