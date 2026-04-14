@@ -41,6 +41,24 @@ const isTyposquattingHost = (hostValue) => {
   return hasBrand && hasLure && hasHyphen;
 };
 
+const isPhishingUrl = (urlValue, hostValue) => {
+  const value = String(urlValue || '').toLowerCase();
+  const host = String(hostValue || '').toLowerCase();
+  const credentialTerms = ['password', 'otp', 'pin', 'card', 'cvv', 'verify now', 'signin now'];
+
+  const brandHit = TYPO_BRANDS.some((b) => value.includes(b) || host.includes(b));
+  const lureHit = TYPO_LURE_WORDS.some((w) => value.includes(w) || host.includes(w));
+  const credentialHit = credentialTerms.some((t) => value.includes(t));
+
+  if (brandHit && lureHit) return true;
+  if (brandHit && credentialHit) return true;
+  if (/\/(verify|signin|login|account\/secure|update-billing)/i.test(value) && (credentialHit || brandHit)) {
+    return true;
+  }
+
+  return false;
+};
+
 const URL_RULES = [
   {
     label: 'SQL Injection',
@@ -192,6 +210,9 @@ const detectUrlAttackType = (urlValue) => {
 
   try {
     const host = new URL(String(urlValue || '')).hostname.toLowerCase();
+    if (isPhishingUrl(urlValue, host)) {
+      return 'Phishing';
+    }
     if (/(^|\.)xn--/.test(host) || /(paypa1|g00gle|micr0soft|faceb00k|amaz0n|app1e|arnazon)/.test(host)) {
       return 'Typosquatting / URL Spoofing';
     }
@@ -259,6 +280,21 @@ const inferAttackOutcome = (
     hasSuccessEvidence = Number.isFinite(rt) && rt > Number(thresholdMs);
   } else if (normalized.includes('csrf') || normalized.includes('cross-site request forgery')) {
     hasSuccessEvidence = combined.includes('transaction successful');
+  } else if (normalized.includes('xml external entity') || normalized.includes('xxe')) {
+    hasSuccessEvidence =
+      combined.includes('<!doctype') ||
+      combined.includes('<!entity') ||
+      /system\s+['\"](?:file|http|ftp):\/\//i.test(combined);
+  } else if (normalized.includes('http parameter pollution') || normalized.includes('parameter pollution')) {
+    hasSuccessEvidence = /(?:\?|&)([^=&\s]+)=[^&]*(?:&\1=)/i.test(combined);
+  } else if (normalized.includes('typosquatting') || normalized.includes('url spoofing')) {
+    hasSuccessEvidence =
+      /xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n|app1e|arnazon/i.test(combined) ||
+      /(?:login|verify|secure|account).*(?:amazon|paypal|google)/i.test(combined);
+  } else if (normalized.includes('phishing') || normalized.includes('phising')) {
+    hasSuccessEvidence =
+      /(?:verify|login|signin|secure|account|update).*(?:password|otp|pin|card|cvv)/i.test(combined) ||
+      /xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n/i.test(combined);
   }
 
   if (hasSuccessEvidence) return 'confirmed_success';

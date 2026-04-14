@@ -10,6 +10,8 @@ export const ATTACK_COLORS = {
   'directory traversal': { bg: 'bg-yellow-100', text: 'text-yellow-800' },
   cmdi: { bg: 'bg-purple-100', text: 'text-purple-800' },
   'command injection': { bg: 'bg-purple-100', text: 'text-purple-800' },
+  phishing: { bg: 'bg-cyan-100', text: 'text-cyan-800' },
+  phising: { bg: 'bg-cyan-100', text: 'text-cyan-800' },
   'typosquatting / url spoofing': { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800' },
   'web shell upload': { bg: 'bg-rose-100', text: 'text-rose-800' },
   unknown: { bg: 'bg-gray-100', text: 'text-gray-800' }

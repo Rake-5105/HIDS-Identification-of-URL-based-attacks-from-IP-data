@@ -571,7 +571,7 @@ const AboutSection = () => {
               <div className="relative h-full bg-gray-800 border border-gray-700 rounded-2xl p-8">
                 <div className="flex h-full flex-col">
                   {[
-                    { label: 'Attack Types', value: '15' },
+                    { label: 'Attack Types', value: '16+' },
                     { label: 'Detection Methods', value: 'Hybrid' },
                     { label: 'Real-time', value: 'Analysis' },
                     { label: 'Open Source', value: 'Project' },

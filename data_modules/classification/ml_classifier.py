@@ -36,6 +36,7 @@ ATTACK_CLASSES = {
     "CSRF (Possible)",
     "Web Shell Upload",
     "Typosquatting / URL Spoofing",
+    "Phishing",
     "Credential Stuffing / Brute Force",
     "Suspicious Behavior",
 }

@@ -130,6 +130,27 @@ def _is_typosquatting_host(host: str) -> bool:
     return False
 
 
+def _is_phishing_url(url_text: str, host: str, combined_text: str) -> bool:
+    value = str(combined_text or "").lower()
+    url_value = str(url_text or "").lower()
+    host_value = str(host or "").lower()
+
+    brand_hit = any(b in host_value or b in value for b in _TYPO_BRANDS)
+    lure_hit = any(w in host_value or w in value for w in _TYPO_LURE_WORDS)
+    credential_terms = ["password", "otp", "pin", "cvv", "card", "ssn", "verify now", "signin now"]
+    credential_hit = any(t in value for t in credential_terms)
+
+    if ("http://" in value or "https://" in value) and brand_hit and lure_hit:
+        return True
+    if brand_hit and credential_hit:
+        return True
+    if any(p in url_value for p in ["/verify", "/signin", "/login", "/account/secure", "/update-billing"]):
+        if credential_hit or brand_hit:
+            return True
+
+    return False
+
+
 def _decode_variants(text: str) -> list[str]:
     variants = []
     value = str(text or "")
@@ -240,6 +261,9 @@ def detect_regex_attack(
         host = ""
 
     if host:
+        if _is_phishing_url(url_variants[-1] if url_variants else value, host, combined.lower()):
+            return "Phishing", "phishing-lure-signals"
+
         for pattern in _TYPO_SQUAT_HOST_PATTERNS:
             if pattern.search(host):
                 return "Typosquatting / URL Spoofing", pattern.pattern

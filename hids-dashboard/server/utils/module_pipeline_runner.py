@@ -294,6 +294,22 @@ def _infer_attack_outcome(
         has_success_evidence = rt is not None and rt > float(threshold_ms)
     elif "csrf" in label or "cross-site request forgery" in label:
         has_success_evidence = "transaction successful" in combined
+    elif "xml external entity" in label or "xxe" in label:
+        has_success_evidence = (
+            "<!doctype" in combined
+            or "<!entity" in combined
+            or bool(re.search(r"system\s+['\"](?:file|http|ftp)://", combined))
+        )
+    elif "http parameter pollution" in label or "parameter pollution" in label:
+        has_success_evidence = bool(re.search(r"(?:\?|&)([^=&\s]+)=[^&]*(?:&\1=)", combined))
+    elif "typosquatting" in label or "url spoofing" in label:
+        has_success_evidence = bool(
+            re.search(r"xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n|app1e|arnazon", combined)
+        ) or bool(re.search(r"(?:login|verify|secure|account).*(?:amazon|paypal|google)", combined))
+    elif "phishing" in label or "phising" in label:
+        has_success_evidence = bool(
+            re.search(r"(?:verify|login|signin|secure|account|update).*(?:password|otp|pin|card|cvv)", combined)
+        ) or bool(re.search(r"xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n", combined))
 
     if has_success_evidence:
         return "confirmed_success"

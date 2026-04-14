@@ -6,6 +6,7 @@ const ATTACK_COLORS = {
   cross_site_scripting_xss: '#f97316',
   directory_traversal: '#eab308',
   command_injection: '#8b5cf6',
+  phishing: '#06b6d4',
   suspicious: '#06b6d4',
   suspicious_behavior: '#06b6d4',
   unknown: '#64748b'
@@ -19,6 +20,7 @@ const ATTACK_ALIASES = {
   xss: 'cross_site_scripting_xss',
   cmdi: 'command_injection',
   command_injection: 'command_injection',
+  phising: 'phishing',
   suspicious_behavior: 'suspicious_behavior'
 };
 

@@ -103,6 +103,29 @@ const ATTACK_PLAYBOOKS = [
     ]
   },
   {
+    id: 'phishing',
+    name: 'Phishing Link Detection',
+    icon: Globe,
+    severity: 'high',
+    color: 'from-cyan-500 to-blue-600',
+    badgeColor: 'bg-cyan-100 text-cyan-800',
+    description: 'Attackers craft deceptive URLs/pages to steal credentials, OTPs, or financial details.',
+    indicators: [
+      'Login or verification lure words in suspicious domains/paths',
+      'Credential collection hints (password, OTP, PIN, card, CVV)',
+      'Brand impersonation mixed with urgent action wording',
+      'Unexpected redirects to external identity/payment pages'
+    ],
+    remediation: [
+      'Block phishing domains/URLs at DNS, proxy, and secure email gateway',
+      'Force password reset and revoke active sessions for impacted users',
+      'Enable or enforce MFA and monitor for anomalous sign-in activity',
+      'Quarantine related emails/messages and notify potentially impacted users',
+      'Hunt for IOCs across logs, endpoints, and browser history',
+      'Submit confirmed phishing domains for takedown and threat intel sharing'
+    ]
+  },
+  {
     id: 'cmdi',
     name: 'Command Injection',
     icon: Terminal,
@@ -365,6 +388,38 @@ const SEVERITY_STYLES = {
   low: 'bg-green-500/20 text-green-300 border-green-500/30',
 };
 
+const _dynamicPlaybookId = (name) => {
+  const slug = String(name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return `dynamic_${slug || 'unknown'}`;
+};
+
+const _buildDynamicPlaybook = (name) => ({
+  id: _dynamicPlaybookId(name),
+  name: String(name || 'Unmapped Attack Pattern'),
+  icon: ShieldAlert,
+  severity: 'medium',
+  color: 'from-violet-500 to-indigo-600',
+  badgeColor: 'bg-violet-100 text-violet-800',
+  description: 'Detected attack type does not have a dedicated static playbook yet. Use generic containment and triage guidance below.',
+  indicators: [
+    `Hybrid engine classified traffic as: ${String(name || 'Unknown')}`,
+    'Request payload or URL exhibits suspicious patterns',
+    'Potential mismatch between static playbook mapping and new detection class',
+    'Review full request context, headers, and source IP behavior'
+  ],
+  remediation: [
+    'Treat as potentially malicious and isolate the source if repeated',
+    'Apply rate limiting and temporary blocking rules at WAF/firewall',
+    'Inspect request payloads, response bodies, and logs for exploit confirmation',
+    'Map this new class to a dedicated playbook entry for future automation',
+    'Add class-specific detection and success indicators after validation',
+    'Document the incident and update SOC triage runbooks'
+  ]
+});
+
 /* ──────────────────────────────────────────────────────────────
    PlaybookCard – expandable card for a single attack type
    ────────────────────────────────────────────────────────────── */
@@ -486,22 +541,36 @@ const Playbook = ({ detectedAttacks = null }) => {
     'typosquatting / url spoofing': 'typosquatting',
     'url spoofing': 'typosquatting',
     'typosquatting': 'typosquatting',
+    'phishing': 'phishing',
+    'phising': 'phishing',
+    'phishing link detection': 'phishing',
     'web shell upload': 'web_shell'
   };
 
-  // Determine which attacks from the playbook were detected
-  const detectedSet = useMemo(() => {
-    if (!detectedAttacks) return new Set();
-    const set = new Set();
-    Object.keys(detectedAttacks).forEach(cls => {
-      const key = cls.toLowerCase().trim();
-      if (key === 'normal') return;
+  // Determine which attacks from the static playbook were detected,
+  // and build fallback dynamic cards for new/unmapped attack classes.
+  const detectionContext = useMemo(() => {
+    if (!detectedAttacks) {
+      return { detectedSet: new Set(), dynamicPlaybooks: [] };
+    }
+
+    const detectedSet = new Set();
+    const dynamicPlaybooks = [];
+    const seenDynamic = new Set();
+
+    Object.entries(detectedAttacks).forEach(([cls, count]) => {
+      const numericCount = Number(count || 0);
+      if (!Number.isFinite(numericCount) || numericCount <= 0) return;
+
+      const key = String(cls || '').toLowerCase().trim();
+      if (!key || key === 'normal') return;
+      let matched = false;
 
       if (aliasMap[key]) {
-        set.add(aliasMap[key]);
+        detectedSet.add(aliasMap[key]);
+        matched = true;
       }
 
-      // Match playbook IDs or partial matches
       ATTACK_PLAYBOOKS.forEach(pb => {
         if (
           key === pb.id ||
@@ -510,18 +579,33 @@ const Playbook = ({ detectedAttacks = null }) => {
           pb.name.toLowerCase().includes(key) ||
           key.includes(pb.name.toLowerCase().split(' ')[0].toLowerCase())
         ) {
-          set.add(pb.id);
+          detectedSet.add(pb.id);
+          matched = true;
         }
       });
-      // Fallback — If something doesn't match, still mark it
+
+      if (!matched) {
+        const dynamicPb = _buildDynamicPlaybook(cls);
+        if (!seenDynamic.has(dynamicPb.id)) {
+          seenDynamic.add(dynamicPb.id);
+          dynamicPlaybooks.push(dynamicPb);
+          detectedSet.add(dynamicPb.id);
+        }
+      }
     });
-    return set;
+
+    return { detectedSet, dynamicPlaybooks };
   }, [detectedAttacks]);
 
+  const detectedSet = detectionContext.detectedSet;
+  const allPlaybooks = useMemo(
+    () => [...detectionContext.dynamicPlaybooks, ...ATTACK_PLAYBOOKS],
+    [detectionContext.dynamicPlaybooks]
+  );
   const hasDetections = detectedSet.size > 0;
 
   const filteredPlaybooks = useMemo(() => {
-    let list = [...ATTACK_PLAYBOOKS];
+    let list = [...allPlaybooks];
     if (filter === 'detected') {
       list = list.filter(pb => detectedSet.has(pb.id));
     } else if (filter === 'precautionary') {
@@ -535,7 +619,7 @@ const Playbook = ({ detectedAttacks = null }) => {
       return (SEVERITY_ORDER[a.severity] || 3) - (SEVERITY_ORDER[b.severity] || 3);
     });
     return list;
-  }, [filter, detectedSet]);
+  }, [filter, detectedSet, allPlaybooks]);
 
   return (
     <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 overflow-hidden flex flex-col h-full">
@@ -602,7 +686,7 @@ const Playbook = ({ detectedAttacks = null }) => {
       {/* Footer summary */}
       <div className="px-5 py-3 border-t border-gray-700/50 bg-gray-900/80">
         <p className="text-[11px] text-gray-500 text-center">
-          {ATTACK_PLAYBOOKS.length} attack patterns covered • HIDS Security Playbook v1.0
+          {allPlaybooks.length} attack patterns covered • HIDS Security Playbook v1.0
         </p>
       </div>
     </div>

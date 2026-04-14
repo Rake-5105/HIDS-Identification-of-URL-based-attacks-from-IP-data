@@ -23,6 +23,7 @@ const normalizeClassificationLabel = (label) => {
   if (text.includes('parameter pollution')) return 'HTTP Parameter Pollution';
   if (text.includes('xxe') || text.includes('xml external entity')) return 'XML External Entity Injection (XXE)';
   if (text.includes('web shell') || text.includes('backdoor')) return 'Web Shell Upload';
+  if (text.includes('phishing') || text.includes('phising')) return 'Phishing';
   if (text.includes('typosquat') || text.includes('spoof')) return 'Typosquatting / URL Spoofing';
   if (text.includes('brute') || text.includes('credential stuffing')) return 'Credential Stuffing / Brute Force';
   if (text.includes('suspicious')) return 'Suspicious Behavior';
@@ -192,7 +193,7 @@ const runModulePipeline = async (filePath, uploadId) => {
  */
 const analyzeEntry = async (entry, index, total) => {
   const prompt = `Analyze this HTTP request for security threats. Respond ONLY in this exact JSON format, no extra text:
-{"classification":"Normal|SQL Injection|Cross-Site Scripting (XSS)|Directory Traversal|Command Injection|Server-Side Request Forgery (SSRF)|Local File Inclusion (LFI)|Remote File Inclusion (RFI)|HTTP Parameter Pollution|XML External Entity Injection (XXE)|Web Shell Upload|Typosquatting / URL Spoofing|Credential Stuffing / Brute Force|Suspicious Behavior","risk_level":"None|Low|Medium|High|Critical","patterns":"brief description of suspicious patterns or None","recommendation":"brief action to take"}
+{"classification":"Normal|SQL Injection|Cross-Site Scripting (XSS)|Directory Traversal|Command Injection|Server-Side Request Forgery (SSRF)|Local File Inclusion (LFI)|Remote File Inclusion (RFI)|HTTP Parameter Pollution|XML External Entity Injection (XXE)|Web Shell Upload|Phishing|Typosquatting / URL Spoofing|Credential Stuffing / Brute Force|Suspicious Behavior","risk_level":"None|Low|Medium|High|Critical","patterns":"brief description of suspicious patterns or None","recommendation":"brief action to take"}
 
 Request data:
 - URL: ${entry.url || entry.full_url || 'N/A'}

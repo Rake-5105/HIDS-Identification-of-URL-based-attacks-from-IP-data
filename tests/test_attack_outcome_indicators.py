@@ -59,6 +59,27 @@ class AttackOutcomeIndicatorTests(unittest.TestCase):
         result = _infer_attack_outcome("CSRF", 200, response_body="transaction successful")
         self.assertEqual(result, "confirmed_success")
 
+    def test_xxe_success(self):
+        result = _infer_attack_outcome("XML External Entity Injection (XXE)", 200, payload_value='<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>')
+        self.assertEqual(result, "confirmed_success")
+
+    def test_hpp_success(self):
+        result = _infer_attack_outcome("HTTP Parameter Pollution", 200, url_value="/search?q=test&q=override")
+        self.assertEqual(result, "confirmed_success")
+
+    def test_typosquatting_success(self):
+        result = _infer_attack_outcome("Typosquatting / URL Spoofing", 200, url_value="https://paypa1-secure-login.example/account")
+        self.assertEqual(result, "confirmed_success")
+
+    def test_phishing_success(self):
+        result = _infer_attack_outcome(
+            "Phishing",
+            200,
+            url_value="https://secure-verify.example/login",
+            payload_value="enter password and otp to continue"
+        )
+        self.assertEqual(result, "confirmed_success")
+
     def test_no_response_defaults_to_attempt(self):
         result = _infer_attack_outcome(
             "SQL Injection",
