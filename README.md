@@ -1,22 +1,17 @@
 # HIDS - URL Attack Detection System
 
-A Host-based Intrusion Detection System for detecting URL-based web attacks using hybrid ML detection.
+This project is a Host-based Intrusion Detection System for identifying URL-based attacks from network and log data.
 
-## Features
+## Overview
 
-- **Log Collection** - HTTP logs, PCAP, CSV ingestion
-- **URL Parsing** - Extract IPs, timestamps, parameters
-- **Hybrid Detection** - Rule-based + Machine Learning
-- **Interactive Dashboard** - Visualizations & filtering
+The system ingests traffic and log inputs, extracts URL-related features, and uses a hybrid detection approach to classify suspicious activity.
 
-## Tech Stack
+## Core Capabilities
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React, Tailwind CSS, Framer Motion |
-| Backend | Node.js (Express), Python (Flask) |
-| Database | MongoDB Atlas |
-| ML | Scikit-learn |
+- Data ingestion from supported network/log sources
+- URL and request feature extraction
+- Hybrid detection pipeline (rules + ML)
+- Local dashboard for monitoring and review
 
 ## Quick Start
 
@@ -26,31 +21,16 @@ npm run install:all
 npm run dev
 ```
 
-## Access URLs
+## Repository Layout
 
-- **Landing Page:** http://localhost:5173
-- **Login:** http://localhost:5173/login
-- **Dashboard:** http://localhost:5173/app/dashboard
-
-## Attack Types Detected
-
-- SQL Injection
-- XSS (Cross-Site Scripting)
-- Path Traversal
-- Command Injection
-
-## Project Structure
-
-```
-├── hids-dashboard/      # Full-stack dashboard
-│   ├── client/          # React frontend
-│   ├── server/          # Express backend
-│   └── flask_api/       # Python Flask API
-├── data_modules/        # ML detection modules
-├── sample_data/         # Sample log files
-└── output/              # Detection results
+```text
+hids-dashboard/   Full-stack application
+data_modules/     Detection and processing modules
+sample_data/      Example inputs
+output/           Generated output files
+logs/             Runtime logs
 ```
 
+## Note
 
----
-Built with ❤️ for Cybersecurity
+This README intentionally keeps implementation and runtime details high-level.
