@@ -13,6 +13,15 @@ The system ingests traffic and log inputs, extracts URL-related features, and us
 - Hybrid detection pipeline (rules + ML)
 - Local dashboard for monitoring and review
 
+## Tech Stack
+
+| Layer | Technologies |
+|-------|--------------|
+| Frontend | React, Tailwind CSS |
+| Backend | Node.js (Express), Python (Flask) |
+| Data Storage | MongoDB |
+| Machine Learning | Scikit-learn |
+
 ## Quick Start
 
 ```bash
