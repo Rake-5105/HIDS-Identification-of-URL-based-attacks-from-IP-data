@@ -1,0 +1,31 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-17T12:03:49.408000",
+    "raw_url": "https://www.youtube.com/watch?v=eVI0Ny5cZ2c",
+    "scheme": "https",
+    "host": "www.youtube.com",
+    "port": null,
+    "effective_port": 443,
+    "path": "/watch",
+    "path_segments": [
+      "watch"
+    ],
+    "path_depth": 1,
+    "query_string": "v=eVI0Ny5cZ2c",
+    "query_params": [
+      {
+        "key": "v",
+        "value": "eVI0Ny5cZ2c"
+      }
+    ],
+    "query_param_count": 1,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

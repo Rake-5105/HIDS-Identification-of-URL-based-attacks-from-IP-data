@@ -512,8 +512,13 @@ const PlaybookCard = ({ playbook, isDetected, defaultExpanded = false }) => {
    detectedAttacks: an object like { sqli: 5, xss: 3, normal: 100 }
                      (the classification_breakdown from analysis results)
    ────────────────────────────────────────────────────────────── */
-const Playbook = ({ detectedAttacks = null }) => {
-  const [filter, setFilter] = useState('all'); // 'all' | 'detected' | 'precautionary'
+const Playbook = ({
+  detectedAttacks = null,
+  detectedOnly = false,
+  className = '',
+  title = 'Security Playbook'
+}) => {
+  const [filter, setFilter] = useState(detectedOnly ? 'detected' : 'all'); // 'all' | 'detected' | 'precautionary'
 
   const aliasMap = {
     'sql injection': 'sqli',
@@ -606,7 +611,7 @@ const Playbook = ({ detectedAttacks = null }) => {
 
   const filteredPlaybooks = useMemo(() => {
     let list = [...allPlaybooks];
-    if (filter === 'detected') {
+    if (detectedOnly || filter === 'detected') {
       list = list.filter(pb => detectedSet.has(pb.id));
     } else if (filter === 'precautionary') {
       list = list.filter(pb => !detectedSet.has(pb.id));
@@ -622,7 +627,7 @@ const Playbook = ({ detectedAttacks = null }) => {
   }, [filter, detectedSet, allPlaybooks]);
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 overflow-hidden flex flex-col h-full">
+    <div className={`bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 overflow-hidden flex flex-col h-full min-h-0 ${className}`}>
       {/* Header */}
       <div className="p-5 border-b border-gray-700/50 bg-gradient-to-r from-gray-900 to-gray-800">
         <div className="flex items-center gap-3 mb-3">
@@ -630,10 +635,12 @@ const Playbook = ({ detectedAttacks = null }) => {
             <ShieldAlert size={20} className="text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Security Playbook</h2>
+            <h2 className="text-lg font-bold text-white">{title}</h2>
             <p className="text-xs text-gray-400">
               {hasDetections
-                ? `${detectedSet.size} attack type${detectedSet.size > 1 ? 's' : ''} detected — review remediation steps`
+                ? detectedOnly
+                  ? `Detected attack playbook (${detectedSet.size} type${detectedSet.size > 1 ? 's' : ''})`
+                  : `${detectedSet.size} attack type${detectedSet.size > 1 ? 's' : ''} detected — review remediation steps`
                 : 'Precautionary guides for all attack patterns'
               }
             </p>
@@ -641,7 +648,7 @@ const Playbook = ({ detectedAttacks = null }) => {
         </div>
 
         {/* Filter tabs */}
-        {hasDetections && (
+        {hasDetections && !detectedOnly && (
           <div className="flex gap-1 bg-gray-800/50 rounded-lg p-1">
             {[
               { id: 'all', label: 'All' },

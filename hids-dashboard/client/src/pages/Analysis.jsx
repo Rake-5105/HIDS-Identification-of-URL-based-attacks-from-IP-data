@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useApi } from '../hooks/useApi';
 import { useTheme } from '../context/ThemeContext';
 import { useUpload } from '../context/UploadContext';
+import UniqueLoading from '../components/ui/grid-loading';
 
 const Analysis = () => {
   const { theme } = useTheme();
@@ -73,12 +74,9 @@ const Analysis = () => {
     return (
       <div className="space-y-6">
         <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Analysis</h1>
-        <div className="space-y-6">
-          <div className={`skeleton h-96 rounded-xl ${isDark ? 'bg-gray-700' : ''}`} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className={`skeleton h-80 rounded-xl ${isDark ? 'bg-gray-700' : ''}`} />
-            <div className={`skeleton h-80 rounded-xl ${isDark ? 'bg-gray-700' : ''}`} />
-          </div>
+        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl border p-12 text-center`}>
+          <UniqueLoading variant="squares" size="lg" className="mx-auto" text="Loading analysis insights..." />
+          <p className={`mt-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading analysis insights...</p>
         </div>
       </div>
     );

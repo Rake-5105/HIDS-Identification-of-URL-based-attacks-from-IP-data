@@ -1,0 +1,9 @@
+source_ip,timestamp,full_url,method,host,path,query_string,fragment,status_code,user_agent,referrer,source
+10.10.10.5,2026-02-27T09:00:01+00:00,/api/users,GET,,/api/users,,,200,PostmanRuntime/7.29,-,apache
+10.10.10.5,2026-02-27T09:00:02+00:00,/api/users?id=1,GET,,/api/users,id=1,,200,PostmanRuntime/7.29,-,apache
+203.0.113.42,2026-02-27T09:01:00+00:00,/api/users?id=1;,GET,,/api/users,id=1;,,400,python-requests/2.28,-,apache
+203.0.113.42,2026-02-27T09:01:01+00:00,/api/data?file=../../../../etc/shadow,GET,,/api/data,file=../../../../etc/shadow,,403,python-requests/2.28,-,apache
+203.0.113.42,2026-02-27T09:01:02+00:00,/api/data?file=..%2F..%2F..%2Fetc%2Fpasswd,GET,,/api/data,file=..%2F..%2F..%2Fetc%2Fpasswd,,403,python-requests/2.28,-,apache
+10.10.10.5,2026-02-27T09:05:00+00:00,/api/upload,POST,,/api/upload,,,200,PostmanRuntime/7.29,-,apache
+185.220.101.1,2026-02-27T09:10:00+00:00,/robots.txt,GET,,/robots.txt,,,200,Googlebot/2.1,-,apache
+185.220.101.1,2026-02-27T09:10:01+00:00,/sitemap.xml,GET,,/sitemap.xml,,,200,Googlebot/2.1,-,apache

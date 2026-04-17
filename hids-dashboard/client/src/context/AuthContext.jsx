@@ -2,6 +2,21 @@ import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const MIN_AUTH_LOADING_MS = 1000;
+const INTRO_LOADER_KEY = 'hids_intro_loader_shown';
+
+const getIntroDelayMs = () => {
+  try {
+    const shown = sessionStorage.getItem(INTRO_LOADER_KEY) === '1';
+    if (shown) return 0;
+    sessionStorage.setItem(INTRO_LOADER_KEY, '1');
+    return MIN_AUTH_LOADING_MS;
+  } catch {
+    // If sessionStorage is unavailable, gracefully fall back to no forced delay.
+    return 0;
+  }
+};
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,12 +26,24 @@ export const AuthProvider = ({ children }) => {
 
   // Set axios Authorization header
   useEffect(() => {
+    const delayMs = getIntroDelayMs();
+    const startedAt = Date.now();
+
+    const finishLoading = async () => {
+      const elapsed = Date.now() - startedAt;
+      const remaining = Math.max(0, delayMs - elapsed);
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+      }
+      setLoading(false);
+    };
+
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      validateToken();
+      validateToken(finishLoading);
     } else {
       delete axios.defaults.headers.common['Authorization'];
-      setLoading(false);
+      finishLoading();
     }
   }, [token]);
 
@@ -37,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
-  const validateToken = async () => {
+  const validateToken = async (onFinish) => {
     try {
       const response = await axios.get('/api/auth/me');
       setUser(response.data);
@@ -47,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
     } finally {
-      setLoading(false);
+      await onFinish();
     }
   };
 

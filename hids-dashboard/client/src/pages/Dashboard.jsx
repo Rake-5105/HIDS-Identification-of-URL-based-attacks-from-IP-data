@@ -12,6 +12,7 @@ import { useApi } from '../hooks/useApi';
 import { ATTACK_COLORS } from '../components/RequestDetail';
 import { useUpload } from '../context/UploadContext';
 import { useTheme } from '../context/ThemeContext';
+import UniqueLoading from '../components/ui/grid-loading';
 
 /* ── tiny helper ── */
 const classColor = (cls) => {
@@ -42,6 +43,42 @@ const timeAgo = (isoString) => {
   return `${days}d ago`;
 };
 
+const OUTCOME_META = {
+  confirmed_success: {
+    label: 'Confirmed Success',
+    badge: 'bg-red-100 text-red-800 border-red-200'
+  },
+  attempt: {
+    label: 'Attempt',
+    badge: 'bg-amber-100 text-amber-800 border-amber-200'
+  },
+  none: {
+    label: 'No Attack',
+    badge: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+  }
+};
+
+const getOutcomeBreakdown = (result) => {
+  const total = Number(result?.total_requests || 0);
+  const confirmed = Number(result?.confirmed_successful_attacks || 0);
+  const attempts = Number(result?.attack_attempts || 0);
+
+  if (confirmed > 0 || attempts > 0) {
+    return {
+      confirmed_success: confirmed,
+      attempt: attempts,
+      none: Math.max(total - confirmed - attempts, 0)
+    };
+  }
+
+  const threats = Number(result?.threats_detected || 0);
+  return {
+    confirmed_success: 0,
+    attempt: threats,
+    none: Math.max(total - threats, 0)
+  };
+};
+
 const Dashboard = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -69,10 +106,9 @@ const Dashboard = () => {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="skeleton h-32 rounded-xl" />
-          ))}
+        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+          <UniqueLoading variant="squares" size="lg" className="mx-auto" text="Loading dashboard analytics..." />
+          <p className="mt-4 text-sm text-gray-500">Loading dashboard analytics...</p>
         </div>
       </div>
     );
@@ -226,6 +262,23 @@ const Dashboard = () => {
               </div>
             )}
 
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/80 mb-4">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">Attack Outcome Breakdown</p>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(getOutcomeBreakdown(latestResult)).map(([key, count]) => {
+                  const meta = OUTCOME_META[key];
+                  return (
+                    <span
+                      key={key}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${meta.badge}`}
+                    >
+                      {meta.label}: {count}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Actions */}
             <div className="flex items-center gap-3">
               <button
@@ -328,6 +381,7 @@ const Dashboard = () => {
                   <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Threats</th>
                   <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Threat %</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Attacks Detected</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Outcome</th>
                   <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -339,6 +393,7 @@ const Dashboard = () => {
                   const attackTypes = result.classification_breakdown
                     ? Object.entries(result.classification_breakdown).filter(([cls]) => cls.toLowerCase() !== 'normal')
                     : [];
+                  const outcomeBreakdown = getOutcomeBreakdown(result);
 
                   return (
                     <tr
@@ -443,6 +498,24 @@ const Dashboard = () => {
                             Clean
                           </span>
                         )}
+                      </td>
+
+                      {/* Outcome */}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1 max-w-[220px]">
+                          {Object.entries(outcomeBreakdown).map(([key, count]) => {
+                            if (!count) return null;
+                            const meta = OUTCOME_META[key];
+                            return (
+                              <span
+                                key={key}
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${meta.badge}`}
+                              >
+                                {meta.label}: {count}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </td>
 
                       {/* Actions */}

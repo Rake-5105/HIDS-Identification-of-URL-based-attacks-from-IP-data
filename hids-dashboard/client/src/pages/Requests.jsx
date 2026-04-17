@@ -4,6 +4,7 @@ import { useApi } from '../hooks/useApi';
 import { useUpload } from '../context/UploadContext';
 import RequestDetail, { ATTACK_COLORS } from '../components/RequestDetail';
 import { useTheme } from '../context/ThemeContext';
+import UniqueLoading from '../components/ui/grid-loading';
 
 const Requests = () => {
   const { theme } = useTheme();
@@ -27,6 +28,15 @@ const Requests = () => {
     if (analysisId && analysisId !== lastRefreshedRef.current) {
       lastRefreshedRef.current = analysisId;
       refetch();
+
+      // Retry once backend persistence is likely complete.
+      const retry1 = setTimeout(() => refetch(), 1500);
+      const retry2 = setTimeout(() => refetch(), 4000);
+
+      return () => {
+        clearTimeout(retry1);
+        clearTimeout(retry2);
+      };
     }
   }, [latestResult?.analyzedAt, refetch]);
 
@@ -126,7 +136,10 @@ const Requests = () => {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Requests</h1>
-        <div className="skeleton h-96 rounded-xl" />
+        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+          <UniqueLoading variant="squares" size="lg" className="mx-auto" text="Loading requests..." />
+          <p className="mt-4 text-sm text-gray-500">Loading requests...</p>
+        </div>
       </div>
     );
   }

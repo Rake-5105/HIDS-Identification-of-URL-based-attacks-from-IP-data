@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-17T12:03:49.408000,127.0.0.1,GET,https://www.youtube.com/watch?v=eVI0Ny5cZ2c,https://www.youtube.com/watch?v=eVI0Ny5cZ2c,200,web-dashboard,manual-url,https,www.youtube.com,/watch,v=eVI0Ny5cZ2c,,ipdr,43,8,0,0,0

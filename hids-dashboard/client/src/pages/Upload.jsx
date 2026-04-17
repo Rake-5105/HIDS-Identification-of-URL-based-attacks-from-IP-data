@@ -3,7 +3,7 @@ import { FileText, File, CheckCircle, ArrowRight, Download, Link as LinkIcon } f
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
 import Playbook from '../components/Playbook';
-import { BouncingDots } from '../components/ui/BouncingDots';
+import { WaveLoader } from '../components/ui/wave-loader';
 import { useNavigate } from 'react-router-dom';
 import { useUpload } from '../context/UploadContext';
 
@@ -26,6 +26,27 @@ const Upload = () => {
     { id: 'csv', label: 'IPDR', icon: File, accept: '.csv' },
     { id: 'url', label: 'URL Analysis', icon: LinkIcon, accept: '' }
   ];
+
+  const OUTCOME_META = {
+    confirmed_success: {
+      label: 'Confirmed Success',
+      badge: 'bg-red-100 text-red-800',
+      cardBorder: 'border-red-200',
+      cardText: 'text-red-700'
+    },
+    attempt: {
+      label: 'Attempt',
+      badge: 'bg-amber-100 text-amber-800',
+      cardBorder: 'border-amber-200',
+      cardText: 'text-amber-700'
+    },
+    none: {
+      label: 'No Attack',
+      badge: 'bg-emerald-100 text-emerald-800',
+      cardBorder: 'border-emerald-200',
+      cardText: 'text-emerald-700'
+    }
+  };
 
   const normalizeUrl = (value) => {
     const trimmed = value.trim();
@@ -54,18 +75,63 @@ const Upload = () => {
     return [formatForDisplay(patterns)].filter(Boolean);
   };
 
+  const normalizeAttackOutcome = (value) => {
+    const normalized = String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+    if (normalized === 'confirmed_success') return 'confirmed_success';
+    if (normalized === 'attempt') return 'attempt';
+    return 'none';
+  };
+
+  const inferOutcomeFromAttackType = (attackType) => {
+    const normalized = String(attackType || '').trim().toLowerCase();
+    if (!normalized || normalized === 'normal' || normalized === 'none' || normalized === 'unknown') {
+      return 'none';
+    }
+    return 'attempt';
+  };
+
+  const getOutcomeBreakdown = (summary, fallbackAttackType = '') => {
+    const totalEntries = Number(summary?.total_requests ?? summary?.totalEntries ?? 0) || 0;
+    const explicitConfirmed = Number(summary?.confirmed_successful_attacks ?? summary?.confirmedSuccessfulAttacks ?? 0) || 0;
+    const explicitAttempts = Number(summary?.attack_attempts ?? summary?.attackAttempts ?? 0) || 0;
+
+    if (explicitConfirmed > 0 || explicitAttempts > 0) {
+      const noneCount = Math.max(totalEntries - explicitConfirmed - explicitAttempts, 0);
+      return {
+        confirmed_success: explicitConfirmed,
+        attempt: explicitAttempts,
+        none: noneCount
+      };
+    }
+
+    const inferredOutcome = normalizeAttackOutcome(
+      summary?.attack_outcome ?? summary?.attackOutcome ?? inferOutcomeFromAttackType(fallbackAttackType)
+    );
+
+    return {
+      confirmed_success: inferredOutcome === 'confirmed_success' ? totalEntries : 0,
+      attempt: inferredOutcome === 'attempt' ? totalEntries : 0,
+      none: inferredOutcome === 'none' ? totalEntries : 0
+    };
+  };
+
   const getUrlAnalysisSummary = () => {
     const attackTypeRaw = formatForDisplay(urlResult?.analysis?.attackType) || 'Unknown';
     const attackType = attackTypeRaw.trim();
     const isThreat = attackType.toLowerCase() !== 'normal' && attackType.toLowerCase() !== 'none';
     const riskLevel = formatForDisplay(urlResult?.analysis?.riskLevel) || 'Unknown';
+    const moduleSummary = urlResult?.analysis?.module_summary || {};
+    const outcomeBreakdown = getOutcomeBreakdown(moduleSummary, attackType);
 
     return {
       totalEntries: 1,
       threatsFound: isThreat ? 1 : 0,
       threatRate: isThreat ? '100.0%' : '0.0%',
       attackType,
-      riskLevel
+      riskLevel,
+      confirmedSuccessfulAttacks: outcomeBreakdown.confirmed_success,
+      attackAttempts: outcomeBreakdown.attempt,
+      noAttackDetected: outcomeBreakdown.none
     };
   };
 
@@ -124,6 +190,9 @@ const Upload = () => {
       threat_rate: summary.threatRate,
       attack_type: summary.attackType,
       risk_level: summary.riskLevel,
+      confirmed_successful_attacks: summary.confirmedSuccessfulAttacks,
+      attack_attempts: summary.attackAttempts,
+      no_attack_detected: summary.noAttackDetected,
       analysis: urlResult?.analysis || {},
       model: urlResult?.model || ''
     }, null, 2);
@@ -133,6 +202,7 @@ const Upload = () => {
     const attackTypeRaw = formatForDisplay(resultData?.analysis?.attackType) || 'Unknown';
     const attackType = attackTypeRaw.trim() || 'Unknown';
     const isThreat = !['normal', 'none', 'unknown'].includes(attackType.toLowerCase());
+    const outcomeBreakdown = getOutcomeBreakdown(resultData?.analysis?.module_summary || {}, attackType);
     const classification_breakdown = {
       [attackType]: 1
     };
@@ -146,6 +216,8 @@ const Upload = () => {
       threat_percentage: isThreat ? 100 : 0,
       analyzed_with: formatForDisplay(resultData?.model) || 'AI Analysis',
       classification_breakdown,
+      confirmed_successful_attacks: outcomeBreakdown.confirmed_success,
+      attack_attempts: outcomeBreakdown.attempt,
       analyzed_url: resultData?.url || ''
     };
   };
@@ -396,6 +468,10 @@ const Upload = () => {
 
   // Get detected attacks from processing results for the playbook
   const detectedAttacks = getPlaybookDetectedAttacks();
+  const hasDetectedAttackPlaybook = !!(
+    detectedAttacks &&
+    Object.entries(detectedAttacks).some(([cls, count]) => String(cls || '').toLowerCase() !== 'normal' && Number(count || 0) > 0)
+  );
 
   return (
     <div className="space-y-6">
@@ -543,7 +619,7 @@ const Upload = () => {
                             {step.label}
                           </span>
                           {urlProcessing && step.status === 'pending' && idx === getUrlProgressSteps().findIndex((s) => s.status === 'pending') && (
-                            <BouncingDots dots={3} className="w-2 h-2 bg-blue-500" />
+                            <WaveLoader bars={4} className="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
                           )}
                         </div>
                       ))}
@@ -602,6 +678,25 @@ const Upload = () => {
                           <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                             Risk: {getUrlAnalysisSummary().riskLevel}
                           </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 bg-white p-3 rounded-lg border">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Attack Outcome:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                          {Object.entries({
+                            confirmed_success: getUrlAnalysisSummary().confirmedSuccessfulAttacks,
+                            attempt: getUrlAnalysisSummary().attackAttempts,
+                            none: getUrlAnalysisSummary().noAttackDetected
+                          }).map(([outcome, count]) => {
+                            const meta = OUTCOME_META[outcome];
+                            return (
+                              <div key={outcome} className={`rounded-lg border p-2 ${meta.cardBorder}`}>
+                                <p className={`font-semibold ${meta.cardText}`}>{meta.label}</p>
+                                <p className="text-lg font-bold text-gray-900">{count}</p>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
 
@@ -733,7 +828,7 @@ const Upload = () => {
                         {step.label}
                       </span>
                       {processing && step.status === 'pending' && idx === getProgressSteps().findIndex(s => s.status === 'pending') && (
-                        <BouncingDots dots={3} className="w-2 h-2 bg-blue-500" />
+                        <WaveLoader bars={4} className="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
                       )}
                     </div>
                   ))}
@@ -786,6 +881,20 @@ const Upload = () => {
                             </div>
                           </div>
                         )}
+
+                        <div className="mt-3 bg-white p-3 rounded-lg border">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Attack Outcome Breakdown:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(getOutcomeBreakdown(processingStatus.results)).map(([outcome, count]) => {
+                              const meta = OUTCOME_META[outcome];
+                              return (
+                                <span key={outcome} className={`px-3 py-1 rounded-full text-xs font-medium ${meta.badge}`}>
+                                  {meta.label}: {count}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -854,6 +963,18 @@ const Upload = () => {
             )}
           </div>
 
+          {/* Detected-only playbook right after scan result */}
+          {hasDetectedAttackPlaybook && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <Playbook
+                detectedAttacks={detectedAttacks}
+                detectedOnly
+                title="Detected Attack Playbook"
+                className="h-[560px]"
+              />
+            </div>
+          )}
+
           {/* Instructions */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
             <h3 className="font-semibold text-blue-900 mb-2">Instructions</h3>
@@ -869,7 +990,7 @@ const Upload = () => {
         </div>
 
         {/* ── Right Column: Security Playbook ── */}
-        <div className="xl:sticky xl:top-6" style={{ maxHeight: 'calc(100vh - 6rem)' }}>
+        <div className="xl:sticky xl:top-6 h-[calc(100vh-6rem)] overflow-hidden">
           <Playbook detectedAttacks={detectedAttacks} />
         </div>
 

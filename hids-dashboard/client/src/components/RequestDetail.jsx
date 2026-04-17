@@ -31,7 +31,8 @@ const RequestDetail = ({ request, onClose, index }) => {
           <h2 className="text-2xl font-bold text-gray-900">Request Details</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+            aria-label="Close request details"
           >
             <X size={24} />
           </button>

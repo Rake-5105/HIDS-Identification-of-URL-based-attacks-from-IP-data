@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification,attack_outcome
+2026-04-15T07:35:56.924000,127.0.0.1,GET,https://8.8.8.8,https://8.8.8.8,200,web-dashboard,manual-url,https,8.8.8.8,/,,,ipdr,15,6,0,0,0,Normal,,Normal,none

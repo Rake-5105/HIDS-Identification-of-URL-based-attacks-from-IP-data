@@ -239,3 +239,35 @@ table tbody tr {
   background: rgba(107, 114, 128, 0.45);
 }
 
+/* Morphing spinner animation */
+@keyframes smoothMorph {
+  0% {
+    transform: scale(1) rotate(0deg);
+    border-radius: 50%;
+  }
+  20% {
+    transform: scale(0.9) rotate(72deg);
+    border-radius: 35%;
+  }
+  40% {
+    transform: scale(1.1) rotate(144deg);
+    border-radius: 15%;
+  }
+  60% {
+    transform: scale(0.85) rotate(216deg);
+    border-radius: 8%;
+  }
+  80% {
+    transform: scale(1.05) rotate(288deg);
+    border-radius: 25%;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    border-radius: 50%;
+  }
+}
+
+.animate-smoothMorph {
+  animation: smoothMorph 3s ease-in-out infinite;
+}
+

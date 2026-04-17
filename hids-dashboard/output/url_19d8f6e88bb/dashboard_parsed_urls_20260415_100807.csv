@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-15T04:37:59.101000,http://testphp.vuln/login?id=1' OR '1'='1--,http,testphp.vuln,,80,/login,login,1,id=1%27%20OR%20%271%27%3D%271--,id=1' OR '1'='1--,1,,,GET,200,web-dashboard,manual-url,ipdr

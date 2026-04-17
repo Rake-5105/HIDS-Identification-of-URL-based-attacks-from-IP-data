@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification,attack_outcome
+2026-04-15T04:27:57,127.0.0.1,GET,http://testphp.vuln/login?id=1' OR '1'='1--,http://testphp.vuln/login?id=1' OR '1'='1--,200,web-dashboard,manual-url,http,testphp.vuln,/login,id=1%27%20OR%20%271%27%3D%271--,,ipdr,43,16,1,0,0,SQL Injection,(union|select|insert|update|delete|--|#|'\s*or\s*'1'='1),SQL Injection,attempt

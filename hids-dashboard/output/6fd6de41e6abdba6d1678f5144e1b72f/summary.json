@@ -1,0 +1,88 @@
+{
+  "total_requests": 8,
+  "threats_detected": 2,
+  "threat_percentage": 25,
+  "classification_breakdown": {
+    "Normal": 6,
+    "Local File Inclusion (LFI)": 2
+  },
+  "confirmed_successful_attacks": 0,
+  "attack_attempts": 2,
+  "suspicious_ips": [
+    "203.0.113.42"
+  ],
+  "ml_accuracy": 0,
+  "analyzed_at": "2026-04-17T11:49:20.239Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 7,
+  "ollama": {
+    "total_requests": 7,
+    "threats_detected": 6,
+    "threat_percentage": 85.7,
+    "classification_breakdown": {
+      "Cross-Site Scripting (XSS)": 1,
+      "SQL Injection": 1,
+      "Directory Traversal": 2,
+      "Remote File Inclusion (RFI)": 1,
+      "Normal": 1,
+      "None": 1
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-17T11:49:20.239Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 8,
+      "threats_detected": 2,
+      "threat_percentage": 25,
+      "classification_breakdown": {
+        "Normal": 6,
+        "Local File Inclusion (LFI)": 2
+      },
+      "confirmed_successful_attacks": 0,
+      "attack_attempts": 2,
+      "suspicious_ips": [
+        "203.0.113.42"
+      ],
+      "ml_accuracy": 0,
+      "analyzed_at": "2026-04-17T17:19:01.228810"
+    },
+    "artifacts": {
+      "module3_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\6fd6de41e6abdba6d1678f5144e1b72f\\url_feature_dataset.csv",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\6fd6de41e6abdba6d1678f5144e1b72f\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\6fd6de41e6abdba6d1678f5144e1b72f\\module4_summary.json",
+      "module4_model": ""
+    },
+    "module1": {
+      "http_log_entries": 8,
+      "ipdr_records": 0,
+      "url_requests": 8
+    },
+    "module2": {
+      "total_parsed": 8,
+      "skipped": 0,
+      "errors": 0,
+      "methods": {
+        "GET": 7,
+        "POST": 1
+      },
+      "schemes": {
+        "http": 8
+      },
+      "file_extensions": {
+        "(none)": 6,
+        "txt": 1,
+        "xml": 1
+      },
+      "source_tag": "dashboard"
+    },
+    "module3": {
+      "rows": 8
+    },
+    "module4": {
+      "rows": 8,
+      "regex_detected": 2,
+      "statistical_suspicious_rows": 0
+    }
+  }
+}
