@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-18T10:43:07.478000,ok.xxx,http,,,80,/ok.xxx,ok.xxx,1,,,0,,xxx,GET,200,web-dashboard,manual-url,ipdr

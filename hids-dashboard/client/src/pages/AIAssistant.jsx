@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Send, Bot, User, Loader, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import { Send, Bot, User, Loader, AlertCircle, CheckCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const FIXED_MODEL = 'phi3';
@@ -21,6 +21,7 @@ const AIAssistant = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [ollamaStatus, setOllamaStatus] = useState(null);
+  const [clearStatus, setClearStatus] = useState('');
   const messagesEndRef = useRef(null);
   const chatPollRef = useRef(null);
 
@@ -195,6 +196,27 @@ const AIAssistant = () => {
     "Best practices for URL security validation"
   ];
 
+  const hasUserRequests = messages.some((message) => message.role === 'user');
+
+  const handleClearChat = () => {
+    if (!hasUserRequests) {
+      setClearStatus('Nothing to clear');
+      return;
+    }
+
+    stopChatPolling();
+    clearActiveChatJob();
+    setLoading(false);
+    setMessages([]);
+    setClearStatus('Cleared previous requests');
+  };
+
+  useEffect(() => {
+    if (!clearStatus) return;
+    const timeout = setTimeout(() => setClearStatus(''), 2200);
+    return () => clearTimeout(timeout);
+  }, [clearStatus]);
+
   const shellClass = isDark
     ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-700/70 shadow-slate-950/50'
     : 'bg-gradient-to-b from-slate-100 via-white to-slate-100 border-slate-200 shadow-slate-300/50';
@@ -226,14 +248,20 @@ const AIAssistant = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className={`px-3 py-2 rounded-lg text-sm border ${
-              isDark
-                ? 'bg-slate-700/80 border-slate-600 text-slate-200'
-                : 'bg-slate-100 border-slate-200 text-slate-600'
-            }`}>
-              Model: <span className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{FIXED_MODEL}</span>
-            </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleClearChat}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                isDark
+                  ? 'border-slate-600 text-slate-200 hover:bg-slate-700/80 disabled:hover:bg-transparent'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-100 disabled:hover:bg-transparent'
+              }`}
+              disabled={!hasUserRequests}
+              title={hasUserRequests ? 'Clear all previous requests' : 'Nothing to clear'}
+            >
+              <Trash2 size={16} />
+              <span className="text-sm font-medium">Clear</span>
+            </button>
 
             {/* Status Badge */}
             <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
@@ -267,6 +295,11 @@ const AIAssistant = () => {
             </button>
           </div>
         </div>
+        {clearStatus && (
+          <p className={`mt-3 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            {clearStatus}
+          </p>
+        )}
       </div>
 
       {/* Ollama Not Connected Warning */}
