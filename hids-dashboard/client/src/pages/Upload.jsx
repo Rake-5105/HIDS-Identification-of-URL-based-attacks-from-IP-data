@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FileText, File, CheckCircle, ArrowRight, Download, Link as LinkIcon } from 'lucide-react';
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUpload } from '../context/UploadContext';
 
 const Upload = () => {
+  const ACTIVE_UPLOAD_JOB_KEY = 'hids_active_upload_job';
   const [activeTab, setActiveTab] = useState('logs');
   const [uploadResult, setUploadResult] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -19,6 +20,87 @@ const Upload = () => {
   const [urlResult, setUrlResult] = useState(null);
   const navigate = useNavigate();
   const { saveResult } = useUpload();
+  const uploadPollRef = useRef(null);
+
+  const persistActiveUploadJob = (job) => {
+    try {
+      localStorage.setItem(ACTIVE_UPLOAD_JOB_KEY, JSON.stringify(job));
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const clearActiveUploadJob = () => {
+    localStorage.removeItem(ACTIVE_UPLOAD_JOB_KEY);
+  };
+
+  const stopUploadPolling = () => {
+    if (uploadPollRef.current) {
+      clearInterval(uploadPollRef.current);
+      uploadPollRef.current = null;
+    }
+  };
+
+  const startUploadPolling = (uploadId, filename) => {
+    stopUploadPolling();
+
+    uploadPollRef.current = setInterval(async () => {
+      try {
+        const statusResponse = await axios.get(`/api/upload/process/status/${uploadId}`);
+        setProcessingStatus(statusResponse.data);
+
+        if (statusResponse.data.status === 'completed' || statusResponse.data.status === 'failed') {
+          stopUploadPolling();
+          setProcessing(false);
+          clearActiveUploadJob();
+
+          if (statusResponse.data.status === 'completed' && statusResponse.data.results) {
+            saveResult({
+              ...statusResponse.data.results,
+              upload_id: uploadId,
+              filename,
+              analyzedAt: new Date().toISOString()
+            });
+          }
+        }
+      } catch (error) {
+        stopUploadPolling();
+        setProcessing(false);
+        clearActiveUploadJob();
+        setProcessingStatus({
+          status: 'failed',
+          message: 'Status check failed'
+        });
+      }
+    }, 2000);
+  };
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(ACTIVE_UPLOAD_JOB_KEY);
+      if (!raw) return;
+      const job = JSON.parse(raw);
+      if (!job?.upload_id) return;
+
+      setUploadResult((prev) => prev || {
+        upload_id: job.upload_id,
+        filename: job.filename || 'uploaded-file'
+      });
+      setProcessing(true);
+      setProcessingStatus((prev) => prev || {
+        status: 'processing',
+        progress: 0,
+        message: 'Resuming background analysis...'
+      });
+      startUploadPolling(job.upload_id, job.filename || 'uploaded-file');
+    } catch {
+      clearActiveUploadJob();
+    }
+
+    return () => {
+      stopUploadPolling();
+    };
+  }, []);
 
   const tabs = [
     { id: 'logs', label: 'Log Files', icon: FileText, accept: '.log,.txt' },
@@ -354,38 +436,15 @@ const Upload = () => {
     try {
       // Start processing
       await axios.post(`/api/upload/process/${uploadResult.upload_id}`);
-
-      // Poll for status
-      const pollInterval = setInterval(async () => {
-        try {
-          const statusResponse = await axios.get(`/api/upload/process/status/${uploadResult.upload_id}`);
-          setProcessingStatus(statusResponse.data);
-
-          if (statusResponse.data.status === 'completed' || statusResponse.data.status === 'failed') {
-            clearInterval(pollInterval);
-            setProcessing(false);
-
-            // Save results to shared context when completed
-            if (statusResponse.data.status === 'completed' && statusResponse.data.results) {
-              saveResult({
-                ...statusResponse.data.results,
-                upload_id: uploadResult.upload_id,
-                filename: uploadResult.filename,
-                analyzedAt: new Date().toISOString()
-              });
-            }
-          }
-        } catch (error) {
-          clearInterval(pollInterval);
-          setProcessing(false);
-          setProcessingStatus({
-            status: 'failed',
-            message: 'Status check failed'
-          });
-        }
-      }, 2000);
+      persistActiveUploadJob({
+        upload_id: uploadResult.upload_id,
+        filename: uploadResult.filename,
+        createdAt: Date.now()
+      });
+      startUploadPolling(uploadResult.upload_id, uploadResult.filename);
     } catch (error) {
       setProcessing(false);
+      clearActiveUploadJob();
       setProcessingStatus({
         status: 'failed',
         message: error.response?.data?.error || 'Processing failed'
@@ -932,6 +991,8 @@ const Upload = () => {
 
                     <button
                       onClick={() => {
+                        stopUploadPolling();
+                        clearActiveUploadJob();
                         setUploadResult(null);
                         setProcessingStatus(null);
                       }}

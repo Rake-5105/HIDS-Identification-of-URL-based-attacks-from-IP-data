@@ -4,22 +4,112 @@ import { Send, Bot, User, Loader, AlertCircle, CheckCircle, RefreshCw } from 'lu
 import { useTheme } from '../context/ThemeContext';
 
 const FIXED_MODEL = 'phi3';
+const AI_MESSAGES_KEY = 'hids_ai_messages';
+const AI_ACTIVE_CHAT_JOB_KEY = 'hids_ai_active_chat_job';
 
 const AIAssistant = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const raw = localStorage.getItem(AI_MESSAGES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [ollamaStatus, setOllamaStatus] = useState(null);
   const messagesEndRef = useRef(null);
+  const chatPollRef = useRef(null);
+
+  const stopChatPolling = () => {
+    if (chatPollRef.current) {
+      clearInterval(chatPollRef.current);
+      chatPollRef.current = null;
+    }
+  };
+
+  const clearActiveChatJob = () => {
+    localStorage.removeItem(AI_ACTIVE_CHAT_JOB_KEY);
+  };
+
+  const appendMessage = (message) => {
+    setMessages((prev) => [...prev, message]);
+  };
+
+  const startChatPolling = (jobId) => {
+    stopChatPolling();
+    chatPollRef.current = setInterval(async () => {
+      try {
+        const response = await axios.get(`/api/ai/chat/status/${jobId}`);
+        const job = response.data;
+
+        if (job.status === 'completed') {
+          appendMessage({
+            role: 'assistant',
+            content: job.result?.response || '',
+            model: job.result?.model || FIXED_MODEL
+          });
+          stopChatPolling();
+          clearActiveChatJob();
+          setLoading(false);
+          return;
+        }
+
+        if (job.status === 'failed') {
+          appendMessage({
+            role: 'error',
+            content: job.error || 'Failed to get response'
+          });
+          stopChatPolling();
+          clearActiveChatJob();
+          setLoading(false);
+        }
+      } catch (error) {
+        appendMessage({
+          role: 'error',
+          content: error.response?.data?.message || 'Failed to get response'
+        });
+        stopChatPolling();
+        clearActiveChatJob();
+        setLoading(false);
+      }
+    }, 1500);
+  };
 
   useEffect(() => {
     checkOllamaStatus();
+
+    try {
+      const rawJob = localStorage.getItem(AI_ACTIVE_CHAT_JOB_KEY);
+      if (rawJob) {
+        const parsed = JSON.parse(rawJob);
+        if (parsed?.jobId) {
+          setLoading(true);
+          startChatPolling(parsed.jobId);
+        }
+      }
+    } catch {
+      clearActiveChatJob();
+    }
+
+    return () => {
+      stopChatPolling();
+    };
   }, []);
 
   useEffect(() => {
     scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(AI_MESSAGES_KEY, JSON.stringify(messages));
+    } catch {
+      // ignore storage errors
+    }
   }, [messages]);
 
   const scrollToBottom = () => {
@@ -41,27 +131,26 @@ const AIAssistant = () => {
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    appendMessage({ role: 'user', content: userMessage });
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/ai/chat', {
+      const response = await axios.post('/api/ai/chat/start', {
         message: userMessage,
         model: FIXED_MODEL
       });
 
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: response.data.response,
-        model: response.data.model
-      }]);
+      const jobId = response.data.jobId;
+      localStorage.setItem(AI_ACTIVE_CHAT_JOB_KEY, JSON.stringify({ jobId, createdAt: Date.now() }));
+      startChatPolling(jobId);
     } catch (error) {
-      setMessages(prev => [...prev, {
+      appendMessage({
         role: 'error',
         content: error.response?.data?.message || 'Failed to get response'
-      }]);
-    } finally {
+      });
+      clearActiveChatJob();
       setLoading(false);
+      stopChatPolling();
     }
   };
 

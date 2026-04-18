@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const axios = require('axios');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 const { analyzeFile } = require('../utils/ollamaAnalyzer');
 const FileHistory = require('../models/FileHistory');
 const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
@@ -11,6 +12,90 @@ const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
 // Ollama API configuration
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const DEFAULT_MODEL = 'phi3';
+const OLLAMA_REQUEST_TIMEOUT_MS = Number(process.env.OLLAMA_REQUEST_TIMEOUT_MS || 180000);
+const AI_JOB_TTL_MS = Number(process.env.AI_JOB_TTL_MS || 30 * 60 * 1000);
+const aiJobs = new Map();
+
+const mapAiErrorMessage = (error) => {
+  if (error?.code === 'ECONNREFUSED') {
+    return 'Ollama service unavailable. Please ensure Ollama is running: ollama serve';
+  }
+
+  if (error?.code === 'ECONNABORTED') {
+    return 'AI response timed out while waiting for Ollama. Model may still be loading; please retry in a few seconds.';
+  }
+
+  return error?.response?.data?.error || error?.message || 'AI request failed';
+};
+
+const cleanupAiJobs = () => {
+  const now = Date.now();
+  for (const [jobId, job] of aiJobs.entries()) {
+    const createdAt = Number(job.createdAt || now);
+    if (now - createdAt > AI_JOB_TTL_MS) {
+      aiJobs.delete(jobId);
+    }
+  }
+};
+
+const createAiJob = (userId, type) => {
+  cleanupAiJobs();
+  const id = crypto.randomBytes(12).toString('hex');
+  const job = {
+    id,
+    userId: String(userId),
+    type,
+    status: 'processing',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    result: null,
+    error: null
+  };
+  aiJobs.set(id, job);
+  return job;
+};
+
+const resolveAiChat = async (message, context) => {
+  const systemPrompt = `You are a cybersecurity expert specializing in URL-based attack detection and network security analysis. You help users understand:
+- SQL Injection attacks
+- Cross-Site Scripting (XSS)
+- Path Traversal attacks
+- Command Injection
+- Malicious URL patterns
+- Network traffic analysis
+- Intrusion detection systems
+
+Provide concise, actionable insights. When analyzing URLs or logs, identify potential threats and explain the attack vectors. Format your responses clearly with bullet points when listing multiple items.`;
+
+  const fullPrompt = context
+    ? `Context:\n${context}\n\nUser Question: ${message}`
+    : message;
+
+  const response = await axios.post(
+    `${OLLAMA_BASE_URL}/api/generate`,
+    {
+      model: DEFAULT_MODEL,
+      prompt: fullPrompt,
+      system: systemPrompt,
+      stream: false,
+      options: {
+        temperature: 0.7,
+        top_p: 0.9,
+        num_predict: 1024
+      }
+    },
+    {
+      timeout: OLLAMA_REQUEST_TIMEOUT_MS
+    }
+  );
+
+  return {
+    response: response.data.response,
+    model: response.data.model,
+    done: response.data.done,
+    totalDuration: response.data.total_duration
+  };
+};
 
 const TYPO_BRANDS = [
   'amazon', 'paypal', 'google', 'microsoft', 'apple',
@@ -336,41 +421,8 @@ router.post('/chat', auth, async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const systemPrompt = `You are a cybersecurity expert specializing in URL-based attack detection and network security analysis. You help users understand:
-- SQL Injection attacks
-- Cross-Site Scripting (XSS)
-- Path Traversal attacks
-- Command Injection
-- Malicious URL patterns
-- Network traffic analysis
-- Intrusion detection systems
-
-Provide concise, actionable insights. When analyzing URLs or logs, identify potential threats and explain the attack vectors. Format your responses clearly with bullet points when listing multiple items.`;
-
-    const fullPrompt = context 
-      ? `Context:\n${context}\n\nUser Question: ${message}`
-      : message;
-
-    const response = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
-      model: DEFAULT_MODEL,
-      prompt: fullPrompt,
-      system: systemPrompt,
-      stream: false,
-      options: {
-        temperature: 0.7,
-        top_p: 0.9,
-        num_predict: 1024
-      }
-    }, {
-      timeout: 60000 // 60 second timeout for generation
-    });
-
-    res.json({
-      response: response.data.response,
-      model: response.data.model,
-      done: response.data.done,
-      totalDuration: response.data.total_duration
-    });
+    const result = await resolveAiChat(message, context);
+    res.json(result);
 
   } catch (error) {
     console.error('AI Chat error:', error.message);
@@ -382,11 +434,80 @@ Provide concise, actionable insights. When analyzing URLs or logs, identify pote
       });
     }
 
+    if (error.code === 'ECONNABORTED') {
+      return res.status(504).json({
+        error: 'AI timeout',
+        message: mapAiErrorMessage(error)
+      });
+    }
+
     res.status(500).json({
       error: 'AI request failed',
-      message: error.response?.data?.error || error.message
+      message: mapAiErrorMessage(error)
     });
   }
+});
+
+// Start background chat job
+router.post('/chat/start', auth, async (req, res) => {
+  try {
+    const { message, context } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const job = createAiJob(req.user.id, 'chat');
+
+    res.json({
+      jobId: job.id,
+      status: job.status
+    });
+
+    (async () => {
+      try {
+        const result = await resolveAiChat(message, context);
+        const existing = aiJobs.get(job.id);
+        if (!existing) return;
+        existing.status = 'completed';
+        existing.result = result;
+        existing.updatedAt = Date.now();
+      } catch (error) {
+        const existing = aiJobs.get(job.id);
+        if (!existing) return;
+        existing.status = 'failed';
+        existing.error = mapAiErrorMessage(error);
+        existing.updatedAt = Date.now();
+      }
+    })();
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to start chat job',
+      message: error.message
+    });
+  }
+});
+
+// Get background chat job status
+router.get('/chat/status/:jobId', auth, async (req, res) => {
+  const { jobId } = req.params;
+  const job = aiJobs.get(jobId);
+
+  if (!job || String(job.userId) !== String(req.user.id)) {
+    return res.status(404).json({
+      error: 'Not Found',
+      message: 'Chat job not found'
+    });
+  }
+
+  res.json({
+    jobId: job.id,
+    status: job.status,
+    result: job.result,
+    error: job.error,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt
+  });
 });
 
 // Analyze URL for threats
@@ -552,7 +673,7 @@ Provide:
         temperature: 0.5,
         num_predict: 1500
       }
-    }, { timeout: 60000 });
+    }, { timeout: OLLAMA_REQUEST_TIMEOUT_MS });
 
     res.json({
       analysis: response.data.response,
@@ -588,7 +709,7 @@ router.post('/chat/stream', auth, async (req, res) => {
       stream: true
     }, {
       responseType: 'stream',
-      timeout: 60000
+      timeout: OLLAMA_REQUEST_TIMEOUT_MS
     });
 
     response.data.on('data', (chunk) => {

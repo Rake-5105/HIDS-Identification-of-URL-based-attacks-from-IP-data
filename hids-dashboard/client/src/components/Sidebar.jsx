@@ -1,10 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, BarChart3, Upload, LogOut, Menu, X, Shield, User, Settings, Bot } from 'lucide-react';
-import { useState } from 'react';
+import { LayoutDashboard, FileText, BarChart3, Upload, LogOut, Menu, X, Shield, Settings, Bot, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+const Sidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -36,10 +34,20 @@ const Sidebar = () => {
         }`}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-gray-800">
-          <div className="flex items-center space-x-3">
-            <Shield className="w-8 h-8 text-blue-500" />
-            {!collapsed && <h1 className="text-xl font-bold">HIDS Dashboard</h1>}
+        <div className="p-4 border-b border-gray-800">
+          <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-start'} gap-3`}>
+            <Shield className="w-8 h-8 text-blue-500 flex-shrink-0" />
+            {!collapsed && <h1 className="text-lg font-bold">HIDS Dashboard</h1>}
+          </div>
+
+          <div className={`hidden lg:flex mt-3 ${collapsed ? 'justify-center' : 'justify-end'}`}>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="inline-flex p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+            </button>
           </div>
         </div>
 

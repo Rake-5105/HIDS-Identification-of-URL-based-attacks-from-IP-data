@@ -522,7 +522,7 @@ const Dashboard = () => {
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-1">
                           <button
-                            onClick={() => navigate('/app/upload')}
+                            onClick={() => navigate('/app/requests')}
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
                             title="View details"
                           >
