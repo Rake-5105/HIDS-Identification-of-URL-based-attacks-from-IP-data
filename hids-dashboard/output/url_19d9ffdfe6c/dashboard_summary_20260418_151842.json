@@ -1,0 +1,11 @@
+{
+  "http_log_entries": 0,
+  "ipdr_records": 0,
+  "url_requests": 0,
+  "snort_alerts": 0,
+  "total_records": 0,
+  "source_files": [
+    "C:\\Users\\sai mohana ram d\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\uploads\\url_19d9ffdfe6c.csv"
+  ],
+  "errors": 0
+}

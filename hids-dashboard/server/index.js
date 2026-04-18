@@ -1,4 +1,18 @@
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Load environment from hids-dashboard/.env first, then fallback to workspace-root .env.
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+if (
+  !process.env.JWT_SECRET ||
+  !process.env.MONGODB_URI ||
+  !process.env.EMAIL_USER ||
+  !process.env.EMAIL_PASS ||
+  !process.env.SUPABASE_URL ||
+  !process.env.SUPABASE_SERVICE_KEY
+) {
+  dotenv.config({ path: path.resolve(process.cwd(), '..', '.env') });
+}
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -16,10 +30,27 @@ const { initBuckets } = require('./utils/supabaseStorage');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const MONGO_CONNECT_RETRIES = Number(process.env.MONGO_CONNECT_RETRIES || 5);
+const MONGO_RETRY_DELAY_MS = Number(process.env.MONGO_RETRY_DELAY_MS || 3000);
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+    if (isLocalhost) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -59,8 +90,27 @@ app.use((err, req, res, next) => {
 // Start server
 const startServer = async () => {
   try {
-    // Connect to MongoDB
-    await connectDB();
+    // Connect to MongoDB with retries for transient network issues.
+    let connected = false;
+    for (let attempt = 1; attempt <= MONGO_CONNECT_RETRIES; attempt += 1) {
+      try {
+        await connectDB();
+        connected = true;
+        break;
+      } catch (error) {
+        const isLastAttempt = attempt === MONGO_CONNECT_RETRIES;
+        console.error(
+          `[${new Date().toISOString()}] Mongo connection attempt ${attempt}/${MONGO_CONNECT_RETRIES} failed: ${error.message}`
+        );
+        if (!isLastAttempt) {
+          await sleep(MONGO_RETRY_DELAY_MS);
+        }
+      }
+    }
+
+    if (!connected) {
+      throw new Error('Unable to connect to MongoDB after multiple attempts.');
+    }
 
     // Initialize Supabase storage buckets
     await initBuckets().catch(err => 

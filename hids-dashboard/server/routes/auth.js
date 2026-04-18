@@ -8,6 +8,12 @@ const OTP = require('../models/OTP');
 const TrustedDevice = require('../models/TrustedDevice');
 const auth = require('../middleware/auth');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const hasEmailConfig = () => {
+  return Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+};
+
 // Email transporter configuration
 const createTransporter = () => {
   return nodemailer.createTransport({
@@ -31,6 +37,10 @@ const generateDeviceToken = () => {
 
 // Send OTP email
 const sendOTPEmail = async (email, otp, type) => {
+  if (!hasEmailConfig()) {
+    throw new Error('Email service is not configured (missing EMAIL_USER or EMAIL_PASS).');
+  }
+
   const transporter = createTransporter();
   
   const subject = type === 'register' 
@@ -125,13 +135,34 @@ router.post('/send-otp', async (req, res) => {
     });
     await otpDoc.save();
 
-    // Send OTP via email
-    await sendOTPEmail(email, otp, type);
+    // Send OTP via email. In non-production, allow OTP flow to continue if SMTP is unavailable.
+    let emailSent = true;
+    let emailError = null;
+    try {
+      await sendOTPEmail(email, otp, type);
+    } catch (err) {
+      emailSent = false;
+      emailError = err;
+      console.error('Send OTP email delivery error:', err.message);
+      if (isProduction) {
+        throw err;
+      }
+    }
 
-    res.json({
-      message: 'Verification code sent to your email',
-      email: email.replace(/(.{2})(.*)(@.*)/, '$1***$3') // Partially mask email
-    });
+    const responsePayload = {
+      message: emailSent
+        ? 'Verification code sent to your email'
+        : 'Email delivery is unavailable. Use the verification code from server logs (development mode).',
+      email: email.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+    };
+
+    if (!emailSent && !isProduction) {
+      responsePayload.devOtp = otp;
+      responsePayload.warning = emailError?.message || 'SMTP delivery failed in development mode.';
+      console.log(`[DEV OTP] ${type} OTP for ${email}: ${otp}`);
+    }
+
+    res.json(responsePayload);
 
   } catch (error) {
     console.error('Send OTP error:', error);

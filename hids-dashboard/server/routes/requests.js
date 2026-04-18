@@ -1,77 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const FileHistory = require('../models/FileHistory');
-
-const inferAttackOutcome = (
-  classification,
-  statusCode,
-  urlValue = '',
-  payloadValue = '',
-  responseBody = '',
-  responseHeaders = '',
-  responseTime = null,
-  thresholdMs = 3000
-) => {
-  const normalized = String(classification || '').trim().toLowerCase();
-  if (!normalized || normalized === 'normal') return 'none';
-
-  const code = Number(statusCode);
-  if (!Number.isFinite(code) || code < 200 || code >= 300) return 'attempt';
-
-  const responseText = String(responseBody || '').toLowerCase();
-  const headersText = String(responseHeaders || '').toLowerCase();
-  const combined = `${String(urlValue || '')} ${String(payloadValue || '')} ${responseText} ${headersText}`.toLowerCase();
-  const rt = Number(responseTime);
-
-  let hasSuccessEvidence = false;
-  if (normalized.includes('sql injection') || normalized === 'sqli') {
-    hasSuccessEvidence = combined.includes('welcome') || combined.includes('sql') || combined.includes('mysql_fetch') || combined.includes('sql syntax');
-  } else if (normalized.includes('xss') || normalized.includes('cross-site scripting')) {
-    hasSuccessEvidence = combined.includes('<script>');
-  } else if (normalized.includes('local file inclusion') || normalized.includes('directory traversal') || normalized.includes('path traversal') || normalized.includes('lfi')) {
-    hasSuccessEvidence = combined.includes('root:x:0:0') || /(\/etc\/passwd|\/proc\/self\/environ|win\.ini|boot\.ini|windows\/system32)/i.test(combined);
-  } else if (normalized.includes('remote file inclusion') || normalized.includes('web shell')) {
-    hasSuccessEvidence = combined.includes('shell') || combined.includes('cmd') || /(cmd\.jsp|backdoor\.asp|webshell|shell\.php|\.aspx?|\.jsp|\.php)/i.test(combined);
-  } else if (normalized.includes('server-side request forgery') || normalized.includes('ssrf')) {
-    hasSuccessEvidence = combined.includes('internal server') || combined.includes('admin panel') || /(169\.254\.169\.254|localhost|127\.0\.0\.1|2130706433)/i.test(combined);
-  } else if (normalized.includes('command injection')) {
-    hasSuccessEvidence = combined.includes('uid=') || combined.includes('www-data') || /(;|&&|\|)\s*(whoami|id|cat|uname|powershell|cmd\.exe)/i.test(combined);
-  } else if (normalized.includes('ldap injection') || normalized.includes('ldap')) {
-    hasSuccessEvidence =
-      combined.includes('login success') ||
-      /\*\)\(\|/.test(combined) ||
-      /\(\|\(user=\*\)\)/.test(combined) ||
-      /\(uid=\*\)/.test(combined) ||
-      /\)\(\|\(password=\*\)\)/.test(combined) ||
-      (combined.includes('pass=anything') && (combined.includes('user=*)') || combined.includes('(|(user=*))')));
-  } else if (normalized.includes('header injection') || normalized.includes('http header injection')) {
-    hasSuccessEvidence = headersText.includes('set-cookie') || combined.includes('set-cookie');
-  } else if (normalized.includes('brute force')) {
-    hasSuccessEvidence = combined.includes('login success');
-  } else if (normalized.includes('dos') || normalized.includes('denial of service')) {
-    hasSuccessEvidence = Number.isFinite(rt) && rt > Number(thresholdMs);
-  } else if (normalized.includes('csrf') || normalized.includes('cross-site request forgery')) {
-    hasSuccessEvidence = combined.includes('transaction successful');
-  } else if (normalized.includes('xml external entity') || normalized.includes('xxe')) {
-    hasSuccessEvidence =
-      combined.includes('<!doctype') ||
-      combined.includes('<!entity') ||
-      /system\s+['\"](?:file|http|ftp):\/\//i.test(combined);
-  } else if (normalized.includes('http parameter pollution') || normalized.includes('parameter pollution')) {
-    hasSuccessEvidence = /(?:\?|&)([^=&\s]+)=[^&]*(?:&\1=)/i.test(combined);
-  } else if (normalized.includes('typosquatting') || normalized.includes('url spoofing')) {
-    hasSuccessEvidence =
-      /xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n|app1e|arnazon/i.test(combined) ||
-      /(?:login|verify|secure|account).*(?:amazon|paypal|google)/i.test(combined);
-  } else if (normalized.includes('phishing') || normalized.includes('phising')) {
-    hasSuccessEvidence =
-      /(?:verify|login|signin|secure|account|update).*(?:password|otp|pin|card|cvv)/i.test(combined) ||
-      /xn--|paypa1|g00gle|micr0soft|faceb00k|amaz0n/i.test(combined);
-  }
-
-  if (hasSuccessEvidence) return 'confirmed_success';
-  return 'attempt';
-};
+const { inferAttackOutcome, normalizeAttackOutcome } = require('../utils/attackOutcome');
 
 const ipToInt = (ip) => {
   if (!ip || typeof ip !== 'string') return null;
@@ -110,12 +40,13 @@ const buildUserRequests = (files) => {
     // Prefer detailedRequests if available
     if (file.detailedRequests && file.detailedRequests.length > 0) {
       file.detailedRequests.forEach((req) => {
+        const savedOutcome = normalizeAttackOutcome(req.attack_outcome);
         rows.push({
           timestamp: req.timestamp || timestamp,
           source_ip: req.source_ip || '0.0.0.0',
           url: req.url || baseUrl,
           classification: req.classification || 'unknown',
-          attack_outcome: req.attack_outcome || inferAttackOutcome(
+          attack_outcome: savedOutcome || inferAttackOutcome(
             req.classification,
             req.status_code,
             req.url,

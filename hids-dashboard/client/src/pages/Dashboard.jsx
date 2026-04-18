@@ -282,7 +282,7 @@ const Dashboard = () => {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/app/analysis')}
+                onClick={() => navigate('/app/requests')}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
               >
                 View Full Results
