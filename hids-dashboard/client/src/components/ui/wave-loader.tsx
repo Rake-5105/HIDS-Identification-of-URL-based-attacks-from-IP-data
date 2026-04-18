@@ -33,29 +33,35 @@ export interface WaveLoaderProps {
    * @default bottom
    */
   messagePlacement?: "bottom" | "left" | "right";
+  /**
+   * Optional class for individual bars.
+   */
+  barClassName?: string;
 }
 
 export function WaveLoader({
   bars = 5,
   message,
   messagePlacement,
+  barClassName,
   className,
   ...props
 }: HTMLMotionProps<"div"> & WaveLoaderProps) {
   return (
-    <div className={cn(waveLoaderVariants({ messagePlacement }))}>
+    <div className={cn(waveLoaderVariants({ messagePlacement }), className)}>
       <div className={cn("flex gap-1 items-center justify-center")}>
         {Array(bars)
           .fill(undefined)
           .map((_, index) => (
             <motion.div
               key={index}
-              className={cn("w-2 h-5 bg-red-800 dark:bg-red-700 origin-bottom rounded-sm", className)}
-              animate={{ scaleY: [1, 1.5, 1] }}
+              className={cn("w-2 h-5 bg-red-800 dark:bg-red-700 origin-bottom rounded-sm will-change-transform", barClassName)}
+              animate={{ scaleY: [0.65, 1.15, 0.65], opacity: [0.55, 1, 0.55] }}
               transition={{
-                duration: 1,
+                duration: 0.9,
                 repeat: Number.POSITIVE_INFINITY,
                 delay: index * 0.1,
+                ease: "easeInOut",
               }}
               {...props}
             />

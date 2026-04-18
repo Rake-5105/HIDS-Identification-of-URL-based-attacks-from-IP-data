@@ -1,13 +1,49 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700,800,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --font-satoshi: 'Satoshi', 'Segoe UI', sans-serif;
     --bg-primary: #f9fafb;
     --bg-secondary: #ffffff;
     --text-primary: #111827;
     --text-secondary: #6b7280;
+  }
+
+  html,
+  body,
+  #root {
+    font-family: var(--font-satoshi);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 800;
+  }
+
+  h4,
+  h5,
+  h6,
+  th,
+  label,
+  strong,
+  b {
+    font-weight: 700;
+  }
+
+  button {
+    font-weight: 600;
   }
 
   .dark {

@@ -678,7 +678,7 @@ const Upload = () => {
                             {step.label}
                           </span>
                           {urlProcessing && step.status === 'pending' && idx === getUrlProgressSteps().findIndex((s) => s.status === 'pending') && (
-                            <WaveLoader bars={4} className="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
+                            <WaveLoader bars={4} barClassName="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
                           )}
                         </div>
                       ))}
@@ -887,7 +887,7 @@ const Upload = () => {
                         {step.label}
                       </span>
                       {processing && step.status === 'pending' && idx === getProgressSteps().findIndex(s => s.status === 'pending') && (
-                        <WaveLoader bars={4} className="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
+                        <WaveLoader bars={4} barClassName="!w-1 !h-3 bg-red-800 dark:bg-red-700" messagePlacement="right" />
                       )}
                     </div>
                   ))}
