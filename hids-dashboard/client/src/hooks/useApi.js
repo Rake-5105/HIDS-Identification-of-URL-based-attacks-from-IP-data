@@ -17,7 +17,7 @@ export const useApi = (url, options = {}) => {
     setError(null);
 
     const controller = new AbortController();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
 
     try {
       const response = await axios.get(url, {

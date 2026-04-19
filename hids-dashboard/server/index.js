@@ -26,14 +26,18 @@ const analysisRoutes = require('./routes/analysis');
 const uploadRoutes = require('./routes/upload');
 const aiRoutes = require('./routes/ai');
 const auth = require('./middleware/auth');
+const { authRateLimiter, uploadRateLimiter, aiRateLimiter } = require('./middleware/rateLimit');
 const { initBuckets } = require('./utils/supabaseStorage');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_CONNECT_RETRIES = Number(process.env.MONGO_CONNECT_RETRIES || 5);
 const MONGO_RETRY_DELAY_MS = Number(process.env.MONGO_RETRY_DELAY_MS || 3000);
+const TRUST_PROXY = process.env.TRUST_PROXY === 'true';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+app.set('trust proxy', TRUST_PROXY ? 1 : 0);
 
 // Middleware
 app.use(cors({
@@ -57,10 +61,10 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRateLimiter, authRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/upload', uploadRateLimiter, uploadRoutes);
+app.use('/api/ai', aiRateLimiter, aiRoutes);
 app.use('/api/summary', auth, summaryRoutes);
 app.use('/api/requests', auth, requestsRoutes);
 app.use('/api/analysis', auth, analysisRoutes);

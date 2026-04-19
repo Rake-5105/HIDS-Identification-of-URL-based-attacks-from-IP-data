@@ -19,9 +19,27 @@ const getIntroDelayMs = () => {
 
 export const AuthContext = createContext();
 
+const getStoredToken = () => {
+  try {
+    const sessionToken = sessionStorage.getItem('token');
+    if (sessionToken) return sessionToken;
+
+    // One-time migration fallback from older builds using localStorage.
+    const legacyToken = localStorage.getItem('token');
+    if (legacyToken) {
+      sessionStorage.setItem('token', legacyToken);
+      localStorage.removeItem('token');
+      return legacyToken;
+    }
+  } catch {
+    // ignore storage access errors
+  }
+  return null;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(getStoredToken());
   const [loading, setLoading] = useState(true);
 
   // Set axios Authorization header
@@ -70,6 +88,7 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Token validation failed:', error);
+      sessionStorage.removeItem('token');
       localStorage.removeItem('token');
       setToken(null);
       setUser(null);
@@ -82,7 +101,8 @@ export const AuthProvider = ({ children }) => {
     const response = await axios.post('/api/auth/login', { email, password });
     const { token: newToken, user: userData } = response.data;
 
-    localStorage.setItem('token', newToken);
+    sessionStorage.setItem('token', newToken);
+    localStorage.removeItem('token');
     setToken(newToken);
     setUser(userData);
 
@@ -93,7 +113,8 @@ export const AuthProvider = ({ children }) => {
     const response = await axios.post('/api/auth/register', { username, email, password });
     const { token: newToken, user: userData } = response.data;
 
-    localStorage.setItem('token', newToken);
+    sessionStorage.setItem('token', newToken);
+    localStorage.removeItem('token');
     setToken(newToken);
     setUser(userData);
 
@@ -101,10 +122,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    const currentUserId = user?.id;
+
+    sessionStorage.removeItem('token');
     localStorage.removeItem('token');
     // Clear old shared storage keys (from before user-isolation update)
     localStorage.removeItem('hids_latest_result');
     localStorage.removeItem('hids_results_history');
+    localStorage.removeItem('hids_active_upload_job');
+    localStorage.removeItem('hids_active_upload_job_anonymous');
+    localStorage.removeItem('hids_ai_messages');
+    localStorage.removeItem('hids_ai_messages_anonymous');
+    localStorage.removeItem('hids_ai_active_chat_job');
+    localStorage.removeItem('hids_ai_active_chat_job_anonymous');
+
+    if (currentUserId) {
+      localStorage.removeItem(`hids_active_upload_job_${currentUserId}`);
+      localStorage.removeItem(`hids_ai_messages_${currentUserId}`);
+      localStorage.removeItem(`hids_ai_active_chat_job_${currentUserId}`);
+    }
+
     setToken(null);
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];

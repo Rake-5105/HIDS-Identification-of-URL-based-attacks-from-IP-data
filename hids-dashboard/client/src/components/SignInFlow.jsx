@@ -578,7 +578,8 @@ export const SignInPage = ({ className, mode = "register" }) => {
         // If device is trusted and password is correct, skip OTP
         if (response.data.skipOtp) {
           const { token, user } = response.data;
-          localStorage.setItem('token', token);
+          sessionStorage.setItem('token', token);
+          localStorage.removeItem('token');
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           // Trigger success animation
@@ -660,7 +661,8 @@ export const SignInPage = ({ className, mode = "register" }) => {
 
       // Store token
       const { token, user, trustedDeviceToken } = response.data;
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
+      localStorage.removeItem('token');
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       // If user chose to trust device, store the token in cookie

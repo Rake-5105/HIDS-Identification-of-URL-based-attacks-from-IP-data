@@ -1,0 +1,24 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-19T06:15:13.214000",
+    "raw_url": "https://www.canva.com/",
+    "scheme": "https",
+    "host": "www.canva.com",
+    "port": null,
+    "effective_port": 443,
+    "path": "/",
+    "path_segments": [],
+    "path_depth": 0,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

@@ -7,7 +7,7 @@ const MAX_HISTORY = 50; // keep the most recent 50 analyses
 // Get user ID from JWT token to create user-specific storage keys
 const getUserIdFromToken = () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (!token) return null;
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.user?.id || payload.id || payload.userId || null;

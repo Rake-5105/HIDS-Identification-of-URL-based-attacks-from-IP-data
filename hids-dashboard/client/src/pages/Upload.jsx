@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { FileText, File, CheckCircle, ArrowRight, Download, Link as LinkIcon } from 'lucide-react';
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
@@ -6,9 +6,25 @@ import Playbook from '../components/Playbook';
 import { WaveLoader } from '../components/ui/wave-loader';
 import { useNavigate } from 'react-router-dom';
 import { useUpload } from '../context/UploadContext';
+import { AuthContext } from '../context/AuthContext';
+
+const getUserIdFromToken = () => {
+  try {
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user?.id || payload.id || payload.userId || null;
+  } catch {
+    return null;
+  }
+};
 
 const Upload = () => {
-  const ACTIVE_UPLOAD_JOB_KEY = 'hids_active_upload_job';
+  const { user } = useContext(AuthContext);
+  const storageUserId = user?.id || getUserIdFromToken();
+  const ACTIVE_UPLOAD_JOB_KEY = storageUserId
+    ? `hids_active_upload_job_${storageUserId}`
+    : 'hids_active_upload_job_anonymous';
   const [activeTab, setActiveTab] = useState('logs');
   const [uploadResult, setUploadResult] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -100,7 +116,7 @@ const Upload = () => {
     return () => {
       stopUploadPolling();
     };
-  }, []);
+  }, [ACTIVE_UPLOAD_JOB_KEY]);
 
   const tabs = [
     { id: 'logs', label: 'Log Files', icon: FileText, accept: '.log,.txt' },

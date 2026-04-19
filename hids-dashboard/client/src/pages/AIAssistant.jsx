@@ -1,29 +1,49 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Send, Bot, User, Loader, AlertCircle, CheckCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { AuthContext } from '../context/AuthContext';
 
 const FIXED_MODEL = 'phi3';
-const AI_MESSAGES_KEY = 'hids_ai_messages';
-const AI_ACTIVE_CHAT_JOB_KEY = 'hids_ai_active_chat_job';
+
+const getUserIdFromToken = () => {
+  try {
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user?.id || payload.id || payload.userId || null;
+  } catch {
+    return null;
+  }
+};
 
 const AIAssistant = () => {
+  const { user } = useContext(AuthContext);
+  const storageUserId = user?.id || getUserIdFromToken();
+  const AI_MESSAGES_KEY = storageUserId
+    ? `hids_ai_messages_${storageUserId}`
+    : 'hids_ai_messages_anonymous';
+  const AI_ACTIVE_CHAT_JOB_KEY = storageUserId
+    ? `hids_ai_active_chat_job_${storageUserId}`
+    : 'hids_ai_active_chat_job_anonymous';
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const [messages, setMessages] = useState(() => {
-    try {
-      const raw = localStorage.getItem(AI_MESSAGES_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [ollamaStatus, setOllamaStatus] = useState(null);
   const [clearStatus, setClearStatus] = useState('');
+  const [notification, setNotification] = useState({ visible: false, message: '' });
   const messagesEndRef = useRef(null);
   const chatPollRef = useRef(null);
+
+  const persistMessages = useCallback((nextMessages) => {
+    try {
+      localStorage.setItem(AI_MESSAGES_KEY, JSON.stringify(nextMessages));
+    } catch {
+      // ignore storage errors
+    }
+  }, [AI_MESSAGES_KEY]);
 
   const stopChatPolling = () => {
     if (chatPollRef.current) {
@@ -36,9 +56,17 @@ const AIAssistant = () => {
     localStorage.removeItem(AI_ACTIVE_CHAT_JOB_KEY);
   };
 
-  const appendMessage = (message) => {
-    setMessages((prev) => [...prev, message]);
-  };
+  const appendMessage = useCallback((message) => {
+    setMessages((prev) => {
+      const next = [...prev, message];
+      persistMessages(next);
+      return next;
+    });
+  }, [persistMessages]);
+
+  const showNotification = useCallback((message) => {
+    setNotification({ visible: true, message });
+  }, []);
 
   const startChatPolling = (jobId) => {
     stopChatPolling();
@@ -53,6 +81,7 @@ const AIAssistant = () => {
             content: job.result?.response || '',
             model: job.result?.model || FIXED_MODEL
           });
+          showNotification('AI response is ready');
           stopChatPolling();
           clearActiveChatJob();
           setLoading(false);
@@ -81,7 +110,17 @@ const AIAssistant = () => {
   };
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AI_MESSAGES_KEY);
+      setMessages(raw ? JSON.parse(raw) : []);
+    } catch {
+      setMessages([]);
+    }
+  }, [AI_MESSAGES_KEY]);
+
+  useEffect(() => {
     checkOllamaStatus();
+    setLoading(false);
 
     try {
       const rawJob = localStorage.getItem(AI_ACTIVE_CHAT_JOB_KEY);
@@ -99,19 +138,11 @@ const AIAssistant = () => {
     return () => {
       stopChatPolling();
     };
-  }, []);
+  }, [AI_ACTIVE_CHAT_JOB_KEY]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(AI_MESSAGES_KEY, JSON.stringify(messages));
-    } catch {
-      // ignore storage errors
-    }
-  }, [messages]);
+  }, [messages, AI_MESSAGES_KEY]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -157,7 +188,7 @@ const AIAssistant = () => {
 
   const analyzeUrl = async (url) => {
     setLoading(true);
-    setMessages(prev => [...prev, { role: 'user', content: `Analyze URL: ${url}` }]);
+    appendMessage({ role: 'user', content: `Analyze URL: ${url}` });
 
     try {
       const response = await axios.post('/api/ai/analyze-url', { url });
@@ -177,12 +208,13 @@ const AIAssistant = () => {
         }
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content, isAnalysis: true }]);
+      appendMessage({ role: 'assistant', content, isAnalysis: true });
+      showNotification('AI response is ready');
     } catch (error) {
-      setMessages(prev => [...prev, {
+      appendMessage({
         role: 'error',
         content: 'URL analysis failed: ' + (error.response?.data?.message || error.message)
-      }]);
+      });
     } finally {
       setLoading(false);
     }
@@ -208,6 +240,7 @@ const AIAssistant = () => {
     clearActiveChatJob();
     setLoading(false);
     setMessages([]);
+    persistMessages([]);
     setClearStatus('Cleared previous requests');
   };
 
@@ -216,6 +249,14 @@ const AIAssistant = () => {
     const timeout = setTimeout(() => setClearStatus(''), 2200);
     return () => clearTimeout(timeout);
   }, [clearStatus]);
+
+  useEffect(() => {
+    if (!notification.visible) return;
+    const timeout = setTimeout(() => {
+      setNotification((prev) => ({ ...prev, visible: false }));
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [notification.visible]);
 
   const shellClass = isDark
     ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-700/70 shadow-slate-950/50'
@@ -234,7 +275,21 @@ const AIAssistant = () => {
     : 'bg-gradient-to-r from-white/95 via-slate-50/95 to-white/95 border-slate-200';
 
   return (
-    <div className={`flex flex-col h-[calc(100vh-120px)] rounded-2xl border overflow-hidden shadow-2xl transition-colors duration-300 ${shellClass}`}>
+    <>
+      {notification.visible && (
+        <div className="fixed top-4 right-4 z-[70] max-w-sm">
+          <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-md ${
+            isDark
+              ? 'bg-emerald-900/85 border-emerald-700/70 text-emerald-100'
+              : 'bg-emerald-50/95 border-emerald-200 text-emerald-800'
+          }`}>
+            <CheckCircle size={18} className={isDark ? 'text-emerald-300' : 'text-emerald-600'} />
+            <p className="text-sm font-medium">{notification.message}</p>
+          </div>
+        </div>
+      )}
+
+      <div className={`flex flex-col h-[calc(100vh-120px)] rounded-2xl border overflow-hidden shadow-2xl transition-colors duration-300 ${shellClass}`}>
       {/* Header */}
       <div className={`border-b backdrop-blur-sm p-4 transition-colors duration-300 ${headerClass}`}>
         <div className="flex items-center justify-between">
@@ -456,7 +511,8 @@ const AIAssistant = () => {
           </button>
         </div>
       </form>
-    </div>
+      </div>
+    </>
   );
 };
 
