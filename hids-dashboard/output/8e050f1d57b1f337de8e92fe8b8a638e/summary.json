@@ -1,0 +1,90 @@
+{
+  "total_requests": 124,
+  "threats_detected": 10,
+  "threat_percentage": 8.1,
+  "classification_breakdown": {
+    "Normal": 114,
+    "Command Injection": 5,
+    "Local File Inclusion (LFI)": 4,
+    "Directory Traversal": 1
+  },
+  "confirmed_successful_attacks": 0,
+  "attack_attempts": 10,
+  "suspicious_ips": [
+    "0.0.0.0"
+  ],
+  "ml_accuracy": 0,
+  "analyzed_at": "2026-04-23T10:33:39.642Z",
+  "analyzed_with": "Modules 1-4 + Ollama phi3",
+  "ollama_enriched_entries": 50,
+  "ollama": {
+    "total_requests": 50,
+    "threats_detected": 49,
+    "threat_percentage": 98,
+    "classification_breakdown": {
+      "None": 47,
+      "Unknown": 1,
+      "Error": 1,
+      "Cross-Site Scripting (XSS)": 1
+    },
+    "analyzed_with": "Ollama phi3",
+    "analyzed_at": "2026-04-23T10:33:39.642Z"
+  },
+  "module_pipeline": {
+    "summary": {
+      "total_requests": 124,
+      "threats_detected": 10,
+      "threat_percentage": 8.1,
+      "classification_breakdown": {
+        "Normal": 114,
+        "Command Injection": 5,
+        "Local File Inclusion (LFI)": 4,
+        "Directory Traversal": 1
+      },
+      "confirmed_successful_attacks": 0,
+      "attack_attempts": 10,
+      "suspicious_ips": [
+        "0.0.0.0"
+      ],
+      "ml_accuracy": 0,
+      "analyzed_at": "2026-04-23T16:02:31.084847"
+    },
+    "artifacts": {
+      "module3_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\8e050f1d57b1f337de8e92fe8b8a638e\\url_feature_dataset.csv",
+      "module4_csv": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\8e050f1d57b1f337de8e92fe8b8a638e\\module4_hybrid_results.csv",
+      "module4_summary_json": "C:\\D\\College\\Third Year\\Sixth Sem\\Mini_Project\\HIDS-Identification-of-URL-based-attacks-from-IP-data\\hids-dashboard\\output\\8e050f1d57b1f337de8e92fe8b8a638e\\module4_summary.json",
+      "module4_model": ""
+    },
+    "module1": {
+      "http_log_entries": 0,
+      "ipdr_records": 500,
+      "url_requests": 124
+    },
+    "module2": {
+      "total_parsed": 124,
+      "skipped": 0,
+      "errors": 0,
+      "methods": {
+        "GET": 124
+      },
+      "schemes": {
+        "http": 124
+      },
+      "file_extensions": {
+        "0": 32,
+        "1": 49,
+        "2": 26,
+        "(none)": 17
+      },
+      "source_tag": "dashboard"
+    },
+    "module3": {
+      "rows": 124
+    },
+    "module4": {
+      "rows": 124,
+      "regex_detected": 10,
+      "statistical_suspicious_rows": 0
+    }
+  }
+}

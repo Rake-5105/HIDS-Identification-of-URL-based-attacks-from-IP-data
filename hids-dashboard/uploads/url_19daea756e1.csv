@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,status_code,user_agent,referrer
+2026-04-21T06:08:15.586Z,127.0.0.1,GET,"https://testphp.vulnweb.com/listproducts.php?cat=1%20OR%201=1--",200,web-dashboard,manual-url

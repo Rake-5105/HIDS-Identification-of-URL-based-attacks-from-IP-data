@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal
+2026-04-20T15:37:36.785000,127.0.0.1,GET,http://netflix-account-verify.com,http://netflix-account-verify.com,200,web-dashboard,manual-url,http,netflix-account-verify.com,/,,,ipdr,33,6,0,0,0

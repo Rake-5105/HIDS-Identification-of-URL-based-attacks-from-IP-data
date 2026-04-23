@@ -4,11 +4,90 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const auth = require('../middleware/auth');
 const FileHistory = require('../models/FileHistory');
+const User = require('../models/User');
 const { BUCKETS, uploadToSupabase, saveReport } = require('../utils/supabaseStorage');
 const { analyzeFile } = require('../utils/ollamaAnalyzer');
 const { inferAttackOutcome, normalizeAttackOutcome } = require('../utils/attackOutcome');
+
+const hasEmailConfig = () => {
+  return Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+};
+
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+};
+
+const createJsonReportPayload = (uploadId, fileName, summary, csvContent) => {
+  const detailedRequests = csvContent ? parseCSV(csvContent).slice(0, 200) : [];
+  return {
+    upload_id: uploadId,
+    file_name: fileName,
+    analyzed_at: new Date().toISOString(),
+    summary: summary || {},
+    detailed_requests: detailedRequests,
+  };
+};
+
+const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent, txtContent }) => {
+  if (!hasEmailConfig()) {
+    throw new Error('Email service is not configured (missing EMAIL_USER or EMAIL_PASS).');
+  }
+
+  const shortId = String(uploadId).substring(0, 8);
+  const jsonPayload = createJsonReportPayload(uploadId, fileName, summary, csvContent);
+  const jsonContent = JSON.stringify(jsonPayload, null, 2);
+  const transporter = createTransporter();
+
+  await transporter.sendMail({
+    from: `"HIDS Dashboard" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `HIDS Scan Report - ${fileName}`,
+    text: [
+      'Your HIDS scan has completed successfully.',
+      '',
+      `File: ${fileName}`,
+      `Upload ID: ${uploadId}`,
+      `Total requests: ${summary?.total_requests ?? 'N/A'}`,
+      `Threats detected: ${summary?.threats_detected ?? 'N/A'}`,
+      '',
+      'Attached formats: CSV, JSON, TXT.'
+    ].join('\n'),
+    attachments: [
+      {
+        filename: `hids_report_${shortId}.csv`,
+        content: csvContent || '',
+        contentType: 'text/csv'
+      },
+      {
+        filename: `hids_report_${shortId}.json`,
+        content: jsonContent,
+        contentType: 'application/json'
+      },
+      {
+        filename: `hids_report_${shortId}.txt`,
+        content: txtContent || '',
+        contentType: 'text/plain'
+      }
+    ]
+  });
+};
+
+const toSafeEmailError = (error) => {
+  const message = error?.message || 'Email delivery failed';
+  return {
+    code: error?.code || 'EMAIL_SEND_FAILED',
+    reason: message.length > 200 ? `${message.slice(0, 200)}...` : message,
+  };
+};
 
 const computeOutcomeBreakdownFromRequests = (requests = []) => {
   return requests.reduce(
@@ -190,7 +269,8 @@ router.get('/process/status/:uploadId', auth, async (req, res) => {
       progress: job.progress || 0,
       message: job.message || '',
       results: null,
-      downloadAvailable: !!job.reportCsv
+      downloadAvailable: !!job.reportCsv,
+      emailStatus: job.emailStatus || null
     };
 
     // Safely serialize results
@@ -268,14 +348,7 @@ router.get('/download/json/:uploadId', auth, async (req, res) => {
       return res.status(404).json({ error: 'Report not found' });
     }
 
-    const detailedRequests = job.reportCsv ? parseCSV(job.reportCsv).slice(0, 200) : [];
-    const payload = {
-      upload_id: uploadId,
-      file_name: job.fileName,
-      analyzed_at: new Date().toISOString(),
-      summary: job.results || {},
-      detailed_requests: detailedRequests,
-    };
+    const payload = createJsonReportPayload(uploadId, job.fileName, job.results || {}, job.reportCsv);
 
     const fileName = `hids_report_${uploadId.substring(0, 8)}.json`;
     res.setHeader('Content-Type', 'application/json');
@@ -334,6 +407,7 @@ router.post('/:type', auth, upload.single('file'), async (req, res) => {
       fileName: req.file.originalname,
       fileType,
       userId: req.user.id,
+      userEmail: req.user.email || null,
       uploadedAt: new Date()
     });
 
@@ -474,11 +548,70 @@ async function runOllamaAnalysis(uploadId, job) {
       .then(r => { if (r.url) job.reportUrl = r.url; })
       .catch(err => console.error('Supabase report error:', err));
 
-    // Mark as completed
-    job.status = 'completed';
-    job.progress = 100;
-    job.message = 'Module + Phi3 analysis complete';
+    // Mark as finalizing while report email is being delivered.
+    job.status = 'processing';
+    job.progress = 98;
+    job.message = 'Finalizing report and sending email...';
     job.results = result.summary;
+    job.emailStatus = {
+      state: 'pending',
+      sent: false,
+      message: 'Preparing report email...'
+    };
+
+    // Email report outputs (CSV/JSON/TXT) to the authenticated user.
+    try {
+      const user = await User.findById(job.userId).select('email');
+      const recipientEmail = job.userEmail || user?.email || null;
+
+      if (recipientEmail) {
+        job.emailStatus = {
+          state: 'pending',
+          sent: false,
+          recipient: recipientEmail,
+          message: 'Sending report email...'
+        };
+
+        await sendReportEmail({
+          email: recipientEmail,
+          uploadId,
+          fileName: job.fileName,
+          summary: result.summary,
+          csvContent: result.csvContent,
+          txtContent: result.txtContent,
+        });
+        job.emailStatus = {
+                  state: 'sent',
+          sent: true,
+          sentAt: new Date(),
+          recipient: recipientEmail,
+                  message: 'Report email sent successfully.'
+        };
+      } else {
+        job.emailStatus = {
+                  state: 'failed',
+          sent: false,
+                  reason: 'User email not found',
+                  code: 'USER_EMAIL_NOT_FOUND',
+                  message: 'Unable to send report email because account email is missing.'
+        };
+      }
+    } catch (emailError) {
+      console.error(`[Email] Failed to send report for ${uploadId}:`, emailError.message);
+              const safeError = toSafeEmailError(emailError);
+      job.emailStatus = {
+                state: 'failed',
+        sent: false,
+                reason: safeError.reason,
+                code: safeError.code,
+                message: 'Report generated, but email delivery failed.'
+      };
+    }
+
+            // Mark as completed only after email has been attempted.
+            job.status = 'completed';
+            job.progress = 100;
+            job.message = 'Module + Phi3 analysis complete';
 
     console.log(`[Ollama] Analysis complete for ${uploadId}: ${result.summary.total_requests} entries, ${result.summary.threats_detected} threats, ${detailedRequests.length} detailed records`);
 

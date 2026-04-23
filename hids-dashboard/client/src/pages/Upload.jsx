@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { FileText, File, CheckCircle, ArrowRight, Download, Link as LinkIcon } from 'lucide-react';
+import { FileText, File, CheckCircle, ArrowRight, Download, Link as LinkIcon, Mail, AlertTriangle, Clock3 } from 'lucide-react';
 import axios from 'axios';
 import FileUpload from '../components/FileUpload';
 import Playbook from '../components/Playbook';
@@ -34,9 +34,11 @@ const Upload = () => {
   const [urlProcessing, setUrlProcessing] = useState(false);
   const [urlProcessingStatus, setUrlProcessingStatus] = useState(null);
   const [urlResult, setUrlResult] = useState(null);
+  const [emailNotification, setEmailNotification] = useState(null);
   const navigate = useNavigate();
   const { saveResult } = useUpload();
   const uploadPollRef = useRef(null);
+  const emailStatusRef = useRef(null);
 
   const persistActiveUploadJob = (job) => {
     try {
@@ -57,6 +59,19 @@ const Upload = () => {
     }
   };
 
+  const getEmailDeliveryState = (emailStatus) => {
+    if (!emailStatus) return null;
+
+    const explicitState = String(emailStatus.state || '').toLowerCase();
+    if (explicitState === 'sent' || explicitState === 'failed' || explicitState === 'pending') {
+      return explicitState;
+    }
+
+    if (emailStatus.sent === true) return 'sent';
+    if (emailStatus.sent === false && (emailStatus.reason || emailStatus.code)) return 'failed';
+    return null;
+  };
+
   const startUploadPolling = (uploadId, filename) => {
     stopUploadPolling();
 
@@ -64,6 +79,25 @@ const Upload = () => {
       try {
         const statusResponse = await axios.get(`/api/upload/process/status/${uploadId}`);
         setProcessingStatus(statusResponse.data);
+
+        const currentEmailState = getEmailDeliveryState(statusResponse?.data?.emailStatus);
+        const previousEmailState = emailStatusRef.current;
+
+        if (currentEmailState === 'sent' && previousEmailState !== 'sent') {
+          setEmailNotification({
+            type: 'success',
+            message: 'Report email sent successfully.'
+          });
+        }
+
+        if (currentEmailState === 'failed' && previousEmailState !== 'failed') {
+          setEmailNotification({
+            type: 'error',
+            message: statusResponse?.data?.emailStatus?.reason || 'Report generated, but email delivery failed.'
+          });
+        }
+
+        emailStatusRef.current = currentEmailState;
 
         if (statusResponse.data.status === 'completed' || statusResponse.data.status === 'failed') {
           stopUploadPolling();
@@ -83,6 +117,7 @@ const Upload = () => {
         stopUploadPolling();
         setProcessing(false);
         clearActiveUploadJob();
+        emailStatusRef.current = null;
         setProcessingStatus({
           status: 'failed',
           message: 'Status check failed'
@@ -90,6 +125,36 @@ const Upload = () => {
       }
     }, 2000);
   };
+
+  useEffect(() => {
+    const emailState = getEmailDeliveryState(processingStatus?.emailStatus);
+    if (!emailState) return;
+
+    if (emailState === 'sent' && emailStatusRef.current !== 'sent') {
+      setEmailNotification({
+        type: 'success',
+        message: 'Report email sent successfully.'
+      });
+    }
+
+    if (emailState === 'failed' && emailStatusRef.current !== 'failed') {
+      setEmailNotification({
+        type: 'error',
+        message: processingStatus?.emailStatus?.reason || 'Report generated, but email delivery failed.'
+      });
+    }
+
+    emailStatusRef.current = emailState;
+  }, [processingStatus]);
+
+  useEffect(() => {
+    if (!emailNotification) return;
+    const timer = setTimeout(() => {
+      setEmailNotification(null);
+    }, 7000);
+
+    return () => clearTimeout(timer);
+  }, [emailNotification]);
 
   useEffect(() => {
     try {
@@ -381,6 +446,7 @@ const Upload = () => {
     if (!urlPrepared?.url) return;
 
     setUrlProcessing(true);
+    setEmailNotification(null);
     setUrlResult(null);
     setUrlProcessingStatus({ status: 'processing', progress: 5, message: 'Initializing Modules 1-4 + AI Analysis...' });
 
@@ -407,6 +473,19 @@ const Upload = () => {
 
       const historyEntry = buildUrlHistoryResult(response.data);
       saveResult(historyEntry);
+
+      const urlEmailState = getEmailDeliveryState(response?.data?.emailStatus);
+      if (urlEmailState === 'sent') {
+        setEmailNotification({
+          type: 'success',
+          message: `Report email sent successfully to ${response?.data?.emailStatus?.recipient || 'your email'}.`
+        });
+      } else if (urlEmailState === 'failed') {
+        setEmailNotification({
+          type: 'error',
+          message: response?.data?.emailStatus?.reason || 'Report generated, but email delivery failed.'
+        });
+      }
 
       clearInterval(progressTicker);
       setUrlProcessing(false);
@@ -447,6 +526,8 @@ const Upload = () => {
     if (!uploadResult?.upload_id) return;
 
     setProcessing(true);
+    setEmailNotification(null);
+    emailStatusRef.current = null;
     setProcessingStatus({ status: 'processing', progress: 0, message: 'Initializing Modules 1-4 + AI Analysis...' });
 
     try {
@@ -541,6 +622,35 @@ const Upload = () => {
     return null;
   };
 
+  const getEmailStatusMeta = (emailStatus) => {
+    const state = String(emailStatus?.state || '').toLowerCase();
+
+    if (state === 'sent' || emailStatus?.sent) {
+      return {
+        title: 'Email Delivery Successful',
+        detail: `Report sent to ${emailStatus?.recipient || 'your email address'}`,
+        classes: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+        icon: Mail
+      };
+    }
+
+    if (state === 'failed') {
+      return {
+        title: 'Email Delivery Failed',
+        detail: emailStatus?.reason || emailStatus?.message || 'Report was generated, but email was not delivered.',
+        classes: 'bg-red-50 border-red-200 text-red-900',
+        icon: AlertTriangle
+      };
+    }
+
+    return {
+      title: 'Email Delivery In Progress',
+      detail: emailStatus?.message || 'Trying to send report email...',
+      classes: 'bg-amber-50 border-amber-200 text-amber-900',
+      icon: Clock3
+    };
+  };
+
   // Get detected attacks from processing results for the playbook
   const detectedAttacks = getPlaybookDetectedAttacks();
   const hasDetectedAttackPlaybook = !!(
@@ -550,6 +660,19 @@ const Upload = () => {
 
   return (
     <div className="space-y-6">
+      {emailNotification && (
+        <div className={`fixed top-4 right-4 z-50 max-w-md rounded-lg border px-4 py-3 shadow-lg ${
+          emailNotification.type === 'success'
+            ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+            : 'bg-red-50 border-red-300 text-red-900'
+        }`}>
+          <p className="font-semibold">
+            {emailNotification.type === 'success' ? 'Email Sent' : 'Email Delivery Failed'}
+          </p>
+          <p className="text-sm mt-1">{emailNotification.message}</p>
+        </div>
+      )}
+
       <h1 className="text-3xl font-bold text-gray-900">Upload & Analyze</h1>
 
       {/* Two-column layout: Upload (left) + Playbook (right) */}
@@ -973,6 +1096,22 @@ const Upload = () => {
                       </div>
                     )}
 
+                    {(() => {
+                      const statusMeta = getEmailStatusMeta(processingStatus.emailStatus || null);
+                      const StatusIcon = statusMeta.icon;
+                      return (
+                        <div className={`p-4 border rounded-lg ${statusMeta.classes}`}>
+                          <div className="flex items-start space-x-3">
+                            <StatusIcon size={20} className="mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="font-semibold">{statusMeta.title}</p>
+                              <p className="text-sm mt-1">{statusMeta.detail}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {/* Download Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <button
@@ -1009,6 +1148,8 @@ const Upload = () => {
                       onClick={() => {
                         stopUploadPolling();
                         clearActiveUploadJob();
+                        setEmailNotification(null);
+                        emailStatusRef.current = null;
                         setUploadResult(null);
                         setProcessingStatus(null);
                       }}

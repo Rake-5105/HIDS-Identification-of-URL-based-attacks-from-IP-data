@@ -1,0 +1,377 @@
+═══════════════════════════════════════════════════════════════
+          HIDS - URL-Based Attack Detection Report
+              Powered by Ollama Phi3 AI Model
+═══════════════════════════════════════════════════════════════
+
+Analysis Date:        4/23/2026, 4:03:39 PM
+File Type:            CSV
+Total Entries (Modules): 124
+Threats Detected (Modules): 10 (8.1%)
+Ollama Enriched Entries: 50
+AI Model Used: phi3
+
+───────────────────────────────────────────────────────────────
+  CLASSIFICATION BREAKDOWN
+───────────────────────────────────────────────────────────────
+  Normal                    114 entries
+  Command Injection         5 entries
+  Local File Inclusion (LFI) 4 entries
+  Directory Traversal       1 entries
+
+───────────────────────────────────────────────────────────────
+  DETAILED FINDINGS
+───────────────────────────────────────────────────────────────
+
+  [1] N/A
+      Source IP:       10.0.0.63
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        N/A - No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required based on current information.
+
+  [2] N/A
+      Source IP:       10.0.0.208
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        N/A - No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required based on current information.
+
+  [3] N/A
+      Source IP:       172.16.0.138
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected based on provided data.
+      Recommendation:  Monitor for unusual activity and maintain standard security protocols.
+
+  [4] N/A
+      Source IP:       192.168.0.95
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required. Monitor for changes in behavior.
+
+  [5] N/A
+      Source IP:       192.168.1.59
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required.
+
+  [6] N/A
+      Source IP:       10.0.0.192
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and analysis of HTTP requests to detect potential threats.
+
+  [7] N/A
+      Source IP:       172.16.0.136
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and analysis of HTTP requests is recommended.
+
+  [8] N/A
+      Source IP:       192.168.0.40
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Routine monitoring and regular security assessments are recommended.
+
+  [9] N/A
+      Source IP:       192.168.0.33
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly update and patch software to mitigate potential vulnerabilities.
+
+  [10] N/A
+      Source IP:       192.168.1.64
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Monitor for unusual activity and maintain regular security audits.
+
+  [11] N/A
+      Source IP:       192.168.0.72
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly update and patch software, use strong authentication methods.
+
+  [12] N/A
+      Source IP:       192.168.1.173
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected based on the provided information.
+      Recommendation:  Regular monitoring and analysis of traffic should continue to ensure security.
+
+  [13] N/A
+      Source IP:       172.16.0.207
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User-Agent string does not indicate a security threat.
+      Recommendation:  No immediate action required.
+
+  [14] N/A
+      Source IP:       10.0.0.109
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected based on provided data.
+      Recommendation:  Routine monitoring and regular security audits are recommended.
+
+  [15] N/A
+      Source IP:       192.168.0.15
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly update and patch web applications to mitigate potential vulnerabilities.
+
+  [16] N/A
+      Source IP:       192.168.0.68
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP is private, User-Agent string does not indicate a bot.
+      Recommendation:  No immediate action required.
+
+  [17] N/A
+      Source IP:       10.0.0.157
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP within local subnet, no suspicious patterns in URL or query parameters.
+      Recommendation:  No immediate action required. Monitor for unusual activity.
+
+  [18] N/A
+      Source IP:       10.0.0.130
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web traffic for unusual activity.
+
+  [19] N/A
+      Source IP:       192.168.1.242
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User-Agent string is typical for browsers, no immediate red flags.
+      Recommendation:  No action required based on the provided data.
+
+  [20] N/A
+      Source IP:       192.168.1.91
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web server logs for unusual activity.
+
+  [21] N/A
+      Source IP:       172.16.0.224
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        N/A - No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required based on current information.
+
+  [22] N/A
+      Source IP:       172.16.0.174
+      Classification:  Unknown
+      Risk Level:      Unknown
+      Patterns:        Parse error
+      Recommendation:  Manual review needed
+
+  [23] N/A
+      Source IP:       172.16.0.1
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User agent string from a recognized tool (Postman)
+      Recommendation:  Ensure that the user-agent does not spoof or mimic legitimate tools, and consider implementing rate limiting for automated requests.
+
+  [24] N/A
+      Source IP:       172.16.0.171
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly update and patch web applications to mitigate potential security vulnerabilities.
+
+  [25] N/A
+      Source IP:       192.168.0.131
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP is private, no suspicious patterns in URL or request data provided.
+      Recommendation:  No immediate action required. Monitor for changes.
+
+  [26] N/A
+      Source IP:       192.168.0.252
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web traffic for potential security threats.
+
+  [27] N/A
+      Source IP:       172.16.0.13
+      Classification:  Error
+      Risk Level:      Unknown
+      Patterns:        Analysis failed
+      Recommendation:  Retry analysis
+
+  [28] N/A
+      Source IP:       10.0.0.197
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and updating of security protocols is recommended.
+
+  [29] N/A
+      Source IP:       192.168.0.17
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP within local network, standard GET method without suspicious parameters or headers.
+      Recommendation:  No immediate action required. Monitor for unusual activity.
+
+  [30] N/A
+      Source IP:       192.168.0.125
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected from the provided data.
+      Recommendation:  Monitor for unusual activity and maintain regular security audits.
+
+  [31] N/A
+      Source IP:       192.168.1.22
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        N/A - No suspicious patterns detected in the provided data.
+      Recommendation:  No immediate action required based on current information.
+
+  [32] N/A
+      Source IP:       172.16.0.5
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly update and patch web applications to mitigate potential vulnerabilities.
+
+  [33] N/A
+      Source IP:       192.168.1.200
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required based on the provided data.
+
+  [34] N/A
+      Source IP:       192.168.1.204
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and implementing web application firewalls (WAF) for comprehensive protection.
+
+  [35] N/A
+      Source IP:       172.16.0.120
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and security assessments are recommended.
+
+  [36] N/A
+      Source IP:       172.16.0.55
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regular monitoring and analysis of traffic for anomalries.
+
+  [37] N/A
+      Source IP:       192.168.0.177
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User agent indicates a tool, not an actual user.
+      Recommendation:  Educate users on the risks of using automated tools for web requests.
+
+  [38] N/A
+      Source IP:       10.0.0.79
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected from the provided data.
+      Recommendation:  Regularly monitor and audit web server logs for unusual activity.
+
+  [39] N/A
+      Source IP:       192.168.0.93
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP is private, no suspicious patterns in URL or parameters.
+      Recommendation:  No immediate action required.
+
+  [40] N/A
+      Source IP:       172.16.0.113
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Monitor for unusual activity and maintain standard security protocols.
+
+  [41] N/A
+      Source IP:       192.168.0.199
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        N/A - No suspicious patterns detected based on provided data.
+      Recommendation:  Regularly update and patch server software to mitigate potential vulnerabilities.
+
+  [42] N/A
+      Source IP:       192.168.1.41
+      Classification:  Cross-Site Scripting (XSS)
+      Risk Level:      Medium
+      Patterns:        UserAgent string contains non-standard version number for a browser.
+      Recommendation:  Implement input validation and output encoding to prevent XSS attacks.
+
+  [43] N/A
+      Source IP:       10.0.0.212
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required. Monitor for unusual activity.
+
+  [44] N/A
+      Source IP:       10.0.0.155
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit network traffic for unusual activities.
+
+  [45] N/A
+      Source IP:       172.16.0.249
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User-Agent string does not immediately suggest a security threat.
+      Recommendation:  Monitor for unusual patterns and maintain updated web application firewalls.
+
+  [46] N/A
+      Source IP:       172.16.0.222
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        User-Agent string does not match the expected format for a browser.
+      Recommendation:  Monitor and alert on deviations from typical User-Agent strings.
+
+  [47] N/A
+      Source IP:       172.16.0.32
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        Source IP not in whitelist, but no immediate threats detected.
+      Recommendation:  Review and possibly update the source IP allowlist.
+
+  [48] N/A
+      Source IP:       10.0.0.131
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web server logs for unusual activity.
+
+  [49] N/A
+      Source IP:       172.16.0.88
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        No suspicious patterns detected in the provided data.
+      Recommendation:  Regularly monitor and audit web traffic for potential security threats.
+
+  [50] N/A
+      Source IP:       172.16.0.117
+      Classification:  None
+      Risk Level:      Low
+      Patterns:        None
+      Recommendation:  No immediate action required based on the provided data.
+
+═══════════════════════════════════════════════════════════════
+  End of Report — Generated by HIDS Dashboard
+═══════════════════════════════════════════════════════════════

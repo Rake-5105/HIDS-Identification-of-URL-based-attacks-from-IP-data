@@ -1,0 +1,24 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-21T06:08:55.738000",
+    "raw_url": "http://secure-paypal-account.com",
+    "scheme": "http",
+    "host": "secure-paypal-account.com",
+    "port": null,
+    "effective_port": 80,
+    "path": "/",
+    "path_segments": [],
+    "path_depth": 0,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]

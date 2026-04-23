@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const { analyzeFile } = require('../utils/ollamaAnalyzer');
 const FileHistory = require('../models/FileHistory');
+const User = require('../models/User');
 const DEFAULT_ML_ACCURACY = Number(process.env.DEFAULT_ML_ACCURACY || 0.964);
 
 // Ollama API configuration
@@ -15,6 +17,68 @@ const DEFAULT_MODEL = 'phi3';
 const OLLAMA_REQUEST_TIMEOUT_MS = Number(process.env.OLLAMA_REQUEST_TIMEOUT_MS || 180000);
 const AI_JOB_TTL_MS = Number(process.env.AI_JOB_TTL_MS || 30 * 60 * 1000);
 const aiJobs = new Map();
+
+const hasEmailConfig = () => {
+  return Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+};
+
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+};
+
+const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent, txtContent }) => {
+  if (!hasEmailConfig()) {
+    throw new Error('Email service is not configured (missing EMAIL_USER or EMAIL_PASS).');
+  }
+
+  const shortId = String(uploadId).substring(0, 8);
+  const jsonPayload = {
+    upload_id: uploadId,
+    file_name: fileName,
+    analyzed_at: new Date().toISOString(),
+    summary: summary || {},
+  };
+  const transporter = createTransporter();
+
+  await transporter.sendMail({
+    from: `"HIDS Dashboard" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `HIDS Scan Report - ${fileName}`,
+    text: [
+      'Your HIDS scan has completed successfully.',
+      '',
+      `File: ${fileName}`,
+      `Upload ID: ${uploadId}`,
+      `Total requests: ${summary?.total_requests ?? 'N/A'}`,
+      `Threats detected: ${summary?.threats_detected ?? 'N/A'}`,
+      '',
+      'Attached formats: CSV, JSON, TXT.'
+    ].join('\n'),
+    attachments: [
+      {
+        filename: `hids_report_${shortId}.csv`,
+        content: csvContent || '',
+        contentType: 'text/csv'
+      },
+      {
+        filename: `hids_report_${shortId}.json`,
+        content: JSON.stringify(jsonPayload, null, 2),
+        contentType: 'application/json'
+      },
+      {
+        filename: `hids_report_${shortId}.txt`,
+        content: txtContent || '',
+        contentType: 'text/plain'
+      }
+    ]
+  });
+};
 
 const mapAiErrorMessage = (error) => {
   if (error?.code === 'ECONNREFUSED') {
@@ -623,10 +687,58 @@ router.post('/analyze-url', auth, async (req, res) => {
       ]
     });
 
+    let emailStatus = {
+      state: 'pending',
+      sent: false,
+      message: 'Preparing report email...'
+    };
+
+    try {
+      const user = await User.findById(req.user.id).select('email');
+      const recipientEmail = req.user.email || user?.email || null;
+      if (recipientEmail) {
+        await sendReportEmail({
+          email: recipientEmail,
+          uploadId,
+          fileName: `url_${hostLabel}`,
+          summary,
+          csvContent: result.csvContent,
+          txtContent: result.txtContent,
+        });
+
+        emailStatus = {
+          state: 'sent',
+          sent: true,
+          recipient: recipientEmail,
+          sentAt: new Date(),
+          message: 'Report email sent successfully.'
+        };
+      } else {
+        emailStatus = {
+          state: 'failed',
+          sent: false,
+          code: 'USER_EMAIL_NOT_FOUND',
+          reason: 'User email not found',
+          message: 'Unable to send report email because account email is missing.'
+        };
+        console.warn(`[Email] URL analysis completed but user email missing for ${uploadId}`);
+      }
+    } catch (emailError) {
+      console.error(`[Email] URL analysis email failed for ${uploadId}:`, emailError.message);
+      emailStatus = {
+        state: 'failed',
+        sent: false,
+        code: emailError?.code || 'EMAIL_SEND_FAILED',
+        reason: emailError?.message || 'Email delivery failed',
+        message: 'Report generated, but email delivery failed.'
+      };
+    }
+
     res.json({
       url,
       analysis,
-      model: summary.analyzed_with || `Modules 1-4 + Ollama ${DEFAULT_MODEL}`
+      model: summary.analyzed_with || `Modules 1-4 + Ollama ${DEFAULT_MODEL}`,
+      emailStatus
     });
 
     // Best-effort cleanup of temporary input file.

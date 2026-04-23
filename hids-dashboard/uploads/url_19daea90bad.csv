@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,status_code,user_agent,referrer
+2026-04-21T06:10:07.406Z,127.0.0.1,GET,"http://secure-paypal-account.com",200,web-dashboard,manual-url

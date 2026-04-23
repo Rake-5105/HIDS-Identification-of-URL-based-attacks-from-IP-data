@@ -1,0 +1,27 @@
+[
+  {
+    "source_ip": "127.0.0.1",
+    "timestamp": "2026-04-23T10:42:34.455000",
+    "raw_url": "https://chatgpt.com/c/69d48fb3-7aac-83a9-b074-a29a53a1214a",
+    "scheme": "https",
+    "host": "chatgpt.com",
+    "port": null,
+    "effective_port": 443,
+    "path": "/c/69d48fb3-7aac-83a9-b074-a29a53a1214a",
+    "path_segments": [
+      "c",
+      "69d48fb3-7aac-83a9-b074-a29a53a1214a"
+    ],
+    "path_depth": 2,
+    "query_string": "",
+    "query_params": [],
+    "query_param_count": 0,
+    "fragment": "",
+    "file_extension": "",
+    "method": "GET",
+    "status_code": 200,
+    "user_agent": "web-dashboard",
+    "referrer": "manual-url",
+    "source": "ipdr"
+  }
+]
