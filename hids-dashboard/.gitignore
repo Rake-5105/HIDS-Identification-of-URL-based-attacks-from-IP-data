@@ -1,5 +1,7 @@
 node_modules/
 .env
+.env.*
+*.env
 *.log
 .DS_Store
 dist/
@@ -10,5 +12,11 @@ flask_api/uploads/*
 flask_api/__pycache__/
 flask_api/**/__pycache__/
 *.pyc
+.venv/
+venv/
+env/
+ENV/
+venv.bak/
+.python-version
 .vscode/
 .idea/

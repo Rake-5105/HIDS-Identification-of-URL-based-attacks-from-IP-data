@@ -1,0 +1,2 @@
+source_ip,timestamp,raw_url,scheme,host,port,effective_port,path,path_segments,path_depth,query_string,query_params,query_param_count,fragment,file_extension,method,status_code,user_agent,referrer,source
+127.0.0.1,2026-04-21T05:19:11.341000,https://testphp.vulnweb.com/listproducts.php?cat=1%20OR%201=1--,https,testphp.vulnweb.com,,443,/listproducts.php,listproducts.php,1,cat=1%20OR%201%3D1--,cat=1 OR 1=1--,1,,php,GET,200,web-dashboard,manual-url,ipdr

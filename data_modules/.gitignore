@@ -2,3 +2,12 @@ __pycache__/
 *.pyc
 output/
 sample_data/
+env/
+venv/   
+.venv/
+.env
+.env.*
+*.env
+ENV/
+venv.bak/
+.python-version
