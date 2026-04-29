@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .anomaly_detector import save_anomaly_model, score_with_isolation_forest, train_isolation_forest
 from .ml_classifier import ATTACK_CLASSES, predict_with_model, save_model, train_multiclass_model
 from .regex_detector import detect_regex_attack
 from .statistical_detector import add_statistical_flags
@@ -24,12 +25,16 @@ def _final_class(
     ml_confidence: float,
     stat_suspicious: int,
     stat_is_bruteforce: int,
+    anomaly_flag: int,
 ) -> str:
     if regex_class != "Normal":
         return regex_class
 
     if stat_is_bruteforce == 1:
         return "Credential Stuffing / Brute Force"
+
+    if anomaly_flag == 1:
+        return "Suspicious Behavior"
 
     if stat_suspicious == 1:
         return "Suspicious Behavior"
@@ -63,6 +68,11 @@ def run_hybrid_detection(
     df["ml_class"] = ml_labels
     df["ml_confidence"] = ml_conf.round(4)
 
+    anomaly_artifacts = train_isolation_forest(df)
+    anomaly_flag, anomaly_score = score_with_isolation_forest(df, anomaly_artifacts)
+    df["anomaly_flag"] = anomaly_flag.astype(int)
+    df["anomaly_score"] = anomaly_score.round(6)
+
     df = add_statistical_flags(df)
 
     df["final_classification"] = df.apply(
@@ -72,6 +82,24 @@ def run_hybrid_detection(
             ml_confidence=float(row["ml_confidence"]),
             stat_suspicious=int(row["stat_suspicious"]),
             stat_is_bruteforce=int(row.get("stat_is_bruteforce", 0)),
+            anomaly_flag=int(row.get("anomaly_flag", 0)),
+        ),
+        axis=1,
+    )
+
+    df["detection_method"] = df.apply(
+        lambda row: (
+            "Regex"
+            if str(row["regex_class"]) != "Normal"
+            else "Statistical"
+            if int(row.get("stat_is_bruteforce", 0)) == 1
+            else "IsolationForest"
+            if int(row.get("anomaly_flag", 0)) == 1
+            else "Statistical"
+            if int(row.get("stat_suspicious", 0)) == 1
+            else "RandomForest"
+            if str(row.get("ml_class", "Normal")) in ATTACK_CLASSES and float(row.get("ml_confidence", 0)) >= 0.55
+            else "Normal"
         ),
         axis=1,
     )
@@ -83,6 +111,7 @@ def run_hybrid_detection(
     report_path.write_text(artifacts.report_text, encoding="utf-8")
 
     model_path = save_model(artifacts, output_dir=str(out_dir))
+    anomaly_model_path = save_anomaly_model(anomaly_artifacts, output_dir=str(out_dir))
 
     suspicious_ips = []
     if "source_ip" in df.columns:
@@ -98,6 +127,9 @@ def run_hybrid_detection(
         "class_counts": df["final_classification"].value_counts().to_dict(),
         "regex_detected": int((df["regex_class"] != "Normal").sum()),
         "statistical_suspicious_rows": int(df["stat_suspicious"].sum()),
+        "anomaly_detected_rows": int(df["anomaly_flag"].sum()),
+        "anomaly_rate": round(float(anomaly_artifacts.anomaly_rate), 4),
+        "anomaly_model_path": anomaly_model_path,
         "suspicious_ips": suspicious_ips,
         "ml_accuracy": round(float(artifacts.accuracy), 4),
         "output_csv": str(result_path),

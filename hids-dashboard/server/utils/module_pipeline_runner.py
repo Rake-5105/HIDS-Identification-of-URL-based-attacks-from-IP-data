@@ -209,6 +209,8 @@ def _compose_summary(module4_df, module4_summary):
         "confirmed_successful_attacks": success_count,
         "attack_attempts": attempt_count,
         "suspicious_ips": module4_summary.get("suspicious_ips", []),
+        "anomaly_detected_rows": int(module4_summary.get("anomaly_detected_rows", 0)),
+        "anomaly_rate": float(module4_summary.get("anomaly_rate", 0.0)),
         "ml_accuracy": module4_summary.get("ml_accuracy", 0.0),
         "analyzed_at": datetime.now().isoformat(),
     }
@@ -353,6 +355,8 @@ def _run_module4_with_fallback(module3_df, module3_csv, output_dir):
             'class_counts': class_counts,
             'regex_detected': int((fallback_df['regex_class'].astype(str).str.lower() != 'normal').sum()),
             'statistical_suspicious_rows': 0,
+            'anomaly_detected_rows': 0,
+            'anomaly_rate': 0.0,
             'suspicious_ips': suspicious_ips,
             'ml_accuracy': 0.0,
             'output_csv': fallback_csv,
@@ -396,6 +400,8 @@ def run_pipeline(input_path, output_dir):
             "threat_percentage": 0.0,
             "classification_breakdown": {"normal": 0},
             "suspicious_ips": [],
+            "anomaly_detected_rows": 0,
+            "anomaly_rate": 0.0,
             "ml_accuracy": 0.0,
             "analyzed_at": now.isoformat(),
         }
@@ -407,7 +413,7 @@ def run_pipeline(input_path, output_dir):
         
         summary_path = os.path.join(output_dir, "module4_summary.json")
         with open(summary_path, 'w', encoding='utf-8') as f:
-            json.dump({"class_counts": {}, "suspicious_ips": [], "ml_accuracy": 0.0}, f)
+            json.dump({"class_counts": {}, "suspicious_ips": [], "anomaly_detected_rows": 0, "anomaly_rate": 0.0, "ml_accuracy": 0.0}, f)
         
         payload = {
             "summary": empty_summary,
@@ -478,6 +484,7 @@ def run_pipeline(input_path, output_dir):
             "rows": int(module4_summary.get("rows", len(module4_df))),
             "regex_detected": int(module4_summary.get("regex_detected", 0)),
             "statistical_suspicious_rows": int(module4_summary.get("statistical_suspicious_rows", 0)),
+                "anomaly_detected_rows": int(module4_summary.get("anomaly_detected_rows", 0)),
         },
     }
 

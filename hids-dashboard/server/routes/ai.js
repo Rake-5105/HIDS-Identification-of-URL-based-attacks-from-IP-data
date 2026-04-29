@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
@@ -32,7 +33,446 @@ const createTransporter = () => {
   });
 };
 
-const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent, txtContent }) => {
+const WEB_PLAYBOOKS = {
+  sqli: {
+    name: 'SQL Injection (SQLi)',
+    description: 'Attackers inject malicious SQL code through user inputs to manipulate databases.',
+    indicators: [
+      'Unusual SQL keywords in URL parameters (UNION, SELECT, DROP, INSERT)',
+      'Single quotes or double-dash comments in input fields',
+      'Error messages revealing database schema',
+      'Unexpected data returned from queries'
+    ],
+    remediation: [
+      'Use parameterized queries / prepared statements for all DB interactions',
+      'Implement strict input validation and sanitization',
+      'Apply principle of least privilege to database accounts',
+      'Deploy a Web Application Firewall (WAF) with SQLi rule sets',
+      'Disable detailed error messages in production',
+      'Regularly audit database access logs'
+    ]
+  },
+  xss: {
+    name: 'Cross-Site Scripting (XSS)',
+    description: 'Malicious scripts are injected into web pages viewed by other users.',
+    indicators: [
+      '<script> tags or event handlers in URL parameters',
+      'Encoded JavaScript payloads (%3Cscript%3E)',
+      'DOM manipulation attempts via URL fragments',
+      'Unusual iframe or image tags in user input'
+    ],
+    remediation: [
+      'Encode all output data using context-appropriate encoding (HTML, JS, URL)',
+      'Implement Content Security Policy (CSP) headers',
+      'Use HTTPOnly and Secure flags on session cookies',
+      'Validate and sanitize all user inputs server-side',
+      'Use modern frameworks that auto-escape template output',
+      'Regularly scan for XSS vulnerabilities with automated tools'
+    ]
+  },
+  path_traversal: {
+    name: 'Path Traversal',
+    description: 'Attackers manipulate file paths to access files outside the intended directory.',
+    indicators: [
+      'Sequences like ../ or ..\\ in URL paths',
+      'Encoded traversal patterns (%2e%2e%2f)',
+      'Requests for /etc/passwd or win.ini',
+      'Unusual file extensions in request paths'
+    ],
+    remediation: [
+      'Validate and canonicalize all file paths before use',
+      'Use a whitelist of allowed file paths or filenames',
+      'Run applications with minimal filesystem permissions',
+      'Implement chroot jails or containerization',
+      'Never use user input directly in file path construction',
+      'Monitor and alert on suspicious file access patterns'
+    ]
+  },
+  typosquatting: {
+    name: 'Typosquatting / URL Spoofing',
+    description: 'Attackers register deceptive look-alike domains to phish users and steal credentials.',
+    indicators: [
+      'Brand names combined with lure words (login, verify, account) in hostname',
+      'Hyphen-heavy suspicious domains (e.g., login-amazon-account.com)',
+      'Punycode domains (xn--) and homoglyph substitutions',
+      'Newly observed domains mimicking trusted services'
+    ],
+    remediation: [
+      'Block look-alike domains at DNS and secure web gateways',
+      'Enable anti-phishing URL filtering in email and browser security layers',
+      'Use domain monitoring/takedown services for brand impersonation',
+      'Train users to verify exact domain names before login',
+      'Enforce MFA to reduce credential misuse impact',
+      'Alert on typo-brand domains in outbound and inbound traffic logs'
+    ]
+  },
+  phishing: {
+    name: 'Phishing Link Detection',
+    description: 'Attackers craft deceptive URLs/pages to steal credentials, OTPs, or financial details.',
+    indicators: [
+      'Login or verification lure words in suspicious domains/paths',
+      'Credential collection hints (password, OTP, PIN, card, CVV)',
+      'Brand impersonation mixed with urgent action wording',
+      'Unexpected redirects to external identity/payment pages'
+    ],
+    remediation: [
+      'Block phishing domains/URLs at DNS, proxy, and secure email gateway',
+      'Force password reset and revoke active sessions for impacted users',
+      'Enable or enforce MFA and monitor for anomalous sign-in activity',
+      'Quarantine related emails/messages and notify potentially impacted users',
+      'Hunt for IOCs across logs, endpoints, and browser history',
+      'Submit confirmed phishing domains for takedown and threat intel sharing'
+    ]
+  },
+  cmdi: {
+    name: 'Command Injection',
+    description: 'Attackers inject OS commands through application inputs to execute arbitrary commands.',
+    indicators: [
+      'Shell metacharacters (;, |, &&, ||) in parameters',
+      'Common command patterns (cat, ls, whoami, ping)',
+      'Backtick or $() substitution in inputs',
+      'Unusual response times suggesting command execution'
+    ],
+    remediation: [
+      'Avoid calling OS commands from application code when possible',
+      'Use language-specific APIs instead of shell commands',
+      'Implement strict input validation with allowlists',
+      'Run applications in sandboxed environments',
+      'Use parameterized command execution libraries',
+      'Monitor system process creation for anomalies'
+    ]
+  },
+  ldapi: {
+    name: 'LDAP Injection',
+    description: 'Attackers manipulate LDAP queries to bypass authentication or access unauthorized data.',
+    indicators: [
+      'LDAP special characters (*, (, ), \\, NUL) in inputs',
+      'Authentication bypass attempts',
+      'Unusual directory service query patterns',
+      'Error messages revealing LDAP structure'
+    ],
+    remediation: [
+      'Escape all LDAP special characters in user inputs',
+      'Use parameterized LDAP queries',
+      'Implement strong input validation',
+      'Apply least privilege to LDAP service accounts',
+      'Enable LDAP query logging and monitoring',
+      'Use LDAPS (LDAP over SSL/TLS) for all connections'
+    ]
+  },
+  ssrf: {
+    name: 'Server-Side Request Forgery (SSRF)',
+    description: 'Attackers trick the server into making requests to unintended internal or external resources.',
+    indicators: [
+      'Internal IP addresses (127.0.0.1, 10.x, 192.168.x) in URL parameters',
+      'Cloud metadata endpoints (169.254.169.254)',
+      'Unusual URL schemes (file://, gopher://, dict://)',
+      'DNS rebinding attempts'
+    ],
+    remediation: [
+      'Validate and whitelist allowed destination URLs',
+      'Block requests to internal/private IP ranges',
+      'Disable unused URL schemes',
+      'Use network segmentation to limit server outbound access',
+      'Implement request timeouts and size limits',
+      'Monitor outbound connections for anomalies'
+    ]
+  },
+  rfi: {
+    name: 'Remote File Inclusion (RFI)',
+    description: 'Attackers include remote malicious files to execute code on the server.',
+    indicators: [
+      'External URLs in file inclusion parameters',
+      'HTTP/HTTPS URLs in include/require paths',
+      'Unexpected outbound connections from the web server',
+      'PHP wrapper usage (php://input, data://)'
+    ],
+    remediation: [
+      'Disable remote file inclusion in server configuration (allow_url_include=Off)',
+      'Use absolute paths for all file inclusions',
+      'Implement strict whitelist for includable files',
+      'Validate all file paths against known-good patterns',
+      'Monitor outbound network connections from web servers',
+      'Keep server software and frameworks updated'
+    ]
+  },
+  lfi: {
+    name: 'Local File Inclusion (LFI)',
+    description: 'Attackers exploit file inclusion mechanisms to read sensitive local files.',
+    indicators: [
+      'Path traversal sequences in include parameters',
+      'Requests for sensitive files (/etc/shadow, config files)',
+      'Null byte injection (%00) in file paths',
+      'PHP filter/wrapper chains in parameters'
+    ],
+    remediation: [
+      'Use a whitelist of allowed files for inclusion',
+      'Store included files outside the web root',
+      'Implement proper input validation and path canonicalization',
+      'Apply strict file permissions',
+      'Disable unnecessary PHP wrappers and functions',
+      'Use containerization to limit filesystem access'
+    ]
+  },
+  csrf: {
+    name: 'Cross-Site Request Forgery (CSRF)',
+    description: 'Attackers trick authenticated users into performing unintended actions.',
+    indicators: [
+      'State-changing requests without CSRF tokens',
+      'Requests originating from different origins',
+      'Missing or invalid Referer/Origin headers',
+      'Automatic form submissions from external sites'
+    ],
+    remediation: [
+      'Implement anti-CSRF tokens on all state-changing forms',
+      'Use SameSite cookie attribute (Strict or Lax)',
+      'Validate Referer and Origin headers',
+      'Require re-authentication for sensitive operations',
+      'Use CAPTCHA for critical actions',
+      'Implement proper CORS policies'
+    ]
+  },
+  xxe: {
+    name: 'XML External Entity (XXE)',
+    description: 'Attackers exploit XML parsers to access internal files or perform SSRF.',
+    indicators: [
+      'DOCTYPE declarations with ENTITY definitions in XML input',
+      'External entity references (SYSTEM, PUBLIC)',
+      'Unusual XML content in request bodies',
+      'Error messages revealing file contents'
+    ],
+    remediation: [
+      'Disable external entity processing in XML parsers',
+      'Use less complex data formats (JSON) when possible',
+      'Validate and sanitize all XML input',
+      'Implement XML schema validation',
+      'Keep XML parsing libraries updated',
+      'Use allowlists for acceptable XML structures'
+    ]
+  },
+  brute_force: {
+    name: 'Brute Force / Credential Stuffing',
+    description: 'Attackers systematically try credentials to gain unauthorized access.',
+    indicators: [
+      'High volume of failed login attempts from single IP',
+      'Login attempts with common username/password lists',
+      'Credential stuffing from multiple distributed IPs',
+      'Abnormal request rates to authentication endpoints'
+    ],
+    remediation: [
+      'Implement account lockout after failed attempts',
+      'Use rate limiting on authentication endpoints',
+      'Deploy CAPTCHA after consecutive failures',
+      'Enforce strong password policies',
+      'Implement multi-factor authentication (MFA)',
+      'Monitor and alert on unusual login patterns'
+    ]
+  },
+  header_injection: {
+    name: 'HTTP Header Injection',
+    description: 'Attackers inject malicious content into HTTP headers to manipulate responses.',
+    indicators: [
+      'CRLF characters (\\r\\n) in header values',
+      'Set-Cookie or Location headers injected via input',
+      'Response splitting attempts',
+      'Unusual characters in Host or Referer headers'
+    ],
+    remediation: [
+      'Validate and sanitize all inputs used in HTTP headers',
+      'Strip CRLF characters from user input',
+      'Use framework-provided header-setting functions',
+      'Implement strict input validation',
+      'Enable HSTS and other security headers',
+      'Monitor for unusual response headers'
+    ]
+  },
+  dos: {
+    name: 'Denial of Service (DoS)',
+    description: 'Attackers overwhelm services to make them unavailable to legitimate users.',
+    indicators: [
+      'Abnormally high request rates from single sources',
+      'Large payload sizes in requests',
+      'Slowloris-style partial HTTP requests',
+      'Resource exhaustion (CPU, memory, connections)'
+    ],
+    remediation: [
+      'Implement rate limiting and request throttling',
+      'Use a CDN with DDoS protection (Cloudflare, AWS Shield)',
+      'Configure connection timeouts and limits',
+      'Deploy auto-scaling infrastructure',
+      'Implement request size limits',
+      'Use traffic analysis to identify and block attack patterns'
+    ]
+  },
+  web_shell: {
+    name: 'Web Shell Upload',
+    description: 'Attackers upload executable web scripts (cmd.jsp, backdoor.asp, shell.php) for persistent remote control.',
+    indicators: [
+      'Uploads containing executable extensions (.jsp, .asp, .aspx, .php, .cgi)',
+      'Filenames like cmd.jsp, backdoor.asp, shell.php, webshell.php',
+      'Abnormal POST multipart requests to upload endpoints',
+      'Unexpected command execution patterns after file upload'
+    ],
+    remediation: [
+      'Allow only strict safe file extensions and verify MIME type server-side',
+      'Store uploads outside web root and disable script execution in upload directories',
+      'Rename uploaded files and scan content with AV/YARA signatures',
+      'Block direct access to uploaded files unless explicitly required',
+      'Audit upload endpoints with authentication and rate limiting',
+      'Continuously monitor for suspicious executable files in web directories'
+    ]
+  }
+};
+
+const PLAYBOOK_ALIAS_MAP = {
+  'sql injection': 'sqli',
+  'cross-site scripting (xss)': 'xss',
+  xss: 'xss',
+  'directory traversal': 'path_traversal',
+  'path traversal': 'path_traversal',
+  'command injection': 'cmdi',
+  'ldap injection': 'ldapi',
+  'server-side request forgery (ssrf)': 'ssrf',
+  ssrf: 'ssrf',
+  'remote file inclusion (rfi)': 'rfi',
+  rfi: 'rfi',
+  'local file inclusion (lfi)': 'lfi',
+  lfi: 'lfi',
+  'csrf (possible)': 'csrf',
+  'cross-site request forgery': 'csrf',
+  'xml external entity injection (xxe)': 'xxe',
+  xxe: 'xxe',
+  'credential stuffing / brute force': 'brute_force',
+  'brute force': 'brute_force',
+  'http header injection': 'header_injection',
+  'denial of service (dos)': 'dos',
+  dos: 'dos',
+  'typosquatting / url spoofing': 'typosquatting',
+  'url spoofing': 'typosquatting',
+  typosquatting: 'typosquatting',
+  phishing: 'phishing',
+  phising: 'phishing',
+  'phishing link detection': 'phishing',
+  'web shell upload': 'web_shell'
+};
+
+const buildDynamicPlaybook = (attackType) => ({
+  name: String(attackType || 'Unmapped Attack Pattern'),
+  description: 'Detected attack type does not have a dedicated static playbook yet. Use generic containment and triage guidance below.',
+  indicators: [
+    `Hybrid engine classified traffic as: ${String(attackType || 'Unknown')}`,
+    'Request payload or URL exhibits suspicious patterns',
+    'Potential mismatch between static playbook mapping and new detection class',
+    'Review full request context, headers, and source IP behavior'
+  ],
+  remediation: [
+    'Treat as potentially malicious and isolate the source if repeated',
+    'Apply rate limiting and temporary blocking rules at WAF/firewall',
+    'Inspect request payloads, response bodies, and logs for exploit confirmation',
+    'Map this new class to a dedicated playbook entry for future automation',
+    'Add class-specific detection and success indicators after validation',
+    'Document the incident and update SOC triage runbooks'
+  ]
+});
+
+const getPlaybookTemplate = (attackType) => {
+  const key = String(attackType || '').toLowerCase().trim();
+  const mappedId = PLAYBOOK_ALIAS_MAP[key] || key;
+  if (WEB_PLAYBOOKS[mappedId]) return WEB_PLAYBOOKS[mappedId];
+
+  const directMatch = Object.values(WEB_PLAYBOOKS).find((pb) => {
+    const pbName = String(pb.name || '').toLowerCase();
+    return key === pbName || key.includes(pbName) || pbName.includes(key);
+  });
+
+  return directMatch || buildDynamicPlaybook(attackType);
+};
+
+const buildSecurityPlaybookText = ({ attackType, fileName, uploadId, summary }) => {
+  const template = getPlaybookTemplate(attackType);
+  const totalRequests = summary?.total_requests ?? summary?.ollama?.total_requests ?? 'N/A';
+  const threatsDetected = summary?.threats_detected ?? summary?.ollama?.threats_detected ?? 'N/A';
+  const lines = [
+    'HIDS Security Playbook (Web Version)',
+    `Generated At: ${new Date().toISOString()}`,
+    `Upload ID: ${uploadId}`,
+    `Source: ${fileName}`,
+    `Detected Attack: ${template.name}`,
+    `Total Requests: ${totalRequests}`,
+    `Threats Detected: ${threatsDetected}`,
+    '',
+    'Description:',
+    template.description,
+    '',
+    'Indicators of Compromise:',
+    ...template.indicators.map((indicator, idx) => `${idx + 1}. ${indicator}`),
+    '',
+    'Remediation Steps:',
+    ...template.remediation.map((step, idx) => `${idx + 1}. ${step}`),
+    '',
+    'Validation Checklist:',
+    '- Confirm malicious traffic has been blocked or challenged.',
+    '- Verify no unauthorized data access or code execution occurred.',
+    '- Document IOC(s), timeline, and mitigation actions for audit.',
+    '- Re-run analysis after mitigations to confirm reduced threat level.'
+  ];
+
+  return lines.join('\n');
+};
+
+const buildSecurityPlaybookPdfBuffer = ({ textContent, fileName, uploadId, attackType }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: 'A4',
+        margin: 50,
+        info: {
+          Title: 'HIDS Security Playbook',
+          Author: 'HIDS Dashboard',
+          Subject: `Playbook for ${attackType || 'Detected Attack'}`,
+          Keywords: 'hids,security,playbook,incident-response'
+        }
+      });
+
+      const chunks = [];
+      doc.on('data', (chunk) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      doc.font('Helvetica-Bold').fontSize(16).text('HIDS Security Playbook', { align: 'left' });
+      doc.moveDown(0.4);
+      doc.font('Helvetica').fontSize(10).fillColor('#444444').text(`File: ${fileName}`);
+      doc.text(`Upload ID: ${uploadId}`);
+      doc.text(`Generated At: ${new Date().toISOString()}`);
+      doc.moveDown(0.8);
+
+      doc.fillColor('#000000').font('Helvetica').fontSize(11);
+      const lines = String(textContent || '').split(/\r?\n/);
+      lines.forEach((line) => {
+        if (!line.trim()) {
+          doc.moveDown(0.4);
+          return;
+        }
+
+        if (line.endsWith(':') || line.startsWith('HIDS Security Playbook')) {
+          doc.font('Helvetica-Bold').text(line, { align: 'left' });
+          doc.font('Helvetica');
+        } else {
+          doc.text(line, {
+            align: 'left',
+            lineGap: 2
+          });
+        }
+      });
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent, txtContent, attackType }) => {
   if (!hasEmailConfig()) {
     throw new Error('Email service is not configured (missing EMAIL_USER or EMAIL_PASS).');
   }
@@ -44,7 +484,41 @@ const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent,
     analyzed_at: new Date().toISOString(),
     summary: summary || {},
   };
+  const threatsDetected = Number(summary?.threats_detected ?? summary?.ollama?.threats_detected ?? 0);
+  const hasAttack = String(attackType || '').toLowerCase() !== 'normal' || threatsDetected > 0;
+  const playbookText = hasAttack
+    ? buildSecurityPlaybookText({ attackType, fileName, uploadId, summary })
+    : null;
+  const playbookPdfBuffer = playbookText
+    ? await buildSecurityPlaybookPdfBuffer({ textContent: playbookText, fileName, uploadId, attackType })
+    : null;
   const transporter = createTransporter();
+
+  const attachments = [
+    {
+      filename: `hids_report_${shortId}.csv`,
+      content: csvContent || '',
+      contentType: 'text/csv'
+    },
+    {
+      filename: `hids_report_${shortId}.json`,
+      content: JSON.stringify(jsonPayload, null, 2),
+      contentType: 'application/json'
+    },
+    {
+      filename: `hids_report_${shortId}.txt`,
+      content: txtContent || '',
+      contentType: 'text/plain'
+    }
+  ];
+
+  if (playbookPdfBuffer) {
+    attachments.push({
+      filename: `hids_security_playbook_${shortId}.pdf`,
+      content: playbookPdfBuffer,
+      contentType: 'application/pdf'
+    });
+  }
 
   await transporter.sendMail({
     from: `"HIDS Dashboard" <${process.env.EMAIL_USER}>`,
@@ -58,25 +532,13 @@ const sendReportEmail = async ({ email, uploadId, fileName, summary, csvContent,
       `Total requests: ${summary?.total_requests ?? 'N/A'}`,
       `Threats detected: ${summary?.threats_detected ?? 'N/A'}`,
       '',
-      'Attached formats: CSV, JSON, TXT.'
+      playbookText
+        ? 'Attack detected: Security playbook attached with immediate response actions.'
+        : 'No attack-specific playbook attached (no confirmed threats detected).',
+      '',
+      `Attached formats: CSV, JSON, TXT${playbookText ? ', Security Playbook' : ''}.`
     ].join('\n'),
-    attachments: [
-      {
-        filename: `hids_report_${shortId}.csv`,
-        content: csvContent || '',
-        contentType: 'text/csv'
-      },
-      {
-        filename: `hids_report_${shortId}.json`,
-        content: JSON.stringify(jsonPayload, null, 2),
-        contentType: 'application/json'
-      },
-      {
-        filename: `hids_report_${shortId}.txt`,
-        content: txtContent || '',
-        contentType: 'text/plain'
-      }
-    ]
+    attachments
   });
 };
 
@@ -704,6 +1166,7 @@ router.post('/analyze-url', auth, async (req, res) => {
           summary,
           csvContent: result.csvContent,
           txtContent: result.txtContent,
+          attackType,
         });
 
         emailStatus = {

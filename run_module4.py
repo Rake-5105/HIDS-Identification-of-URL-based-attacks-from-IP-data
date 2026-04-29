@@ -12,5 +12,7 @@ if __name__ == "__main__":
     print(f"  ml_accuracy: {summary['ml_accuracy']}")
     print(f"  regex_detected: {summary['regex_detected']}")
     print(f"  statistical_suspicious_rows: {summary['statistical_suspicious_rows']}")
+    print(f"  anomaly_detected_rows: {summary.get('anomaly_detected_rows', 0)}")
+    print(f"  anomaly_rate: {summary.get('anomaly_rate', 0.0)}")
     print(f"  output_csv: {summary['output_csv']}")
     print(f"  summary_json: output/module4_summary.json")

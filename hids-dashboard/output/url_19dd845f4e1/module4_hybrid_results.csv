@@ -1,0 +1,2 @@
+timestamp,source_ip,method,url,full_url,status_code,user_agent,referrer,scheme,host,path,query_string,file_extension,source,url_length,special_characters,has_sql_keyword,has_script,has_traversal,regex_class,regex_pattern,final_classification,attack_outcome
+2026-04-29T08:05:56.578000,127.0.0.1,GET,http://login-amazon-account.com,http://login-amazon-account.com,200,web-dashboard,manual-url,http,login-amazon-account.com,/,,,ipdr,31,6,0,0,0,Phishing,phishing-lure-signals,Phishing,attempt
