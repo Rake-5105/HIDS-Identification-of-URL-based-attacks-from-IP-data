@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const OTP = require('../models/OTP');
@@ -33,6 +34,19 @@ const generateOTP = () => {
 // Generate trusted device token
 const generateDeviceToken = () => {
   return crypto.randomBytes(32).toString('hex');
+};
+
+const isValidPasswordHash = (hash) => {
+  if (typeof hash !== 'string' || hash.length === 0) {
+    return false;
+  }
+
+  try {
+    bcrypt.getRounds(hash);
+    return true;
+  } catch (_error) {
+    return false;
+  }
 };
 
 // Send OTP email
@@ -195,6 +209,14 @@ router.post('/login-verify', async (req, res) => {
     }
 
     // Verify password
+    if (!isValidPasswordHash(user.password)) {
+      console.error(`Login verify: invalid password hash for user ${user._id}`);
+      return res.status(401).json({
+        error: 'Authentication Failed',
+        message: 'Invalid email or password'
+      });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -445,6 +467,14 @@ router.post('/login', async (req, res) => {
     }
 
     // Compare password
+    if (!isValidPasswordHash(user.password)) {
+      console.error(`Login: invalid password hash for user ${user._id}`);
+      return res.status(401).json({
+        error: 'Authentication Failed',
+        message: 'Invalid email or password'
+      });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({
